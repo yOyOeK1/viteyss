@@ -2,19 +2,15 @@
   "name": "viteyss",
   "private": true,
   "version": "0.0.0",
-  "type":"module",
+  "type": "module",
   "scripts": {
-    "startItAsDev": "node ./startItAsDev.js",
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "startItAsDev": "node ./startItAsDev.js"
   },
   "devDependencies": {
     "vite": "^7.0.4"
   },
   "dependencies": {
     "@vitejs/plugin-vue": "^6.0.0",
-    "mnodehttp": "file:../../../../tmp/mnodehttp-latest.tgz",
-    "vite-plugin-restart": "^1.0.0"
+    "mnodehttp": "file:../../../../tmp/mnodehttp-latest.tgz"
   }
 }
