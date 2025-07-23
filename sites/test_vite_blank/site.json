@@ -1,0 +1,15 @@
+{
+    "oName": "s_viteBlankPage",
+    "o": null,
+    "dir": "test_vite_blank",
+    "asModule": true,
+    "asVite": true,
+    "jssrc":["a_viteBlankPage.js"],
+    "enable": true,
+    "author": "Name Last <email@adres.com>",
+    "ver": "0.0.1",
+    "desc": "Description...",
+    "otdm":{
+        "playground": false
+    }
+}

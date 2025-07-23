@@ -4,13 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "startItAsDev": "node ./startItAsDev.js"
+    "startItAsDev": "node ./startItAsDev.js",
+    "jsBundler": "node ./yssJssBundler.js"
   },
   "devDependencies": {
     "vite": "^7.0.4"
   },
   "dependencies": {
     "@vitejs/plugin-vue": "^6.0.0",
-    "mnodehttp": "file:../../../../tmp/mnodehttp-latest.tgz"
+    "mnodehttp": "file:../../../../tmp/mnodehttp-latest.tgz",
+    "unplugin-vue-markdown": "^29.1.0"
   }
 }

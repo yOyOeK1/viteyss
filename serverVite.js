@@ -2,7 +2,7 @@
 
 import { defineConfig, createServer } from 'vite'
 import vue from '@vitejs/plugin-vue'
-
+import Markdown from 'unplugin-vue-markdown/vite';
 
 import * as fsH from 'mnodehttp/fsHelp.js';
 var dirList = fsH.dirList;
@@ -15,9 +15,9 @@ import fs from 'fs';
 import path from 'path';
 import * as sws from 'mnodehttp/serverWs.js';
 import { mkVueTemplateStr } from 'mnodehttp/vueHelp.js';
-import { requestYss } from 'mnodehttp/yssHelp.js';
-import { resSetHeaders } from 'mnodehttp/yssHelp.js';
-import { res404 } from 'mnodehttp/yssHelp.js';
+import { requestYss, resSetHeaders, res404 } from 'mnodehttp/yssHelp.js';
+//import { resSetHeaders } from 'mnodehttp/yssHelp.js';
+//import { res404 } from 'mnodehttp/yssHelp.js';
 
 var config = undefined;
 
@@ -26,6 +26,15 @@ function cl(str){
     console.log('sVit', str);
 }
 
+
+function hotCBecho( hot, rt, data ){
+  cl('hotCBecho: '+rt);
+  hot.send({
+    type: 'custom',
+    event: 'echo-'+rt,
+    data: String(data).toLocaleUpperCase()
+  });
+}
 
 class serverVite {
 
@@ -37,6 +46,7 @@ class serverVite {
     this.isRunning = false;
     this.wsPingIter = undefined;
     this.pingCount = 0;
+    this.hot = undefined;
 
     this.myConf = this.mkReadyForVit( nconfig );
 
@@ -51,8 +61,7 @@ class serverVite {
   mkReadyForVit( conf ){
     return defineConfig({
 
-      server: { 
-        
+      server: {         
         host: this.config.HOST, 
         port: this.config.PORT ,
         headers:{
@@ -67,11 +76,29 @@ class serverVite {
       },    
     
       // ... other configurations
-      publicDir: ['public2','public','sites', 'icons'], // Optional, but good practice to explicitly define it.  Defaults to 'public' if not specified
+      publicDir: ['public','sites', 'wikiSites', 'icons'], // Optional, but good practice to explicitly define it.  Defaults to 'public' if not specified
       
       plugins: [
         //this.cupItTo404(),
-        vue(),
+
+        /*{
+          name: 'custom-dev-events',
+          configureServer(server) {
+
+            server.ws.on('hot-custom-testC2S', (newModule) => {
+              console.log('Received custom event:', newModule);
+              // You can also send a response back to the client
+              //server.ws.send({ type: 'custom-response', message: 'Server received!' });
+            });
+          },
+        },*/
+
+
+        this.addToHot(),
+        vue({
+          include: [/\.vue$/, /\.md$/],
+        }),
+        Markdown({ /* options */ }),
         this.yssPostProcess(),
         // ... other plugins
               
@@ -81,6 +108,23 @@ class serverVite {
     
   }
   
+
+  addToHot(){
+    var tconfig = this.config;
+    return {
+      name: 'ass-add-to-hot',
+      configureServer(server) {  
+        console.log('addToHot ..');
+        server.ws.on('hot-custom-testC2S', (newModule) => {
+            console.log('addToHot get :', newModule);
+            // You can also send a response back to the client
+            //server.ws.send({ type: 'custom-response', message: 'Server received!' });
+          });
+        //next();
+        
+      }
+    }
+  }
 
   cupItTo404(){
     var tconfig = this.config;
@@ -103,6 +147,7 @@ class serverVite {
       name: 'yss-post-process',
       configureServer(server) {  
         server.middlewares.use(async (req, res, next) => {
+          
           requestYss( req, res, next, tconfig );
         });
       }
@@ -128,9 +173,14 @@ class serverVite {
     }else{
 
       
+      
       this.cl("[i] StartServer of ["+this.config.name+"] ...");//this.cl(this.http);
       await this.http.listen();
       this.http.printUrls()
+      
+      this.hot = this.http.hot;
+
+      this.doPingTest( this.http.ws );
       
       if( this.config.wsPinger ){
         if( this.wsPingInter == undefined ){
@@ -140,6 +190,25 @@ class serverVite {
       
     }
   }
+
+  doPingTest( hot ){
+
+    setTimeout(()=>{
+      console.log("hot:test...");
+      hot.send({
+        type: 'custom',
+        event: 'hot-custom-ping',
+        data: "{topic:'hot/ping', payload:'hello'}"
+        
+      });
+
+
+      console.log("clients : ",new Set(this.hot.clients).size);
+      this.doPingTest( hot );
+    },5000);
+  
+  } 
+
 
   stopServer(){
     this.cl("[i] StopServer of ["+this.config.name+"]");
