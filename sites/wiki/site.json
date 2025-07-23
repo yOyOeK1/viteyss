@@ -5,6 +5,7 @@
     "asModule": true,
     "asVite": true,
     "jssrc":["v_wikiPage.js"],
+    "modsrc":["m_wiki.js"],
     "enable": true,
     "author": "Name Last <email@adres.com>",
     "ver": "0.0.1",

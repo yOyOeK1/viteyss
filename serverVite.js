@@ -19,12 +19,20 @@ import { requestYss, resSetHeaders, res404 } from 'mnodehttp/yssHelp.js';
 //import { resSetHeaders } from 'mnodehttp/yssHelp.js';
 //import { res404 } from 'mnodehttp/yssHelp.js';
 
+//import { m_wiki } from './sites/wiki/m_wiki.js';
+//import * as otmp from './sites/wiki/m_wiki.js';
+            
+
 var config = undefined;
 
-
 function cl(str){
-    console.log('sVit', str);
+  console.log('sVit', str);
 }
+
+
+
+
+
 
 
 function hotCBecho( hot, rt, data ){
@@ -37,7 +45,7 @@ function hotCBecho( hot, rt, data ){
 }
 
 class serverVite {
-
+  
   constructor( nconfig, nwss, nws ){
     this.config = nconfig;
     this.wss = nwss;
@@ -47,16 +55,39 @@ class serverVite {
     this.wsPingIter = undefined;
     this.pingCount = 0;
     this.hot = undefined;
-
+    this.yssPages = undefined;
+    this.modulesSrc = [];
+    
     this.myConf = this.mkReadyForVit( nconfig );
 
 
     this.cl('serverVite init ....'+this.config.name);
+    this.buildYssPages()
   }
 
   cl(str) {
     console.log('sVit',str);    
   }
+
+  async buildYssPages(){
+    this.yssPages = sitesH.getInjectionStr('', this.config.pathsToSites,'yssPages');
+    //doInjectionForSites( config.sitesInjection, pathname, config.pathToYss, config.pathsToSites, tr );
+    //console.log('addToHost got yssPages',yssPages);
+
+    for( let p=0,pc=this.yssPages.length;p<pc;p++){
+      let plug = this.yssPages[p];
+      if( plug.modsrc != undefined ){
+          console.log( `- site ${plug.oName} `+(plug.modsrc != undefined? ' mosrc: '+plug.modsrc : '') );
+          this.modulesSrc.push( plug );          
+      }
+    }
+    
+    
+    console.log("\___ modules src count: "+this.modulesSrc.length);
+
+  }
+
+
 
   mkReadyForVit( conf ){
     return defineConfig({
@@ -76,23 +107,9 @@ class serverVite {
       },    
     
       // ... other configurations
-      publicDir: ['public','sites', 'wikiSites', 'icons'], // Optional, but good practice to explicitly define it.  Defaults to 'public' if not specified
-      
+      publicDir: ['public','sites', 'wikiSites', 'icons','libs'], // Optional, but good practice to explicitly define it.  Defaults to 'public' if not specified
       plugins: [
         //this.cupItTo404(),
-
-        /*{
-          name: 'custom-dev-events',
-          configureServer(server) {
-
-            server.ws.on('hot-custom-testC2S', (newModule) => {
-              console.log('Received custom event:', newModule);
-              // You can also send a response back to the client
-              //server.ws.send({ type: 'custom-response', message: 'Server received!' });
-            });
-          },
-        },*/
-
 
         this.addToHot(),
         vue({
@@ -111,18 +128,63 @@ class serverVite {
 
   addToHot(){
     var tconfig = this.config;
+    var tmodulesSrc = this.modulesSrc;
     return {
       name: 'ass-add-to-hot',
       configureServer(server) {  
         console.log('addToHot ..');
+
+        console.log("/--- init modules");
+        for( let mi=0,mic=tmodulesSrc.length; mi<mic; mi++ ){
+          let m = tmodulesSrc[mi]
+          m['omods'] = [];
+          m['imods'] = [];
+          console.log("   - module name: "+m.oName);
+          for( let fi=0,fic=m.modsrc.length; fi<fic; fi++ ){
+            let fileS = './sites/wiki/'+m.modsrc[fi];
+            let classS = m.modsrc[fi].substring(0, m.modsrc[fi].length-3);
+            console.log("     - file: "+fileS);
+            m.omods[fi] = import(fileS).then((o)=>{
+              //console.log('import res ',o[classS]);
+              
+              var ims = new o[classS]( server.ws );
+              let ke = ims.wskey;
+
+              
+              console.log('use key: '+ke);
+              
+              server.ws.on( ke, function ( msg ){ 
+                //console.log('addToHot get :', msg);
+                
+                //ims.onMsg( msg ); 
+                
+              } );
+              server.ws.on( "C2S"+ke, function ( msg ){ 
+                //console.log('C2S '+ke+' got :', msg);
+                ims.onMsg( msg ); 
+                
+              } );
+              m.imods[fi] = ims;
+              
+            }); 
+            //let { otmp } = await import('./sites/wiki/m_wiki.js');
+
+          }
+
+        }
+        console.log("\\___ init modules DONE");
+        
         server.ws.on('hot-custom-testC2S', (newModule) => {
-            console.log('addToHot get :', newModule);
+            
+          console.log('C2S hot-custom get :', newModule);
             // You can also send a response back to the client
             //server.ws.send({ type: 'custom-response', message: 'Server received!' });
           });
         //next();
         
+        
       }
+
     }
   }
 
@@ -149,6 +211,7 @@ class serverVite {
         server.middlewares.use(async (req, res, next) => {
           
           requestYss( req, res, next, tconfig );
+          
         });
       }
     }
