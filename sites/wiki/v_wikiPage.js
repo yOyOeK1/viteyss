@@ -1,5 +1,5 @@
 
-import { createApp } from 'vue'
+import { createApp, defineComponent, defineCustomElement } from 'vue'
 import App from './src/App.vue'
 import Menu from './src/Menu.vue'
 import { hotHelperClient } from '/libs/hotHelper.js';
@@ -13,7 +13,21 @@ class v_wikiPage extends hotHelperClient{
     this.app = createApp(App);
     this.menu = createApp(Menu);
     this.hotKey = 'wikiKey';
+    
     this.hotRegisterOn(); // to get hot call backs
+    this.mdsList = [];
+    /*
+    this.th = {
+      'getList': Date.now()
+    };
+
+    this.hotSend({
+      topic:'get/getMdsList', 
+      payload:{ th:this.th.getList} 
+    });
+    */
+    
+
   }
 
   get getName(){
@@ -32,7 +46,7 @@ class v_wikiPage extends hotHelperClient{
     <input type="button" id="sendMsg" value="send" />
     <div id="menuWiki">?</div>
     <hr>
-    <div id="appWikiPage">?</div>
+    <div id="appWikiPage"></div>
     <hr>
 
     <input type="button" onclick="location.href='#';" name="goUp" value="up">
@@ -40,12 +54,57 @@ class v_wikiPage extends hotHelperClient{
     `;
 
   }
+
+  loadNew( fileName ){
+      let fullFileName = `wikiSites/${fileName}.md`;
+      console.log('full file name: '+fullFileName);
+      
+      this.hotTaskStart({topic:'get/getMd','fullFileName':fullFileName}).then((msg)=>{
+        cl("Got result of getMd");cl(msg);
+        cl(msg.html);
+        this.app._instance.ctx.$data.md = msg.html;
+        
+      }).catch( (err)=>{
+        let errMsg = ' Not able to get task getMD done :(';
+        console.error(errMsg);
+        this.app._instance.ctx.$data.md = errMsg;
+      } );
+
+      //$.get(fullFileName, (data )=>{
+      //  this.app._instance.ctx.$data.md = String(data);
+      //}, 'html');
+      /*
+      await import(fullFileName).then((md)=>{
+        html = String(md);
+        console.log('loaded md file !',html);
+        /*let mdFile = defineComponent(o);
+        this.app = createApp({
+          components:{
+            mdFile
+          }
+        }).mount('#appWikiPage');
+      });
+      */
+      
+      
+      // = mdCon;
+    }
   
   getHtmlAfterLoad = () =>{
     cl(`${this.getName} - getHtmlAfterLoad()`);
     this.app.mount('#appWikiPage');
     this.menu.mount('#menuWiki');
     
+    
+    this.hotTaskStart({topic:'get/getMdsList'}).then((msg)=>{
+      cl("Got result of mds list");cl(msg);
+      cl(msg.list.reverse());
+      this.menu._instance.ctx.$data.mdList=msg.list;
+     
+    }).catch( (err)=>{
+      console.error(' Not able to get task mdList done :(');
+    } );
+
     /*
     // listen to server module calls
     if( window['Hoty'] ){
@@ -64,8 +123,11 @@ class v_wikiPage extends hotHelperClient{
           payload: "hello"
         });
         */
-       this.hotSend({topic:'wiki/c2s/click',
-        payload:"click!"
+       this.hotSend({
+        topic:'wiki/c2s/click',
+        payload:"click!",
+        customVal1: "1",
+        abc: 1234
        });
       }
     });
@@ -83,6 +145,15 @@ class v_wikiPage extends hotHelperClient{
 
   onHotMessageCallBack = ( msg ) =>{
     cl(`onHot Got!`);cl(msg);
+
+    /*
+    if( msg.topic == 'get/getMdsList' && msg.payload.th == this.th.getList ){
+      cl("Got result of mds list");
+      cl(msg.payload.list.reverse());
+      this.menu._instance.ctx.$data.mdList=msg.payload.list;
+      //this.menu._instance.ctx.setCurrent('viteyss');
+    }
+    */
 
   }
 

@@ -1,7 +1,7 @@
 <template>
   Menu [{{ current }}]:
   <span v-for="( item, index ) in mdList" >
-       | <a @click="setCurrent(index)" :key="index">{{ item }}</a>
+       | <a @click="setCurrent(item)" :key="index">{{ item }}</a>
   </span>
 </template>
 
@@ -11,8 +11,8 @@
 import { ref } from 'vue';
 
 export default {
-    setup(){
-        let mdList = ref([ 'yss', 'viteyss' ]);
+    data(){
+        let mdList = ref([ 'yss', 'viteyss', 'need to load ...' ]);
         let current = ref(0);
 
 
@@ -20,9 +20,10 @@ export default {
         return { mdList, current };
     },
     methods:{
-        setCurrent(no){
-            console.log("setCurrent",no,'\n\n');
-            this.current = no;
+        setCurrent(name){
+            console.log("setCurrent",name,'\n\n');
+            this.current = name;
+            pager._page.loadNew(name);
         }
     }
 
