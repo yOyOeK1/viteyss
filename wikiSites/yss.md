@@ -1,4 +1,4 @@
-<img title="viteyss" src="/icons/ico_viteyss_320.png" alt="viteyss_logo" data-align="inline"><img title="viteyss" src="/icons/vite.svg" alt="viteyss_logo" data-align="inline" width="205">
+<img title="viteyss" src="/icons/ico_viteyss_128.png" alt="viteyss_logo" data-align="inline"><img title="viteyss" src="/icons/vite.svg" alt="viteyss_logo" data-align="inline" width="128">
 
 # yss
 

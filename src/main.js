@@ -23,15 +23,17 @@ if (import.meta.hot) {
  
   window['Hot'] = import.meta.hot;
 
-  setInterval(()=>{
-    console.log('hot - send customm ping ...');
-    window['Hot'].send('hot-custom-testC2S', {
-      topic:'hot/test/c2s', payload:'hello'
-    });
-  },5000);
+  if(0 ){
+    setInterval(()=>{
+      //console.log('hot - send customm ping ...');
+      window['Hot'].send('hot-custom-testC2S', {
+        topic:'test/ping', payload:''
+      });
+    },5000);
+  }
 
   import.meta.hot.on("hot-custom-ping", (newModule) => {
-    console.log('hot - ping: ', newModule);
+    //console.log('hot - ping: ', newModule);
     
   });
 

@@ -41,9 +41,9 @@ class v_wikiPage extends hotHelperClient{
   }
 
   getHtml = () => {
-    return `<b>Hello ${this.getName}</b>
-    <hr>
-    <input type="button" id="sendMsg" value="send" />
+    return `
+    <!--<input type="button" id="sendMsg" value="send" />-->
+
     <div id="menuWiki">?</div>
     <hr>
     <div id="appWikiPage"></div>
@@ -55,21 +55,31 @@ class v_wikiPage extends hotHelperClient{
 
   }
 
-  loadNew( fileName ){
-      let fullFileName = `wikiSites/${fileName}.md`;
-      console.log('full file name: '+fullFileName);
+  loadNew = ( fileName )=>{
+    let fullFileName = `wikiSites/${fileName}.md`;
+    console.log('full file name: '+fullFileName);
+    
+    this.hotTaskStart({topic:'get/getMd','fullFileName':fullFileName}).then((msg)=>{
+      this.app._instance.ctx.$data.md = msg.html;
       
-      this.hotTaskStart({topic:'get/getMd','fullFileName':fullFileName}).then((msg)=>{
-        cl("Got result of getMd");cl(msg);
-        cl(msg.html);
-        this.app._instance.ctx.$data.md = msg.html;
+    }).catch( (err)=>{
+      let errMsg = ' Not able to get task getMD done :(';
+      console.error(errMsg);
+      this.app._instance.ctx.$data.md = errMsg;
+    } );
+
+    /*
+    setTimeout(()=>{
+
+      this.hotTaskStart({topic:'get/ping'}, 'C2S-ping').then((msg)=>{
+        cl("Got result of ping");cl(msg);        
         
       }).catch( (err)=>{
-        let errMsg = ' Not able to get task getMD done :(';
+        let errMsg = ' Not able to get task ping done :(';
         console.error(errMsg);
-        this.app._instance.ctx.$data.md = errMsg;
       } );
-
+    },500);
+    */
       //$.get(fullFileName, (data )=>{
       //  this.app._instance.ctx.$data.md = String(data);
       //}, 'html');
@@ -88,7 +98,7 @@ class v_wikiPage extends hotHelperClient{
       
       
       // = mdCon;
-    }
+  }
   
   getHtmlAfterLoad = () =>{
     cl(`${this.getName} - getHtmlAfterLoad()`);
@@ -98,7 +108,7 @@ class v_wikiPage extends hotHelperClient{
     
     this.hotTaskStart({topic:'get/getMdsList'}).then((msg)=>{
       cl("Got result of mds list");cl(msg);
-      cl(msg.list.reverse());
+      //cl(msg.list.reverse());
       this.menu._instance.ctx.$data.mdList=msg.list;
      
     }).catch( (err)=>{
@@ -159,7 +169,7 @@ class v_wikiPage extends hotHelperClient{
 
 
   onMessageCallBack = ( r ) => {
-    cl( `[cb] ${this.getName} - got msg `);
+    //cl( `[cb] ${this.getName} - got msg `);cl(r);
 
   }
 

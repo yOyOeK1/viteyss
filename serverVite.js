@@ -233,18 +233,15 @@ class serverVite {
       this.cl('no http object ... wait ');
       setTimeout(()=>{ this.startServer() },100);
       return 1;
-    }else{
 
-      
-      
+    }else{
       this.cl("[i] StartServer of ["+this.config.name+"] ...");//this.cl(this.http);
       await this.http.listen();
       this.http.printUrls()
       
       this.hot = this.http.hot;
+      this.doHotPingTest( this.http.ws );   
 
-      this.doPingTest( this.http.ws );
-      
       if( this.config.wsPinger ){
         if( this.wsPingInter == undefined ){
           this.wsPingInter = setInterval( ()=>{this.sendPingOnWs();}, 10000 );
@@ -253,21 +250,34 @@ class serverVite {
       
     }
   }
-
-  doPingTest( hot ){
-
+  
+  sendPingOnWs(){
+    //this.cl("ping ...");
+    this.pingCount++;
+    if( sws.wsClientsOnline( this.ws ) != 0 ){
+     sws.sendToAll(this.ws, `{"topic":"ping","payload":"pong", "count":"${this.pingCount}"}`,
+        "["+this.config.name+'] ping'
+      );
+    
+    }
+  }
+  
+  doHotPingTest( hot ){
     setTimeout(()=>{
-      console.log("hot:test...");
-      hot.send({
-        type: 'custom',
-        event: 'hot-custom-ping',
-        data: "{topic:'hot/ping', payload:'hello'}"
-        
-      });
+      let clientsCount = parseInt(new Set(this.hot.clients).size);
+      if( clientsCount > 0 ){
+        hot.send({
+          type: 'custom',
+          event: 'hot-custom-ping',
+          data: "{topic:'hot/ping', payload:'hello'}"
+          
+        });      
+        //console.log("clients : ",new Set(this.hot.clients).size);
+        console.log("hot:serverVite PingTest clients:"+clientsCount);
+      }
 
+      this.doHotPingTest( hot );
 
-      console.log("clients : ",new Set(this.hot.clients).size);
-      this.doPingTest( hot );
     },5000);
   
   } 
@@ -283,16 +293,6 @@ class serverVite {
     
   }
 
-  sendPingOnWs(){
-    //this.cl("ping ...");
-    this.pingCount++;
-    if( sws.wsClientsOnline( this.ws ) != 0 ){
-     sws.sendToAll(this.ws, `{"topic":"ping","payload":"pong", "count":"${this.pingCount}"}`,
-        "["+this.config.name+'] ping'
-      );
-    
-    }
-  }
 
 }
 
