@@ -1,22 +1,32 @@
 <template>
-  <div class="wikiContent" v-html="md"></div>
+  <div class="wikiContent" v-html="md" ref="myWikiContent"></div>
 </template>
 <style>
 
 .wikiContent {
 	margin: 1em;
+  overflow-y: auto;
+
 }
+.mdTasks{
+  padding: 0px;
+  position: relative;
+  left: -7px;
+}
+
 #appWikiPage {
 
-
-	h1, h2, h3 {
-		color: #333;
+  
+  h1, h2, h3 {
+    color: #333;
     line-height: 0.8;
     
 	}
+  
 	
 	p {
 		margin-bottom: 1em;
+    line-height: 1.2;
 	}
 	
 	code {

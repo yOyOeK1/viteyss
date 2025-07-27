@@ -16,7 +16,7 @@ class m_wiki extends hotHelperServer{
         this.wskey = 'wikiKey';
 
         this.mdsList = [];
-
+        
         /*
         setInterval(()=>{
             this.sendIt({
@@ -53,8 +53,23 @@ class m_wiki extends hotHelperServer{
                         console.error('[e] get/getMd error: \n\n'+err+"\n\n-----");
                     }
 
-                    // insert all md key words
-                    let pCont = ""+data.toString();                    
+                    let pCont = ""+data.toString();           
+                    
+                    
+                    // add nice task buttons '- [] ' or '- [x] '
+                    
+                    pCont = pCont.replaceAll(
+                        ` [x] `,
+                        ` <img class="mdTasks" src="/icons/ico_todo_16_16.png"> `
+                        ); 
+                        
+                    pCont = pCont.replaceAll(
+                           ` [] `,
+                            ` <img  class="mdTasks" src="/icons/ico_notdone_16_16.png"> `
+                        ); 
+                    
+
+                    // insert all md key words **abc** if there is a file with this name
                     for( let k=0,ki=this.mdsList.length; k<ki; k++ ){
                         pCont = pCont.replaceAll(
                            `**${this.mdsList[k]}**`,

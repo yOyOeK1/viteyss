@@ -67,10 +67,10 @@ class hotHelperClient{
             this.hotSend(msg, eventKey );
 
             this.hotTasks['timeOut'] = setTimeout(()=>{
-                console.log('hotTaskStart time out ....chek topic: ');
+                //console.log('hotTaskStart time out ....chek topic: '+msg.topic);
 
                 if( this.hotTasks[th] == undefined ){
-                    console.log('hotTaskStart was done');
+                    //console.log('hotTaskStart was done');
 
                 } else if( this.hotTasks[th].tTotal == 0 ){
                     let msgErr = 'hotTaskStart task time out .....'; 

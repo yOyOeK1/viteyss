@@ -1,10 +1,12 @@
-<img title="viteyss" src="/icons/ico_viteyss_128.png" alt="viteyss_logo" data-align="inline"><img title="viteyss" src="/icons/vite.svg" alt="viteyss_logo" data-align="inline" width="128">
 
 # yss
 
-**yss** - stand's for **y**oyo **s**ensors **s**ervice. It was a site project for me wile developing ySensorsService for my Android aplication. Small app almost weekend project.
+<img title="yss" src="/icons/otWorld1.png" alt="yss_logo" style="float:left;" width="128">
+Stand's for **y** oyo **s** ensors **s** ervice. It was a site project for me wile developing ySensorsService for my Android aplication. Small app almost weekend project.
 ~ 3 yers later this document is created. Monstrosity oiyshTerminal is siting in directory. yss started as a help app for me to see upcomming data from sensors to see orientation of boat and roseta of compass. Do correction of matrix rotation.
 Now it power by Vite!
+
+
 
 ## what is it
 

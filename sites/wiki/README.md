@@ -1,4 +1,4 @@
-# viteyss-sites-wiki
+# viteyss-site-wiki
 
 Wiki place to read and mix your key words.
 

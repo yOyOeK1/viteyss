@@ -20,6 +20,9 @@ window.viteMksite = ()=>{
 if (import.meta.hot) {
   window['Hoty'] = import.meta.hot;
   console.log("have HOT");
+  console.log( import.meta.env);
+  console.log( import.meta);
+
  
   window['Hot'] = import.meta.hot;
 

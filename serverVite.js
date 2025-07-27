@@ -70,20 +70,19 @@ class serverVite {
   }
 
   async buildYssPages(){
-    this.yssPages = sitesH.getInjectionStr('', this.config.pathsToSites,'yssPages');
-    //doInjectionForSites( config.sitesInjection, pathname, config.pathToYss, config.pathsToSites, tr );
-    //console.log('addToHost got yssPages',yssPages);
+    console.log("/----- modules sites src");
 
+    this.yssPages = sitesH.getInjectionStr('', this.config.pathsToSites,'yssPages');
+    
     for( let p=0,pc=this.yssPages.length;p<pc;p++){
       let plug = this.yssPages[p];
       if( plug.modsrc != undefined ){
           console.log( `- site ${plug.oName} `+(plug.modsrc != undefined? ' mosrc: '+plug.modsrc : '') );
           this.modulesSrc.push( plug );          
       }
-    }
+    }    
     
-    
-    console.log("\___ modules src count: "+this.modulesSrc.length);
+    console.log("\___ modules sites src count: "+this.modulesSrc.length);
 
   }
 
@@ -91,6 +90,15 @@ class serverVite {
 
   mkReadyForVit( conf ){
     return defineConfig({
+      define:{
+        'process.env.vy_config': this.config,
+
+        'testDefineVal': '1',
+        'process.env.testDefineVal2': '{abc:1,ddd:"str"}',
+        'process.env.testDefineVal3': {abc:1,ddd:"str"},
+        //'process.env.testFunc1': ()=>{ console.log('testFunc1')},
+      },    
+    
 
       server: {         
         host: this.config.HOST, 
@@ -102,16 +110,12 @@ class serverVite {
         }
       },
       
-      define:{
-        testDefineVal: 1
-      },    
-    
       // ... other configurations
       publicDir: ['public','sites', 'wikiSites', 'icons','libs'], // Optional, but good practice to explicitly define it.  Defaults to 'public' if not specified
       plugins: [
-        //this.cupItTo404(),
+        //this.cupItTo404PostProcess(),
 
-        this.addToHot(),
+        this.addToHotPostProcess(),
         vue({
           include: [/\.vue$/, /\.md$/],
         }),
@@ -126,7 +130,7 @@ class serverVite {
   }
   
 
-  addToHot(){
+  addToHotPostProcess(){
     var tconfig = this.config;
     var tmodulesSrc = this.modulesSrc;
     return {
@@ -141,22 +145,16 @@ class serverVite {
           m['imods'] = [];
           console.log("   - module name: "+m.oName);
           for( let fi=0,fic=m.modsrc.length; fi<fic; fi++ ){
-            let fileS = './sites/wiki/'+m.modsrc[fi];
+            let fileS = './sites/wiki/'+m.modsrc[fi]; // TODO static path
             let classS = m.modsrc[fi].substring(0, m.modsrc[fi].length-3);
             console.log("     - file: "+fileS);
             m.omods[fi] = import(fileS).then((o)=>{
-              //console.log('import res ',o[classS]);
-              
               var ims = new o[classS]( server.ws );
               let ke = ims.wskey;
-
-              
-              console.log('use key: '+ke);
               
               server.ws.on( ke, function ( msg ){ 
-                //console.log('addToHot get :', msg);
-                
-                //ims.onMsg( msg ); 
+                //console.log('addToHot get :', msg);                
+                //ims.onMsg( msg ); // to route Hot 
                 
               } );
               server.ws.on( "C2S"+ke, function ( msg ){ 
@@ -167,8 +165,7 @@ class serverVite {
               m.imods[fi] = ims;
               
             }); 
-            //let { otmp } = await import('./sites/wiki/m_wiki.js');
-
+            
           }
 
         }
@@ -188,7 +185,7 @@ class serverVite {
     }
   }
 
-  cupItTo404(){
+  cupItTo404PostProcess(){
     var tconfig = this.config;
     return {
       name: 'ass-cupItTo404',
@@ -220,9 +217,7 @@ class serverVite {
 
   async mkInstance(){
     this.cl('mkInstance: ['+this.config.name+'] http://'+this.config.HOST+":"+this.config.PORT);
-    //this.cl("config for server");this.cl(this.myConf);
     this.http = await createServer(this.myConf);
-    //this.cl("after create we have");this.cl(this.http);
     
   }
 
@@ -238,7 +233,7 @@ class serverVite {
       this.cl("[i] StartServer of ["+this.config.name+"] ...");//this.cl(this.http);
       await this.http.listen();
       this.http.printUrls()
-      
+
       this.hot = this.http.hot;
       this.doHotPingTest( this.http.ws );   
 

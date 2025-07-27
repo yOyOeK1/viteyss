@@ -1,14 +1,44 @@
 
 import { serverContainerVite } from './serverContainerVite.js'
+import { vysPlugins } from './startItAsPluginColector.js'
 import nyss from "node-yss";
 import path from 'path';
 
-
+let pathNodeYss = path.join( nyss.telMeYourHome(`viteyss - startItAsDev.js`),"yss" );
 
 function cl(str){
     console.log('staI',str);
 
 }
+
+
+var pathsToSites = [
+    // dev 
+    '/home/yoyo/Apps/oiyshTerminal/ySS_calibration/sites',
+
+    // node-yss / sites
+    //path.join( pathNodeYss, 'sites' ),
+
+    // viteyss / sites
+    path.resolve('./sites'),
+
+    // if you have `~/.viteyss/sites
+    path.join( process.env.HOME, '.viteyss', 'sites' ),
+];
+
+// sites ass a plugins `viteyss-site-`
+if( 1 ){
+  console.log("---------------------",
+    "vysPlugins",vysPlugins
+  );
+  if( Object.keys( vysPlugins ).length > 0 ){
+    Object.keys( vysPlugins ).forEach((pkey)=>{
+      pathsToSites.push( vysPlugins[pkey].pathTo );
+    });
+  }
+}
+
+
 
 var config0 = {
     'name': "bigOne",
@@ -17,13 +47,10 @@ var config0 = {
     'wsHOST': '0.0.0.0',
     'wsPORT': 2999,
     'pathToYss': '/home/yoyo/Apps/oiyshTerminal/ySS_calibration',
-    'pathsToSites': [
-      '/home/yoyo/Apps/oiyshTerminal/ySS_calibration/sites',
-      path.resolve('./sites')
-    ],    
+    'pathsToSites': pathsToSites,
     //'wsInjection': false,
     'wsInjection': true,
-    'yssWSUrl': `ws://localhost:2999/`,
+    'yssWSUrl': `ws://192.168.43.220:2999/`,
     
     'sitesInjection': true,
     'ws': undefined,
@@ -34,6 +61,7 @@ var config0 = {
 
 
 cl("Hello - As Dev");
+
 
 let sc0 = new serverContainerVite(0,config0 );
 sc0.initServers();

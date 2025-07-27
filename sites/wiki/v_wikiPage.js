@@ -48,8 +48,16 @@ class v_wikiPage extends hotHelperClient{
     <hr>
     <div id="appWikiPage"></div>
     <hr>
-
-    <input type="button" onclick="location.href='#';" name="goUp" value="up">
+    <br>
+    <div
+      style="position: fixed;
+        bottom: 0;
+        right: 0;
+        z-index: 21;"
+        >
+      <input type="button" onclick="location.href='#';" name="goUp" 
+        id="btGoUp" value="up">
+    </div>
     <br><br>
     `;
 
@@ -61,13 +69,17 @@ class v_wikiPage extends hotHelperClient{
     
     this.hotTaskStart({topic:'get/getMd','fullFileName':fullFileName}).then((msg)=>{
       this.app._instance.ctx.$data.md = msg.html;
+      //$('#wikiContent').scrollTo(0, 0)
+      this.app._instance.ctx.$refs.myWikiContent.scrollIntoView({top:0,behavior: 'smooth'})
+      
       
     }).catch( (err)=>{
       let errMsg = ' Not able to get task getMD done :(';
       console.error(errMsg);
       this.app._instance.ctx.$data.md = errMsg;
-    } );
-
+      
+    });
+    
     /*
     setTimeout(()=>{
 
@@ -107,7 +119,7 @@ class v_wikiPage extends hotHelperClient{
     
     
     this.hotTaskStart({topic:'get/getMdsList'}).then((msg)=>{
-      cl("Got result of mds list");cl(msg);
+      //cl("Got result of mds list");cl(msg);
       //cl(msg.list.reverse());
       this.menu._instance.ctx.$data.mdList=msg.list;
      
