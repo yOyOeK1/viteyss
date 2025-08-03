@@ -21,7 +21,8 @@ import { requestYss, resSetHeaders, res404 } from 'mnodehttp/yssHelp.js';
 
 //import { m_wiki } from './sites/wiki/m_wiki.js';
 //import * as otmp from './sites/wiki/m_wiki.js';
-            
+import { wsCallBackHelper } from './wsCallBackHelp.js'            
+
 
 var config = undefined;
 
@@ -57,6 +58,8 @@ class serverVite {
     this.hot = undefined;
     this.yssPages = undefined;
     this.modulesSrc = [];
+    this.m = []; // modules comming from sites
+    this.wsCBH = new wsCallBackHelper( this.wss, this.ws );
     
     this.myConf = this.mkReadyForVit( nconfig );
 
@@ -70,7 +73,7 @@ class serverVite {
   }
 
   async buildYssPages(){
-    console.log("/----- modules sites src");
+    console.log("\n\n/----- modules sites src\n\n");
 
     this.yssPages = sitesH.getInjectionStr('', this.config.pathsToSites,'yssPages');
     
@@ -82,7 +85,7 @@ class serverVite {
       }
     }    
     
-    console.log("\___ modules sites src count: "+this.modulesSrc.length);
+    console.log("\n\n\\___ modules sites src count: "+this.modulesSrc.length);
 
   }
 
@@ -133,6 +136,7 @@ class serverVite {
   addToHotPostProcess(){
     var tconfig = this.config;
     var tmodulesSrc = this.modulesSrc;
+    let twsCBH = this.wsCBH;
     return {
       name: 'ass-add-to-hot',
       configureServer(server) {  
@@ -140,17 +144,25 @@ class serverVite {
 
         console.log("/--- init modules");
         for( let mi=0,mic=tmodulesSrc.length; mi<mic; mi++ ){
-          let m = tmodulesSrc[mi]
+          this.m = tmodulesSrc[mi]
+          let m = this.m;
           m['omods'] = [];
           m['imods'] = [];
           console.log("   - module name: "+m.oName);
           for( let fi=0,fic=m.modsrc.length; fi<fic; fi++ ){
-            let fileS = './sites/wiki/'+m.modsrc[fi]; // TODO static path
+            let fileS = m.fDir+'/'+m.modsrc[fi]; // TODO static path
             let classS = m.modsrc[fi].substring(0, m.modsrc[fi].length-3);
             console.log("     - file: "+fileS);
             m.omods[fi] = import(fileS).then((o)=>{
               var ims = new o[classS]( server.ws );
               let ke = ims.wskey;
+
+              if( ims.onWsMessageCallBack ){
+              console.log(`   connect with ws ... recive onWsMessageCallBack`);
+                ims.wss = twsCBH.wss;
+                ims.ws = twsCBH.ws;
+                twsCBH.addCB( ims );
+              }
               
               server.ws.on( ke, function ( msg ){ 
                 //console.log('addToHot get :', msg);                
@@ -235,7 +247,10 @@ class serverVite {
       this.http.printUrls()
 
       this.hot = this.http.hot;
-      this.doHotPingTest( this.http.ws );   
+      this.doHotPingTest( this.http.ws );
+
+
+
 
       if( this.config.wsPinger ){
         if( this.wsPingInter == undefined ){
@@ -251,7 +266,7 @@ class serverVite {
     this.pingCount++;
     if( sws.wsClientsOnline( this.ws ) != 0 ){
      sws.sendToAll(this.ws, `{"topic":"ping","payload":"pong", "count":"${this.pingCount}"}`,
-        "["+this.config.name+'] ping'
+        //"["+this.config.name+'] ping'
       );
     
     }
@@ -268,7 +283,7 @@ class serverVite {
           
         });      
         //console.log("clients : ",new Set(this.hot.clients).size);
-        console.log("hot:serverVite PingTest clients:"+clientsCount);
+        //console.log("hot:serverVite PingTest clients:"+clientsCount);
       }
 
       this.doHotPingTest( hot );

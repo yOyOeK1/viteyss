@@ -73,7 +73,7 @@ class m_wiki extends hotHelperServer{
                     for( let k=0,ki=this.mdsList.length; k<ki; k++ ){
                         pCont = pCont.replaceAll(
                            `**${this.mdsList[k]}**`,
-                            `<a href="javascript:pager._page.loadNew('${this.mdsList[k]}');">**${this.mdsList[k]}**</a>`
+                            `<a href="javascript:siteByKey.v_wikiPage.o.loadNew('${this.mdsList[k]}');">**${this.mdsList[k]}**</a>`
                         );
                     }    
 

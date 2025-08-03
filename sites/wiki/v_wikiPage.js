@@ -10,8 +10,6 @@ class v_wikiPage extends hotHelperClient{
 
   constructor(){
     super();
-    this.app = createApp(App);
-    this.menu = createApp(Menu);
     this.hotKey = 'wikiKey';
     
     this.hotRegisterOn(); // to get hot call backs
@@ -30,6 +28,12 @@ class v_wikiPage extends hotHelperClient{
 
   }
 
+  onPageLeft = () =>{
+    this.app.unmount();
+    this.menu.unmount();
+    console.log('wiki unmount vue');
+  }
+
   get getName(){
     return `Wiki`;
 
@@ -41,6 +45,10 @@ class v_wikiPage extends hotHelperClient{
   }
 
   getHtml = () => {
+    this.app = createApp(App);    
+    this.menu = createApp(Menu);    
+    
+
     return `
     <!--<input type="button" id="sendMsg" value="send" />-->
 
@@ -69,8 +77,8 @@ class v_wikiPage extends hotHelperClient{
     
     this.hotTaskStart({topic:'get/getMd','fullFileName':fullFileName}).then((msg)=>{
       this.app._instance.ctx.$data.md = msg.html;
-      //$('#wikiContent').scrollTo(0, 0)
-      this.app._instance.ctx.$refs.myWikiContent.scrollIntoView({top:0,behavior: 'smooth'})
+      $('.wikiContent').scrollTop();
+      //this.app._instance.ctx.$refs.myWikiContent.scrollIntoView({top:0,behavior: 'smooth'})
       
       
     }).catch( (err)=>{
@@ -115,8 +123,10 @@ class v_wikiPage extends hotHelperClient{
   getHtmlAfterLoad = () =>{
     cl(`${this.getName} - getHtmlAfterLoad()`);
     this.app.mount('#appWikiPage');
-    this.menu.mount('#menuWiki');
     
+    this.menu.mount('#menuWiki');
+    this.menu._instance.ctx.setWikiPageParent( this );
+
     
     this.hotTaskStart({topic:'get/getMdsList'}).then((msg)=>{
       //cl("Got result of mds list");cl(msg);

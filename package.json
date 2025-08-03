@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "startItAsDev": "node ./startItAsDev.js",
+    "plugColector": "node ./startItAsPluginColector.js",
     "jsBundler": "node ./yssJssBundler.js"
   },
   "devDependencies": {
@@ -14,6 +15,7 @@
     "@vitejs/plugin-vue": "^6.0.0",
     "markdown-it": "^14.1.0",
     "mnodehttp": "file:../../../../tmp/mnodehttp-latest.tgz",
-    "unplugin-vue-markdown": "^29.1.0"
+    "unplugin-vue-markdown": "^29.1.0",
+    "viteyss-site-hello-world": "file:../viteyss-site-hello-world"
   }
 }

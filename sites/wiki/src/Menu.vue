@@ -29,16 +29,19 @@ export default {
     data(){
         let mdList = ref([ 'yss', 'viteyss', 'need to load ...' ]);
         let current = ref(0);
+        let wikiPage = ref(new Object());
 
 
-
-        return { mdList, current };
+        return { mdList, current, wikiPage };
     },
     methods:{
+        setWikiPageParent( parent ){
+            this.wikiPage = parent;
+        },
         setCurrent(name){
             console.log("setCurrent",name,'\n\n');
             this.current = name;
-            pager._page.loadNew(name);
+            this.wikiPage.loadNew(name);
         }
     }
 

@@ -11,7 +11,8 @@
 
 ### viteyss
 
-- [] plugins for **viteyss-site-hello-world**
+- [x] plugins for **viteyss-site-hello-world**
+
 - [] plugin example / test for **SSO** **viteyss-site-SSO-hello-world**
 
 ### sites / wiki
@@ -24,8 +25,10 @@
 
 - [] when initing site and adding `instanceOf` add thinks like:
   
-  - [] homeUrl
+  - [x] homeUrl
+  
   - [] homeDivName
+  - [] siteNo
 
 - [] menu don't react to **Screen manager** commands invert / red / ....
 

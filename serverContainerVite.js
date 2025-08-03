@@ -3,6 +3,7 @@ import * as sws from 'mnodehttp/serverWs.js'
 import { serverVite } from './serverVite.js'
 
 
+
 class serverContainerVite{
     
     
@@ -11,20 +12,32 @@ class serverContainerVite{
         this.config = config;
         this.http = undefined;
         this.ws = undefined;
-        this.wsCallBack = nwsCallBack;
+
+        if( nwsCallBack == undefined ){
+            this.wsCallBack = this.onWsMessage;
+        }else{
+            this.wsCallBack = nwsCallBack;
+        }
+        
+        
         
         this.sws = sws;//require('./serverWs');
         
         this.wsRunning = false;
         this.httpRunning = false;
-
+        
         this.cl(`init ...`);
     }
-
+    
     cl(str){
         console.log(`scov${this.sNo}`,str);
     }
-
+    
+    onWsMessage=( ws, event, msg )=>{
+        this.http.wsCBH.onWsMessage(ws, event, msg);
+    }
+    
+    
     initServers(){
         this.cl('initServers ...');
         //this.cl(this.config);

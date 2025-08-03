@@ -29,12 +29,7 @@ function pcNpmls(){
                 'pathTo': path.resolve( path.join( pathTo, packageName) ),
                 'entryDate': Date.now()
             };
-            /*
-            console.log(packageName);
-            await import(packageName).then((m)=>{ //cl('import done!'); cl(m);
-                vysPlugins[ packageName ]['o'] = m;
-            });
-            */
+          
         }
 
     }
@@ -52,32 +47,6 @@ function pcNpmls(){
     });
 
 
-    //cl(`-----------------------
-    //    after run in npm we have (${Object.keys(vysPlugins).length}) plugins:\n\t\t`+
-    //    Object.keys(vysPlugins).join(', ')+'\n\n'+JSON.stringify(vysPlugins)
-    //);
-    //console.log(vysPlugins);
-    //setTimeout(()=>{
-        
-    //},500);
-    //console.log('-------------------',JSON.stringify(j));
-    /*
-    try {
-        const dependencyTree = JSON.parse(stdout);
-        console.log(dependencyTree);
-        // You can now programmatically access and process the dependencyTree object
-        // For example, to list direct dependencies:
-        if (dependencyTree.dependencies) {
-        console.log('Direct Dependencies:');
-        for (const packageName in dependencyTree.dependencies) {
-            console.log(`- ${packageName}@${dependencyTree.dependencies[packageName].version}`);
-        }
-        }
-    } catch (parseError) {
-        console.error(`Error parsing JSON: ${parseError}`);
-    }
-    */
-    
 }
 
 pcNpmls();
