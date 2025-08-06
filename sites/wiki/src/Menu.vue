@@ -1,6 +1,6 @@
 <template>
     <div id="wikiMenu">
-        Menu [{{ current }}]:
+        <small>Menu [{{ current }}]:</small>
         <ul class="wikiMenu">
             <li v-for="( item, index ) in mdList" >
                 <a @click="setCurrent(item)" :key="index">{{ item }}</a>

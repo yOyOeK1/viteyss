@@ -21,7 +21,10 @@ import { requestYss, resSetHeaders, res404 } from 'mnodehttp/yssHelp.js';
 
 //import { m_wiki } from './sites/wiki/m_wiki.js';
 //import * as otmp from './sites/wiki/m_wiki.js';
-import { wsCallBackHelper } from './wsCallBackHelp.js'            
+import { wsCallBackHelper } from './wsCallBackHelp.js' 
+import { fileURLToPath, URL } from 'url';           
+
+import {dirname, resolve} from 'node:path'
 
 
 var config = undefined;
@@ -88,11 +91,17 @@ class serverVite {
     console.log("\n\n\\___ modules sites src count: "+this.modulesSrc.length);
 
   }
-
-
-
+  
+  
+  
   mkReadyForVit( conf ){
+    
+    //let  __dirname = path.resolve();
+    let __dirname = dirname(fileURLToPath(import.meta.url));
+
+
     return defineConfig({
+      
       define:{
         'process.env.vy_config': this.config,
 
@@ -101,20 +110,39 @@ class serverVite {
         'process.env.testDefineVal3': {abc:1,ddd:"str"},
         //'process.env.testFunc1': ()=>{ console.log('testFunc1')},
       },    
-    
-
+      /*
+      build : {
+        rollupOptions: {
+          input: {
+            main: resolve(__dirname, 'index.html'),
+            //'abc' : resolve(__dirname, 'dirTest1/index.html'),
+            'ys': resolve(__dirname, '../viteyss-site-otdmtools/index.html'),
+          },
+        },
+      },
+      */
       server: {         
+        fs:{
+          allow:[
+            '/home/yoyo/Apps/oiyshTerminal/ySS_calibration',
+            '/home/yoyo/Apps/viteyss-site-otdmtools',
+            '/home/yoyo/Apps/viteyss-site-hello-world',
+            '/home/yoyo/Apps/viteyss',
+            '/home/yoyo/Apps/viteyss/node_modules'
+          ],
+        },
         host: this.config.HOST, 
         port: this.config.PORT ,
         headers:{
           'Access-Control-Allow-Origin':'*',
           'Access-Control-Allow-Methods':'GET, POST, PUT, DELETE, OPTIONS',
           'Access-Control-Allow-Headers':'Content-Type'
-        }
+        },
       },
       
+      
       // ... other configurations
-      publicDir: ['public','sites', 'wikiSites', 'icons','libs'], // Optional, but good practice to explicitly define it.  Defaults to 'public' if not specified
+      publicDir: [ 'public','sites', 'wikiSites', 'icons','libs'], // Optional, but good practice to explicitly define it.  Defaults to 'public' if not specified
       plugins: [
         //this.cupItTo404PostProcess(),
 
@@ -122,11 +150,10 @@ class serverVite {
         vue({
           include: [/\.vue$/, /\.md$/],
         }),
-        Markdown({ /* options */ }),
+        Markdown(),
         this.yssPostProcess(),
-        // ... other plugins
-              
-      ],    
+      ],
+      
     
     });
     
@@ -140,58 +167,62 @@ class serverVite {
     return {
       name: 'ass-add-to-hot',
       configureServer(server) {  
-        console.log('addToHot ..');
 
-        console.log("/--- init modules");
-        for( let mi=0,mic=tmodulesSrc.length; mi<mic; mi++ ){
-          this.m = tmodulesSrc[mi]
-          let m = this.m;
-          m['omods'] = [];
-          m['imods'] = [];
-          console.log("   - module name: "+m.oName);
-          for( let fi=0,fic=m.modsrc.length; fi<fic; fi++ ){
-            let fileS = m.fDir+'/'+m.modsrc[fi]; // TODO static path
-            let classS = m.modsrc[fi].substring(0, m.modsrc[fi].length-3);
-            console.log("     - file: "+fileS);
-            m.omods[fi] = import(fileS).then((o)=>{
-              var ims = new o[classS]( server.ws );
-              let ke = ims.wskey;
+        return ()=>{
 
-              if( ims.onWsMessageCallBack ){
-              console.log(`   connect with ws ... recive onWsMessageCallBack`);
+          console.log('addToHot ..');
+          
+          console.log("/--- init modules");
+          for( let mi=0,mic=tmodulesSrc.length; mi<mic; mi++ ){
+            this.m = tmodulesSrc[mi]
+            let m = this.m;
+            m['omods'] = [];
+            m['imods'] = [];
+            console.log("   - module name: "+m.oName);
+            for( let fi=0,fic=m.modsrc.length; fi<fic; fi++ ){
+              let fileS = m.fDir+'/'+m.modsrc[fi]; // TODO static path
+              let classS = m.modsrc[fi].substring(0, m.modsrc[fi].length-3);
+              console.log("     - file: "+fileS);
+              m.omods[fi] = import(fileS).then((o)=>{
+                var ims = new o[classS]( server.ws );
+                let ke = ims.wskey;
+
+                if( ims.onWsMessageCallBack ){
+                console.log(`   connect with ws ... recive onWsMessageCallBack`);
                 ims.wss = twsCBH.wss;
                 ims.ws = twsCBH.ws;
                 twsCBH.addCB( ims );
               }
               
               server.ws.on( ke, function ( msg ){ 
-                //console.log('addToHot get :', msg);                
-                //ims.onMsg( msg ); // to route Hot 
+                  //console.log('addToHot get :', msg);                
+                  //ims.onMsg( msg ); // to route Hot 
+                  
+                } );
+                server.ws.on( "C2S"+ke, function ( msg ){ 
+                  //console.log('C2S '+ke+' got :', msg);
+                  ims.onMsg( msg ); 
+                  
+                } );
+                m.imods[fi] = ims;
                 
-              } );
-              server.ws.on( "C2S"+ke, function ( msg ){ 
-                //console.log('C2S '+ke+' got :', msg);
-                ims.onMsg( msg ); 
-                
-              } );
-              m.imods[fi] = ims;
+              }); 
               
-            }); 
-            
+            }
           }
 
-        }
-        console.log("\\___ init modules DONE");
-        
-        server.ws.on('hot-custom-testC2S', (newModule) => {
+          console.log("\\___ init modules DONE");
+          
+          server.ws.on('hot-custom-testC2S', (newModule) => {
             
-          console.log('C2S hot-custom get :', newModule);
+            console.log('C2S hot-custom get :', newModule);
             // You can also send a response back to the client
             //server.ws.send({ type: 'custom-response', message: 'Server received!' });
           });
-        //next();
-        
-        
+          //next();
+          
+        }
+          
       }
 
     }
@@ -212,18 +243,42 @@ class serverVite {
     }
   }
 
-  yssPostProcess() {
+  yssPostProcess( ){
     var tconfig = this.config;
     return {
       name: 'yss-post-process',
+      /*
+      transform(src, id){
+        console.log('trans  \n\nid\n',id);
+
+      },
+      */
       configureServer(server) {  
-        server.middlewares.use(async (req, res, next) => {
-          
-          requestYss( req, res, next, tconfig );
-          
+          server.middlewares.use(async (req, res, next) => {
+          //if( 
+            //  String(req.url).startsWith('/yss/') &&
+          //  req.url !== '/yss/testy.js'
+          //){
+          if( req.originalUrl )
+            req.url = req.originalUrl;
+            
+          let r = requestYss( req, res, '', tconfig, server);
+          if( r != 0 ){
+            //console.log(`requestYss returnd ...[${r}] so next() ...${req.url}`);
+            next();
+            
+          }
+
+
+            
         });
+          
       }
-    }
+
+    };
+      
+      
+    
   }
   
 

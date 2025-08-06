@@ -8,6 +8,9 @@
     "plugColector": "node ./startItAsPluginColector.js",
     "jsBundler": "node ./yssJssBundler.js"
   },
+  "imports": {
+    "#hotHelper": "./libs/hotHelper.js"
+  },
   "devDependencies": {
     "vite": "^7.0.4"
   },
@@ -16,6 +19,7 @@
     "markdown-it": "^14.1.0",
     "mnodehttp": "file:../../../../tmp/mnodehttp-latest.tgz",
     "unplugin-vue-markdown": "^29.1.0",
-    "viteyss-site-hello-world": "file:../viteyss-site-hello-world"
+    "viteyss-site-hello-world": "file:../viteyss-site-hello-world",
+    "viteyss-site-otdmtools": "file:../viteyss-site-otdmtools"
   }
 }

@@ -59,26 +59,30 @@ class wsCallBackHelper {
 
     addCB( callBack ){
         this.cbList.push( callBack );
-        this.cl(`add now there is .... ${this.cbList.length}`);
-
+        
         if( callBack.wsPrefferPrefix ){
-            this.cl(`   it have wsPrefferPrefix...."${callBack.wsPrefferPrefix}"`);
+            this.cl([`   it have wsPrefferPrefix....`, callBack.wsPrefferPrefix]);
 
-            if( this.prefixHandlers[ callBack.wsPrefferPrefix ] == undefined ){
-                this.cl(`       it's empty registering...`);
-                if( callBack.onWsByPrefix != undefined ){
+            if( callBack.onWsByPrefix != undefined ){
+                if( Array.isArray( callBack.wsPrefferPrefix) ){
+                    callBack.wsPrefferPrefix.forEach(pref => {
+                        this.prefixHandlersKeys.push( pref );
+                        this.prefixHandlers[ pref ] = callBack.onWsByPrefix;    
+                    });                
+                }else{
                     this.prefixHandlersKeys.push( callBack.wsPrefferPrefix );
                     this.prefixHandlers[ callBack.wsPrefferPrefix ] = callBack.onWsByPrefix;
-                    
-                }else
-                    this.cl(`       Oiysh it dont have receiving method onWsByPrefix`);
+                }
 
-            } else {
-                this.cl(`       ! this prefix is taken !`);
-            }
-
+                
+            }else
+            this.cl(`       Oiysh it dont have receiving method onWsByPrefix`);
+            
+        } else {
+            this.cl(`       ! this prefix is taken !`);
         }
-
+        
+        this.cl(`add now there is .... ${this.prefixHandlersKeys.length}`);
 
     }
 
@@ -87,23 +91,22 @@ class wsCallBackHelper {
         // prefix first from stack
         let res = 0;
         let prefix = '';
-        if( event == 'on_message' ){
+        if( event == 'on_message' && msg != undefined ){
             for(let k=0,kc=this.prefixHandlersKeys.length; k<kc; k++){
                 prefix = this.prefixHandlersKeys[k];
                 //this.cl(`   do prefix chk: ${prefix}`);
                 if( String(msg).startsWith( prefix ) == true  ){
                     if( 1 == this.prefixHandlers[ prefix ]( ws,event,msg ) ){
-                        this.cl(`did prefixHandlers .... skipping rest of the stack `);
+                        //this.cl(`did prefixHandlers .... skipping rest of the stack `);
                         return 1;  
                     }
                 }   
             }
         }
 
-        // regular call backs 
-
+        // regular call backs to `onWsMessageCallBack`
         if( event == 'on_message' ){
-            this.cbList.forEach(cb => {
+            this.cbList.forEach((cb) => {
                 res = cb.onWsMessageCallBack( this.ws, event, msg );
                 if( res == 1 ) return 1;
             });
