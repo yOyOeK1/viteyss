@@ -1,6 +1,6 @@
 
 import { serverContainerVite } from './serverContainerVite.js'
-import { vysPlugins } from './startItAsPluginColector.js'
+import { vysPlugins, pcNpmls } from './startItAsPluginColector.js'
 import nyss from "node-yss";
 import path from 'path';
 
@@ -28,6 +28,7 @@ var pathsToSites = [
 
 // sites ass a plugins `viteyss-site-`
 if( 1 ){
+  pcNpmls();
   console.log("---------------------",
     "vysPlugins",vysPlugins
   );

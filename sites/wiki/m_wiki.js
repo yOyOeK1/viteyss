@@ -11,6 +11,7 @@ class m_wiki extends hotHelperServer{
     constructor( ws ){
         super(ws);
         this.cl("m_wiki init ...");
+        this.server = -1;
         
         this.md = markdownit({ html:true });
         this.wskey = 'wikiKey';
@@ -34,6 +35,10 @@ class m_wiki extends hotHelperServer{
         console.log('m_wiki',str);
     }    
 
+    setServer(server){
+        this.server = server;
+    }
+
     onMsg( msg ){
         this.cl( " got msg: ");this.cl(msg);
 
@@ -41,8 +46,22 @@ class m_wiki extends hotHelperServer{
             try{
                 msg['html'] = '';
 
+
+                let urlBase = './';
+
                 let ps = msg.fullFileName.split('/');
-                if( ps[ ps.length-1 ].substring(0,13) == 'viteyss-site-' ){
+                if( ps[ ps.length-1 ].substring(0,5) == 'site-' ){
+                    let yp = this.server.yssPages;
+                    let lookFor = ps[ ps.length-1 ].substring(5,ps[ ps.length-1 ].length-3);
+                    for( let p=0,pc=yp.length; p<pc; p++){
+                        if( yp[p].dir == lookFor ){
+                            urlBase = '/yss/sites/'+yp[p].dir+'/';
+                            msg.fullFileName = path.join( yp[p].fDir, 'README.md');
+                            break;
+                        }
+                    }
+
+                }else if( ps[ ps.length-1 ].substring(0,13) == 'viteyss-site-' ){
                     msg.fullFileName = './sites/'+ps[ ps.length-1 ].substring(13,ps[ ps.length-1 ].length-3)+'/README.md';
                 }
 
@@ -54,6 +73,8 @@ class m_wiki extends hotHelperServer{
                     }
 
                     let pCont = ""+data.toString();           
+                    
+
                     
                     
                     // add nice task buttons '- [] ' or '- [x] '
@@ -68,6 +89,11 @@ class m_wiki extends hotHelperServer{
                             ` <img  class="mdTasks" src="/icons/ico_notdone_16_16.png"> `
                         ); 
                     
+                    pCont = pCont.replaceAll(
+                        '![](',
+                        `![](${urlBase}`
+                        );
+
 
                     // insert all md key words **abc** if there is a file with this name
                     for( let k=0,ki=this.mdsList.length; k<ki; k++ ){
@@ -100,6 +126,18 @@ class m_wiki extends hotHelperServer{
 
                 
             // in /sites/*/README.md
+            let dirsToLook = [];
+            for( let fDi of this.server.yssPages ){
+                if( fs.existsSync( path.join( fDi.fDir, 'README.md' ) ) ){
+                    dirsToLook.push( fDi.fDir );
+                    mdList.push( 'site-'+fDi.dir );
+                }
+
+            }
+            console.log(`now dirs to look is `,dirsToLook);
+
+
+
             let d1res = fs.readdirSync( 'sites' )
             for( let s=0,si=d1res.length; s<si; s++ ){
                 let file = d1res[s];

@@ -10,7 +10,7 @@ function cl(str){
 
 
 
-function pcNpmls(){
+function pcNpmls( prefixToLook = 'viteyss-site-' ){
     let npmQ = execSync('npm ls --depth=1 --json').toString();
     
     let j = {};
@@ -23,7 +23,7 @@ function pcNpmls(){
 
     //let vysPlugins_ = {};
     function isItvySite( pathTo, packageName ){
-        if( packageName.startsWith('viteyss-site-') ){
+        if( packageName.startsWith( prefixToLook ) ){
             vysPlugins[ packageName ] = {
                 'o' : -1,
                 'pathTo': path.resolve( path.join( pathTo, packageName) ),
@@ -46,9 +46,9 @@ function pcNpmls(){
         }
     });
 
-
+    return vysPlugins;
 }
 
-pcNpmls();
-export { vysPlugins };
-cl("DONE pluging exploration ...........");
+//pcNpmls();
+export { vysPlugins, pcNpmls };
+//cl("DONE pluging exploration ...........");

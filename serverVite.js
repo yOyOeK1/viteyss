@@ -1,6 +1,7 @@
 
 
 import { defineConfig, createServer } from 'vite'
+import formidable from 'formidable';
 import vue from '@vitejs/plugin-vue'
 import Markdown from 'unplugin-vue-markdown/vite';
 
@@ -25,6 +26,9 @@ import { wsCallBackHelper } from './wsCallBackHelp.js'
 import { fileURLToPath, URL } from 'url';           
 
 import {dirname, resolve} from 'node:path'
+
+import { plugVector  } from './plugVector.js';
+import { sh_reqParse } from './serverHelp.js';
 
 
 var config = undefined;
@@ -64,15 +68,48 @@ class serverVite {
     this.m = []; // modules comming from sites
     this.wsCBH = new wsCallBackHelper( this.wss, this.ws );
     
+    this.pVector = -1;
+    this.initPlugVector();
+
+    this.buildYssPages()
     this.myConf = this.mkReadyForVit( nconfig );
 
 
     this.cl('serverVite init ....'+this.config.name);
-    this.buildYssPages()
   }
 
   cl(str) {
     console.log('sVit',str);    
+  }
+
+  initPlugVector(){
+    this.pVector = new plugVector();
+
+    // to test it curl -x POST http://localhost:8080/apis/echo -d 'a=1&b=2&a=3'  | jq .
+    this.pVector.addO('echo',{
+      handleRequest: ( args )=> {
+        let {req, res } = args;
+        if( req.method == 'POST' && req.url == '/apis/echo' ){
+            console.log('echo /apis/echo in middle ....');
+            sh_reqParse( req, res, ( resp, fields, files )=>{
+              console.log(`So this is echo and fields are `+JSON.stringify(fields));
+              let tr ={
+                'api': '/apis/echo',
+                'fields': fields,
+                'files': files
+              };
+              resp.end(JSON.stringify(tr));
+              
+            } );
+            return 0;
+        }
+      }
+
+    });
+
+    this.pVector.addFromFile('serUpl', './serverUpload.js');
+
+
   }
 
   async buildYssPages(){
@@ -99,6 +136,10 @@ class serverVite {
     //let  __dirname = path.resolve();
     let __dirname = dirname(fileURLToPath(import.meta.url));
 
+    let fsAllow = [fs.realpathSync('./')];
+    for( let p of this.config.pathsToSites )
+      fsAllow.push(fs.realpathSync(p));
+    console.log(`[i] host file access to `,fsAllow);
 
     return defineConfig({
       
@@ -121,15 +162,39 @@ class serverVite {
         },
       },
       */
-      server: {         
+      server: {    
+        /*proxy: {
+          "/srapi": {
+            target: "https://my.local.environment/",
+            changeOrigin: true,
+            agent: new https.Agent({
+              keepAlive: true,
+            }),
+            bypass(req, res, proxyOptions) {
+              if (req.method === "POST") {
+                console.log('proxy got POST !!!!!');
+                let h = req.headers;
+                let b = req.body;
+                //... here I get what I need and write to the res object
+                // and of course call res.end()
+                res.end('ok you got response');
+              }
+              //all other calls are handled automatically
+            },
+            secure: false,
+
+          }
+            
+        },*/
+                    
         fs:{
-          allow:[
+          allow:fsAllow,/*[
             '/home/yoyo/Apps/oiyshTerminal/ySS_calibration',
             '/home/yoyo/Apps/viteyss-site-otdmtools',
             '/home/yoyo/Apps/viteyss-site-hello-world',
             '/home/yoyo/Apps/viteyss',
             '/home/yoyo/Apps/viteyss/node_modules'
-          ],
+          ],*/
         },
         host: this.config.HOST, 
         port: this.config.PORT ,
@@ -145,13 +210,14 @@ class serverVite {
       publicDir: [ 'public','sites', 'wikiSites', 'icons','libs'], // Optional, but good practice to explicitly define it.  Defaults to 'public' if not specified
       plugins: [
         //this.cupItTo404PostProcess(),
+        this.yssPostProcess(),
 
         this.addToHotPostProcess(),
+        
         vue({
           include: [/\.vue$/, /\.md$/],
         }),
         Markdown(),
-        this.yssPostProcess(),
       ],
       
     
@@ -163,6 +229,7 @@ class serverVite {
   addToHotPostProcess(){
     var tconfig = this.config;
     var tmodulesSrc = this.modulesSrc;
+    var tserver = this;
     let twsCBH = this.wsCBH;
     return {
       name: 'ass-add-to-hot',
@@ -186,6 +253,11 @@ class serverVite {
               m.omods[fi] = import(fileS).then((o)=>{
                 var ims = new o[classS]( server.ws );
                 let ke = ims.wskey;
+
+                ims['o'] = m;
+                if( ims.setServer )
+                  ims.setServer( tserver );
+                
 
                 if( ims.onWsMessageCallBack ){
                 console.log(`   connect with ws ... recive onWsMessageCallBack`);
@@ -245,6 +317,8 @@ class serverVite {
 
   yssPostProcess( ){
     var tconfig = this.config;
+    var tyssPages = this.yssPages;
+    var tpVector = this.pVector;
     return {
       name: 'yss-post-process',
       /*
@@ -262,7 +336,49 @@ class serverVite {
           if( req.originalUrl )
             req.url = req.originalUrl;
             
-          let r = requestYss( req, res, '', tconfig, server);
+          // -- POST handlers 
+          let pRes = tpVector.execReturn('handleRequest',{
+            'req': req, 'res': res
+          });
+          //console.log('plugins result: --------------\n'),pRes,"\n-------------";
+          
+          if( pRes != undefined ){
+            if( pRes.then && pRes.then == 'function ' ){
+              return pRes.then((r)=>{ return r; } );
+            }else{
+              return 1;
+            }
+          }
+          //return pRes.then((r)=>{ return r });
+          
+          /*
+          if( req.method == 'POST' ){
+            console.log('in middle POST ....');
+            let form = formidable({
+              uploadDir: path.join(process.cwd(), 'uploads'),
+              keepExtensions: true,
+              maxFileSize: 5 * 1024 * 1024, // 5MB limit 
+            });
+            let [fields, files] = await form.parse(req);
+            //console.log(` field   `,fields,"\n\nfiles\n",files);
+            
+            let uploadedFile = files.myFile ? files.myFile[0] : null;
+
+            if (uploadedFile) {
+              console.log('File uploaded successfully:', uploadedFile.filepath);
+              console.log('Original filename:', uploadedFile.originalFilename);
+              console.log('File size:', uploadedFile.size);
+              console.log('Description:', fields.description ? fields.description[0] : 'No description');
+              res.end(JSON.stringify(uploadedFile));
+            }
+
+          }
+          */
+
+          // ---- POST handlers end
+
+
+          let r = requestYss( req, res, '', tconfig, server, tyssPages);
           if( r != 0 ){
             //console.log(`requestYss returnd ...[${r}] so next() ...${req.url}`);
             next();
