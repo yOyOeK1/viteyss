@@ -26,16 +26,40 @@ class s_vitePage2{
   getHtml = () => {
     return '<b>'+this.getName+'</b>'+
 `<pre>
+<b>This is a site served by vite</b>
+In Menu: ${this.getName}
+Home url: ${this.homeUrl}
+Ver: ${this.instanceOf.ver}
+<hr>
+
+<b>include value from file</b>
+More ditails in \`./site.json\`
+
 * from module -> mt1: ${JSON.stringify(this.mt1)}
 * ...
+no comments
 </pre>
 <hr>
-<b>This is a site served by vite</b>
-no comments
+<br>
+<b>Make vue app from vite ...</b><br>
+<div id="vAppFromVite">?</div>
 
 <hr>
-<b>Component from vite</b><br>
-<div id="vAppFromVite">?</div>
+<br>
+<b>uplad file to /apis/upload</b><br>
+<form id="uploadForm">
+  <input type="text" name="myTextValu" value="valTest1" >
+  <input type="file" name="myFile" id="myFileId">
+  <input type="button" name="send" value="send It" id="sendBtId">
+</form>
+
+<br>
+<hr>
+<b>test echo at /apis/echo</b><br>
+<input type="button" value="send to echo" id="btSendToEcho" /><br>
+<br><br><br><br>
+
+
 `;
   }
 
@@ -46,6 +70,67 @@ no comments
     );
 
     this.mAppVite = createApp(mApp).mount('#vAppFromVite');
+
+
+    $('#sendBtId').click(()=>{
+      cl('click');
+      var formData = new FormData();
+      
+      var fileInput = document.getElementById('myFileId');
+      var file = fileInput.files[0]; // Get the first selected file
+      formData.append('myFile', file); // 'file_field_name' is the name the server expects
+      formData.append('other_field', 'some_value');
+
+      fetch('/apis/upload', { 
+        method: 'POST',
+        body: formData // The FormData object is directly passed as the body
+      })
+      .then(response => {
+          if (!response.ok) {
+              throw new Error('Network response was not ok ' + response.statusText);
+          }
+          return response.json(); // Or response.text() depending on server response
+      })
+      .then(data => {
+          console.log('Upload successful:', data);
+      })
+      .catch(error => {
+          console.error('Upload failed:', error);
+      });
+
+    });
+
+
+    $('#btSendToEcho').click(()=>{
+      cl('click');
+      var formData = new FormData();
+      
+      formData.append('it_is_a_test', true);
+      formData.append('other_field', Date.now());
+      formData.append('action_type', 'test /apis/echo');
+
+      let res = fetch('/apis/echo', { 
+        method: 'POST',
+        body: formData // The FormData object is directly passed as the body
+      })
+      .then(response => {
+          if (!response.ok) {
+              throw new Error('Network response was not ok ' + response.statusText);
+          }
+          return response.json(); // Or response.text() depending on server response
+      })
+      .then(data => {
+          console.log('echo successful:', data);
+      })
+      .catch(error => {
+          console.error('echo failed:', error);
+      });
+
+
+      console.log('after click after feth res ',res);
+
+    });
+
 
   }
 

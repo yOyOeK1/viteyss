@@ -27,7 +27,7 @@ import { fileURLToPath, URL } from 'url';
 
 import {dirname, resolve} from 'node:path'
 
-import { plugVector  } from './plugVector.js';
+import { plugVector  } from './libs/plugVector.js';
 import { sh_reqParse } from './serverHelp.js';
 
 
@@ -107,7 +107,7 @@ class serverVite {
 
     });
 
-    this.pVector.addFromFile('serUpl', './serverUpload.js');
+    this.pVector.addFromFile('serUpl', './libs/apis/upload.js');
 
 
   }

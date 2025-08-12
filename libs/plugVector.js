@@ -1,6 +1,6 @@
 
-import { vysPlugins, pcNpmls } from './startItAsPluginColector.js'
-
+import { vysPlugins, pcNpmls } from '../startItAsPluginColector.js'
+import path from 'path';
 
 
 class plugVector{
@@ -42,7 +42,7 @@ class plugVector{
     }
 
     addFromFile( asName, fileLib ){
-        let {a} = import(fileLib).then((o)=>{
+        let {a} = import( path.resolve( fileLib) ).then((o)=>{
             console.log('------------------\n',o,'\n----------------');
             let po = new o[ Object.keys(o)[0] ]();
             console.log('------------------\n',po,'\n----------------',`${(typeof po)}`);
