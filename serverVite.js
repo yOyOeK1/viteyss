@@ -72,7 +72,7 @@ class serverVite {
     this.initPlugVector();
 
     this.buildYssPages()
-    this.myConf = this.mkReadyForVit( nconfig );
+    this.myConf = this.mkReadyForVite( nconfig );
 
 
     this.cl('serverVite init ....'+this.config.name);
@@ -107,35 +107,39 @@ class serverVite {
 
     });
 
+    // for upload files
     this.pVector.addFromFile('serUpl', './libs/apis/upload.js');
 
 
   }
 
   async buildYssPages(){
-    console.log("\n\n/----- modules sites src\n\n");
+    this.cl("\n\n/----- modules sites src\n\n");
 
     this.yssPages = sitesH.getInjectionStr('', this.config.pathsToSites,'yssPages');
     
     for( let p=0,pc=this.yssPages.length;p<pc;p++){
       let plug = this.yssPages[p];
       if( plug.modsrc != undefined ){
-          console.log( `- site ${plug.oName} `+(plug.modsrc != undefined? ' mosrc: '+plug.modsrc : '') );
+          this.cl( `- [modsrc] site ${plug.oName} `+(plug.modsrc != undefined? ' modsrc: '+plug.modsrc : '') );
           this.modulesSrc.push( plug );          
       }
+
+      if( plug.apisrc != undefined ){
+          this.cl( `- [apisrc] site ${plug.oName} `+(plug.apisrc != undefined? ' apisrc: '+plug.apisrc : '') );
+          let fileS = plug.fDir+'/'+plug.apisrc[0]; 
+          this.pVector.addFromFile( `${plug.oName} \ ${plug.apisrc[0]}`, fileS );
+      }
+
     }    
     
-    console.log("\n\n\\___ modules sites src count: "+this.modulesSrc.length);
+    this.cl("\n\n\\___ modules sites src count: "+this.modulesSrc.length);
 
   }
   
   
   
-  mkReadyForVit( conf ){
-    
-    //let  __dirname = path.resolve();
-    let __dirname = dirname(fileURLToPath(import.meta.url));
-
+  mkReadyForVite( conf ){    
     let fsAllow = [fs.realpathSync('./')];
     for( let p of this.config.pathsToSites )
       fsAllow.push(fs.realpathSync(p));
@@ -150,7 +154,8 @@ class serverVite {
         'process.env.testDefineVal2': '{abc:1,ddd:"str"}',
         'process.env.testDefineVal3': {abc:1,ddd:"str"},
         //'process.env.testFunc1': ()=>{ console.log('testFunc1')},
-      },    
+      },   
+
       /*
       build : {
         rollupOptions: {
@@ -162,49 +167,22 @@ class serverVite {
         },
       },
       */
-      server: {    
-        /*proxy: {
-          "/srapi": {
-            target: "https://my.local.environment/",
-            changeOrigin: true,
-            agent: new https.Agent({
-              keepAlive: true,
-            }),
-            bypass(req, res, proxyOptions) {
-              if (req.method === "POST") {
-                console.log('proxy got POST !!!!!');
-                let h = req.headers;
-                let b = req.body;
-                //... here I get what I need and write to the res object
-                // and of course call res.end()
-                res.end('ok you got response');
-              }
-              //all other calls are handled automatically
-            },
-            secure: false,
 
-          }
-            
-        },*/
-                    
+      server: {    
         fs:{
-          allow:fsAllow,/*[
-            '/home/yoyo/Apps/oiyshTerminal/ySS_calibration',
-            '/home/yoyo/Apps/viteyss-site-otdmtools',
-            '/home/yoyo/Apps/viteyss-site-hello-world',
-            '/home/yoyo/Apps/viteyss',
-            '/home/yoyo/Apps/viteyss/node_modules'
-          ],*/
+          allow:fsAllow,
         },
+        
         host: this.config.HOST, 
         port: this.config.PORT ,
+        
         headers:{
           'Access-Control-Allow-Origin':'*',
           'Access-Control-Allow-Methods':'GET, POST, PUT, DELETE, OPTIONS',
           'Access-Control-Allow-Headers':'Content-Type'
         },
-      },
-      
+
+      },      
       
       // ... other configurations
       publicDir: [ 'public','sites', 'wikiSites', 'icons','libs'], // Optional, but good practice to explicitly define it.  Defaults to 'public' if not specified
@@ -247,13 +225,15 @@ class serverVite {
             m['imods'] = [];
             console.log("   - module name: "+m.oName);
             for( let fi=0,fic=m.modsrc.length; fi<fic; fi++ ){
-              let fileS = m.fDir+'/'+m.modsrc[fi]; // TODO static path
+              let fileS = m.fDir+'/'+m.modsrc[fi]; 
               let classS = m.modsrc[fi].substring(0, m.modsrc[fi].length-3);
               console.log("     - file: "+fileS);
               m.omods[fi] = import(fileS).then((o)=>{
                 var ims = new o[classS]( server.ws );
                 let ke = ims.wskey;
-
+                if( tmodulesSrc[mi]['modinst'] == undefined )
+                  tmodulesSrc[mi]['modinst'] = {};
+                tmodulesSrc[mi]['modinst'][fi] = ims;
                 ims['o'] = m;
                 if( ims.setServer )
                   ims.setServer( tserver );
@@ -319,6 +299,7 @@ class serverVite {
     var tconfig = this.config;
     var tyssPages = this.yssPages;
     var tpVector = this.pVector;
+    var tserver = this;
     return {
       name: 'yss-post-process',
       /*
@@ -329,19 +310,15 @@ class serverVite {
       */
       configureServer(server) {  
           server.middlewares.use(async (req, res, next) => {
-          //if( 
-            //  String(req.url).startsWith('/yss/') &&
-          //  req.url !== '/yss/testy.js'
-          //){
-          if( req.originalUrl )
+          
+            if( req.originalUrl )
             req.url = req.originalUrl;
             
           // -- POST handlers 
           let pRes = tpVector.execReturn('handleRequest',{
-            'req': req, 'res': res
+            'req': req, 'res': res, 'server': tserver
           });
           //console.log('plugins result: --------------\n'),pRes,"\n-------------";
-          
           if( pRes != undefined ){
             if( pRes.then && pRes.then == 'function ' ){
               return pRes.then((r)=>{ return r; } );
@@ -349,7 +326,6 @@ class serverVite {
               return 1;
             }
           }
-          //return pRes.then((r)=>{ return r });
           
           /*
           if( req.method == 'POST' ){

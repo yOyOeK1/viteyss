@@ -40,3 +40,11 @@ When you start your hosting project, adding **site**(s) to serve on **yss** is i
 ##### Adding, removing, finding sites... when yss is served by *.deb
 
 Yes it can come in *.deb flavor more [info link ...](https://github.com/yOyOeK1/oiyshTerminal/wiki/otdm-yss) install [wiki link ...](https://github.com/yOyOeK1/oiyshTerminal/wiki/otdm-yss)
+
+
+
+
+#### site.json 
+TODO 
+
+`apisrc` - TODO
