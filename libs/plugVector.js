@@ -42,7 +42,25 @@ class plugVector{
     }
 
     addFromFile( asName, fileLib ){
-        let {a} = import( path.resolve( fileLib) ).then((o)=>{
+        if( 0 ){
+            console.log('resolve path --------------\n',
+                `fileLib: ${fileLib}\n`,
+                "resolve: "+ path.resolve( fileLib )+"\n",
+                `title: ${process.title}\n`,
+                `dirname: ${path.dirname('.')}\n`
+                //"process.env: \n"+JSON.stringify(process.env,null,4)+"\n\n\n"
+            );
+        }
+
+        if( process.title == 'node-red' ){
+
+            fileLib = '../'+fileLib;
+        }else{
+            fileLib = path.resolve( fileLib );
+        }
+
+
+        let {a} = import( fileLib ).then((o)=>{
             console.log('------------------\n',o,'\n----------------');
             let po = new o[ Object.keys(o)[0] ]();
             console.log('------------------\n',po,'\n----------------',`${(typeof po)}`);

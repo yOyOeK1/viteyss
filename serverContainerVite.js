@@ -12,12 +12,13 @@ class serverContainerVite{
         this.config = config;
         this.http = undefined;
         this.ws = undefined;
+        this.nwsCallBack = nwsCallBack;
 
-        if( nwsCallBack == undefined ){
-            this.wsCallBack = this.onWsMessage;
-        }else{
-            this.wsCallBack = nwsCallBack;
-        }
+        //if( nwsCallBack == undefined ){
+        this.wsCallBack = this.onWsMessage;
+        //}else{
+        //    this.wsCallBack = nwsCallBack;
+       // }
         
         
         
@@ -34,7 +35,15 @@ class serverContainerVite{
     }
     
     onWsMessage=( ws, event, msg )=>{
-        this.http.wsCBH.onWsMessage(ws, event, msg);
+        let res = undefined;
+        if( this.wsRunning == true && this.http ){
+            res = this.http.wsCBH.onWsMessage(ws, event, msg);
+            if( res == undefined && this.nwsCallBack != undefined )
+                this.nwsCallBack(ws, event, msg);
+        }
+
+
+
     }
     
     
@@ -69,6 +78,7 @@ class serverContainerVite{
         this.ws.close(()=>{this.cl("ws is down by service container");});
         this.cl("ws terminate ...");
         this.ws.terminate();
+        this.wsRunning = false;
         delete this.ws;
         this.ws = undefined;
     }

@@ -20,6 +20,7 @@
 - [x] content of page need to be in scrolling div so bottom button don't escape
 
 ### yss
+- [] write xdoc to **site.json**
 
 - [] entering on huavai fullscreen button do back action
 

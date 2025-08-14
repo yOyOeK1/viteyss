@@ -5,6 +5,11 @@ import { hotHelperServer } from "../../libs/hotHelper.js";
 import markdownit from 'markdown-it'
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 
 class m_wiki extends hotHelperServer{
@@ -47,7 +52,7 @@ class m_wiki extends hotHelperServer{
                 msg['html'] = '';
 
 
-                let urlBase = './';
+                let urlBase = path.join(__dirname,'../../');
 
                 let ps = msg.fullFileName.split('/');
                 if( ps[ ps.length-1 ].substring(0,5) == 'site-' ){
@@ -114,11 +119,11 @@ class m_wiki extends hotHelperServer{
         
         } else if( msg.topic == 'get/getMdsList' && msg.th !=undefined ){
             this.cl('get md list tastk ... th: '+msg.th);
-            let dirPat = path.resolve('wikiSites');
+            let dirPat = path.resolve( path.join(__dirname,'../../wikiSites'));
             console.log("dir to wiki: "+dirPat);
             let mdList = [];
             // in /wikiSites
-            let d0res = fs.readdirSync( 'wikiSites');
+            let d0res = fs.readdirSync( dirPat );
             d0res.forEach((val,i)=>{
                 d0res[i] = val.substring(0,val.length-3);
             });
@@ -138,7 +143,7 @@ class m_wiki extends hotHelperServer{
 
 
 
-            let d1res = fs.readdirSync( 'sites' )
+            let d1res = fs.readdirSync( path.join(__dirname,'../') )
             for( let s=0,si=d1res.length; s<si; s++ ){
                 let file = d1res[s];
 

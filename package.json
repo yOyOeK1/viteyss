@@ -11,6 +11,8 @@
   "imports": {
     "#hotHelper": "./libs/hotHelper.js"
   },
+
+
   "devDependencies": {
     "vite": "^7.0.4"
   },
@@ -18,9 +20,7 @@
     "@vitejs/plugin-vue": "^6.0.0",
     "formidable": "^3.5.4",
     "markdown-it": "^14.1.0",
-    "mnodehttp": "file:../../../../tmp/mnodehttp-latest.tgz",
-    "unplugin-vue-markdown": "^29.1.0",
-    "viteyss-site-hello-world": "file:../viteyss-site-hello-world",
-    "viteyss-site-otdmtools": "file:../viteyss-site-otdmtools"
+    "mnodehttp": "https://github.com/yOyOeK1/mnodehttp.git",
+    "unplugin-vue-markdown": "^29.1.0"
   }
 }

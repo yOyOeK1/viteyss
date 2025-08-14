@@ -31,6 +31,11 @@ import { plugVector  } from './libs/plugVector.js';
 import { sh_reqParse } from './serverHelp.js';
 
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+
+
 var config = undefined;
 
 function cl(str){
@@ -140,12 +145,18 @@ class serverVite {
   
   
   mkReadyForVite( conf ){    
-    let fsAllow = [fs.realpathSync('./')];
-    for( let p of this.config.pathsToSites )
-      fsAllow.push(fs.realpathSync(p));
+    let fsAllow = [ __dirname, path.join(__dirname, 'wikiSites'), fs.realpathSync('./')];
+    for( let p of this.config.pathsToSites ){
+      try{
+        fsAllow.push(fs.realpathSync(p));
+      }catch(e){
+        console.error(`serVit [e] looking for site directory [${p}] in allows error\n`,e,'\n---------- DONE');
+      }
+    }
     console.log(`[i] host file access to `,fsAllow);
 
     return defineConfig({
+      root:__dirname,
       
       define:{
         'process.env.vy_config': this.config,
@@ -160,7 +171,7 @@ class serverVite {
       build : {
         rollupOptions: {
           input: {
-            main: resolve(__dirname, 'index.html'),
+            main: resolve(path.join(__dirname, 'index.html')),
             //'abc' : resolve(__dirname, 'dirTest1/index.html'),
             'ys': resolve(__dirname, '../viteyss-site-otdmtools/index.html'),
           },
@@ -311,8 +322,10 @@ class serverVite {
       configureServer(server) {  
           server.middlewares.use(async (req, res, next) => {
           
-            if( req.originalUrl )
+          if( req.originalUrl )
             req.url = req.originalUrl;
+
+          //console.log('serVite    ',req.url,' methode:', req.method,'\ndirName: ',__dirname);
             
           // -- POST handlers 
           let pRes = tpVector.execReturn('handleRequest',{
