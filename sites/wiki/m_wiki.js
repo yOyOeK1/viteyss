@@ -51,7 +51,7 @@ class m_wiki extends hotHelperServer{
             try{
                 msg['html'] = '';
 
-
+                /*
                 let urlBase = path.join(__dirname,'../../');
 
                 let ps = msg.fullFileName.split('/');
@@ -69,10 +69,10 @@ class m_wiki extends hotHelperServer{
                 }else if( ps[ ps.length-1 ].substring(0,13) == 'viteyss-site-' ){
                     msg.fullFileName = './sites/'+ps[ ps.length-1 ].substring(13,ps[ ps.length-1 ].length-3)+'/README.md';
                 }
-
-                let f = path.resolve(msg.fullFileName);
+                */
+                //let f = path.resolve(msg.fullFileName);
                 
-                fs.readFile( f, (err, data )=>{
+                fs.readFile( msg.fullFileName, (err, data )=>{
                     if( err ){
                         console.error('[e] get/getMd error: \n\n'+err+"\n\n-----");
                     }
@@ -96,7 +96,7 @@ class m_wiki extends hotHelperServer{
                     
                     pCont = pCont.replaceAll(
                         '![](',
-                        `![](${urlBase}`
+                        `![](${msg.basename}`
                         );
 
 
@@ -125,7 +125,12 @@ class m_wiki extends hotHelperServer{
             // in /wikiSites
             let d0res = fs.readdirSync( dirPat );
             d0res.forEach((val,i)=>{
-                d0res[i] = val.substring(0,val.length-3);
+                d0res[i] = {
+                    'name': val.substring(0,val.length-3),
+                    'category':'wikiSites',
+                    'path': path.join( dirPat, val),
+                    'basename': '/wikiSites/'
+                };
             });
             mdList = mdList.concat( d0res );
 
@@ -135,7 +140,14 @@ class m_wiki extends hotHelperServer{
             for( let fDi of this.server.yssPages ){
                 if( fs.existsSync( path.join( fDi.fDir, 'README.md' ) ) ){
                     dirsToLook.push( fDi.fDir );
-                    mdList.push( 'site-'+fDi.dir );
+                    console.log('add site '+fDi.siteNo);
+                    mdList.push( {
+                        'name': 'site / '+( fDi.dir != '' ? fDi.dir : fDi.oName),
+                        'category':'yssPages',
+                        'path': path.join( fDi.fDir, 'README.md'),
+                        'basename': `/yss/siteNo/${fDi.siteNo}/${fDi.dir}/`
+                    });
+                        
                 }
 
             }
@@ -154,7 +166,13 @@ class m_wiki extends hotHelperServer{
                     fs.existsSync( filePathREADME ) 
                 ){
 
-                    mdList.push( 'viteyss-site-'+file );
+                    mdList.push({
+                        'name': 'viteyss-site-'+file,
+                        'category':'viteyss / sites',
+                        'path': filePathREADME,
+                        'basename': `/sites/${file}/`
+                    }); 
+                       
                     
                 }
                 

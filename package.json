@@ -11,12 +11,11 @@
   "imports": {
     "#hotHelper": "./libs/hotHelper.js"
   },
-
-
   "devDependencies": {
     "vite": "^7.0.4"
   },
   "dependencies": {
+    "@vitejs/plugin-basic-ssl": "^2.1.0",
     "@vitejs/plugin-vue": "^6.0.0",
     "formidable": "^3.5.4",
     "markdown-it": "^14.1.0",

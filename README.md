@@ -24,6 +24,10 @@ So your project **site** have no restrictions, fast to deploy new concept
 Depend on your situation.
 
 
+#### as node-red-contrib
+
+Yes this can run in Node-Red as drag and drop. Look for wrapper https://github.com/yOyOeK1/node-red-contrib-viteyss
+
 #### stand alone instance
 
 in terminal in your projects directory
@@ -36,7 +40,7 @@ npm i https://github.com/yOyOeK1/mnodehttp/blob/main/mnodehttp-latest.tgz
 ```
 
 
-## start it / run it / use it
+##### start it / run it / use it
 
 in terminal in project directory run `npm run startItAsDev` after this you will see in logs info`s:
 - adress to get **http**

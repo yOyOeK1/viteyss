@@ -40,25 +40,34 @@ if( 1 ){
 }
 
 
-
+var hostPublicIp = '192.168.43.220';
 var config0 = {
-    'name': "bigOne",
-    'HOST': '0.0.0.0',
-    'PORT': 8080,
-    'wsHOST': '0.0.0.0',
-    'wsPORT': 2999,
-    'pathToYss': '/home/yoyo/Apps/oiyshTerminal/ySS_calibration',
-    'pathsToSites': pathsToSites,
-    //'wsInjection': false,
-    'wsInjection': true,
-    'yssWSUrl': `ws://192.168.43.220:2999/`,
-    
-    'sitesInjection': true,
-    'ws': undefined,
-    'wsPinger': true
+  'https': true,
+  'name': "bigOne",
+  'HOST': '0.0.0.0',
+  'PORT': 8080,
+  'wsHOST': '0.0.0.0',
+  'wsPORT': 2999,
+  'pathToYss': '/home/yoyo/Apps/oiyshTerminal/ySS_calibration',
+  'pathsToSites': pathsToSites,
+  //'wsInjection': false,
+  'wsInjection': true,
+  
+  'sitesInjection': true,
+  'ws': undefined,
+  'wsPinger': true
 };
 
+if( config0.https == true ){
+  config0['yssWSUrl'] = `wss://${hostPublicIp}:${config0.PORT}/fooWSS`;
+} else {
+  // old ws way
+  config0['yssWSUrl'] = `ws://${hostPublicIp}:${config0.wsPORT}`;
+  
+  // noService ws as websocket as plugin in vite
+  //config0['yssWSUrl'] = `ws://${hostPublicIp}:${config0.PORT}/fooWSS`;
 
+}
 
 
 cl("Hello - As Dev");

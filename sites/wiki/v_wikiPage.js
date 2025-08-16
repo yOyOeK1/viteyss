@@ -71,11 +71,11 @@ class v_wikiPage extends hotHelperClient{
 
   }
 
-  loadNew = ( fileName )=>{
-    let fullFileName = `wikiSites/${fileName}.md`;
+  loadNew = ( item )=>{
+    let fullFileName = item.path;
     console.log('full file name: '+fullFileName);
     
-    this.hotTaskStart({topic:'get/getMd','fullFileName':fullFileName}).then((msg)=>{
+    this.hotTaskStart({topic:'get/getMd','basename':item.basename,'fullFileName':fullFileName}).then((msg)=>{
       this.app._instance.ctx.$data.md = msg.html;
       $('.wikiContent').scrollTop();
       //this.app._instance.ctx.$refs.myWikiContent.scrollIntoView({top:0,behavior: 'smooth'})
@@ -119,6 +119,19 @@ class v_wikiPage extends hotHelperClient{
       
       // = mdCon;
   }
+
+  loadMdsList(){
+    this.hotTaskStart({topic:'get/getMdsList'}).then((msg)=>{
+      cl("Got result of mds list");cl(msg);
+      //cl(msg.list.reverse());
+      this.menu._instance.ctx.$data.mdList=msg.list;
+     
+    }).catch( (err)=>{
+      console.error(' Not able to get task mdList done :(');
+    } );
+
+  }
+
   
   getHtmlAfterLoad = () =>{
     cl(`${this.getName} - getHtmlAfterLoad()`);
@@ -128,14 +141,7 @@ class v_wikiPage extends hotHelperClient{
     this.menu._instance.ctx.setWikiPageParent( this );
 
     
-    this.hotTaskStart({topic:'get/getMdsList'}).then((msg)=>{
-      //cl("Got result of mds list");cl(msg);
-      //cl(msg.list.reverse());
-      this.menu._instance.ctx.$data.mdList=msg.list;
-     
-    }).catch( (err)=>{
-      console.error(' Not able to get task mdList done :(');
-    } );
+    this.loadMdsList();
 
     /*
     // listen to server module calls

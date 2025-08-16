@@ -16,6 +16,9 @@
 
 #appWikiPage {
 
+  img{
+    max-width: 100%;
+  }
   
   h1, h2, h3 {
     color: #333;

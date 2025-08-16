@@ -1,9 +1,12 @@
 <template>
     <div id="wikiMenu">
-        <small>Menu [{{ current }}]:</small>
+        <small>
+            Menu [{{ current }}]: 
+            <a href="javascript:siteByKey.v_wikiPage.o.loadMdsList();">[R]</a>
+        </small>
         <ul class="wikiMenu">
             <li v-for="( item, index ) in mdList" >
-                <a @click="setCurrent(item)" :key="index">{{ item }}</a>
+                <a @click="setCurrent(item)" :key="index">{{ item.name }}</a>
             </li>
         </ul>
     </div>
@@ -28,7 +31,7 @@ import { ref } from 'vue';
 export default {
     data(){
         let mdList = ref([ 'yss', 'viteyss', 'need to load ...' ]);
-        let current = ref(0);
+        let current = ref('');
         let wikiPage = ref(new Object());
 
 
@@ -38,10 +41,10 @@ export default {
         setWikiPageParent( parent ){
             this.wikiPage = parent;
         },
-        setCurrent(name){
+        setCurrent(item){
             console.log("setCurrent",name,'\n\n');
-            this.current = name;
-            this.wikiPage.loadNew(name);
+            this.current = item.category+" / "+item.name;
+            this.wikiPage.loadNew(item);
         }
     }
 

@@ -1,27 +1,24 @@
 
 
 import { defineConfig, createServer } from 'vite'
-import formidable from 'formidable';
 import vue from '@vitejs/plugin-vue'
 import Markdown from 'unplugin-vue-markdown/vite';
 
-import * as fsH from 'mnodehttp/fsHelp.js';
-var dirList = fsH.dirList;
-import * as mimeH from 'mnodehttp/mimeHelp.js';
-var getMimeFromExt = mimeH.getMimeFromExt;
+import basicSsl from '@vitejs/plugin-basic-ssl';
+
+
 import * as sitesH from 'mnodehttp/sitesHelp.js';
-import * as nyss from "node-yss";
 
 import fs from 'fs';
 import path from 'path';
 import * as sws from 'mnodehttp/serverWs.js';
-import { mkVueTemplateStr } from 'mnodehttp/vueHelp.js';
 import { requestYss, resSetHeaders, res404 } from 'mnodehttp/yssHelp.js';
 //import { resSetHeaders } from 'mnodehttp/yssHelp.js';
 //import { res404 } from 'mnodehttp/yssHelp.js';
 
 //import { m_wiki } from './sites/wiki/m_wiki.js';
 //import * as otmp from './sites/wiki/m_wiki.js';
+import { WebSocketServer } from 'ws';
 import { wsCallBackHelper } from './wsCallBackHelp.js' 
 import { fileURLToPath, URL } from 'url';           
 
@@ -61,6 +58,11 @@ class serverVite {
   
   constructor( nconfig, nwss, nws ){
     this.config = nconfig;
+
+    if( this.config.https == true ){
+      this.swssClients = {};
+    }
+
     this.wss = nwss;
     this.ws = nws;
     this.http = undefined;
@@ -86,6 +88,42 @@ class serverVite {
   cl(str) {
     console.log('sVit',str);    
   }
+
+  yssWSS(){
+    var tconfig = this.config;
+    var tswss = this.ws;
+
+    return {
+      name: 'yss-wss',
+      configureServer(server) {  
+
+        // do wss 
+        server.httpServer.on('upgrade', function upgrade(request, socket, head) {
+
+          if (request.url == '/fooWSS') {
+          
+            tswss.handleUpgrade(request, socket, head, function done(ws) {
+              console.log("wss on foowss");
+              tswss.emit('connection', ws, request, "c"+Math.random()+"_"+Date.now() );
+              //ws.send('hello from ws2');
+              //setTimeout(()=>{
+              //  ws.send('hello delayd...');
+              //},1000);
+            });
+           
+          }else{
+            //socket.destroy();
+          }
+
+        });     
+
+      }
+
+    }
+
+  }
+
+
 
   initPlugVector(){
     this.pVector = new plugVector();
@@ -155,6 +193,23 @@ class serverVite {
     }
     console.log(`[i] host file access to `,fsAllow);
 
+    let pluginsList = [];
+    if( this.config.https == true ){
+      pluginsList.push( basicSsl() );
+      pluginsList.push( this.yssWSS() );
+
+    }
+    //pluginsList.push( this.cupItTo404PostProcess() );
+    //pluginsList.push( mkcert() );
+    pluginsList.push( this.yssPostProcess() );
+    pluginsList.push( this.addToHotPostProcess() );
+    pluginsList.push( vue({
+        include: [/\.vue$/, /\.md$/],
+      }) );
+    pluginsList.push( Markdown() );
+
+
+
     return defineConfig({
       root:__dirname,
       
@@ -180,6 +235,7 @@ class serverVite {
       */
 
       server: {    
+        https: this.config.https,
         fs:{
           allow:fsAllow,
         },
@@ -197,17 +253,7 @@ class serverVite {
       
       // ... other configurations
       publicDir: [ 'public','sites', 'wikiSites', 'icons','libs'], // Optional, but good practice to explicitly define it.  Defaults to 'public' if not specified
-      plugins: [
-        //this.cupItTo404PostProcess(),
-        this.yssPostProcess(),
-
-        this.addToHotPostProcess(),
-        
-        vue({
-          include: [/\.vue$/, /\.md$/],
-        }),
-        Markdown(),
-      ],
+      plugins: pluginsList,
       
     
     });
@@ -306,11 +352,15 @@ class serverVite {
     }
   }
 
+
+
+
   yssPostProcess( ){
     var tconfig = this.config;
     var tyssPages = this.yssPages;
     var tpVector = this.pVector;
     var tserver = this;
+
     return {
       name: 'yss-post-process',
       /*
@@ -320,49 +370,53 @@ class serverVite {
       },
       */
       configureServer(server) {  
-          server.middlewares.use(async (req, res, next) => {
+        
+        //console.log('req.url: '+server);
+        
+        server.middlewares.use(async (req, res, next) => {
           
-          if( req.originalUrl )
+          if( req.originalUrl ){
             req.url = req.originalUrl;
-
+          }
           //console.log('serVite    ',req.url,' methode:', req.method,'\ndirName: ',__dirname);
-            
-          // -- POST handlers 
-          let pRes = tpVector.execReturn('handleRequest',{
-            'req': req, 'res': res, 'server': tserver
-          });
-          //console.log('plugins result: --------------\n'),pRes,"\n-------------";
-          if( pRes != undefined ){
-            if( pRes.then && pRes.then == 'function ' ){
-              return pRes.then((r)=>{ return r; } );
-            }else{
-              return 1;
-            }
-          }
           
-          /*
-          if( req.method == 'POST' ){
-            console.log('in middle POST ....');
-            let form = formidable({
-              uploadDir: path.join(process.cwd(), 'uploads'),
-              keepExtensions: true,
-              maxFileSize: 5 * 1024 * 1024, // 5MB limit 
+              
+            // -- POST handlers 
+            let pRes = tpVector.execReturn('handleRequest',{
+              'req': req, 'res': res, 'server': tserver
             });
-            let [fields, files] = await form.parse(req);
-            //console.log(` field   `,fields,"\n\nfiles\n",files);
-            
-            let uploadedFile = files.myFile ? files.myFile[0] : null;
-
-            if (uploadedFile) {
-              console.log('File uploaded successfully:', uploadedFile.filepath);
-              console.log('Original filename:', uploadedFile.originalFilename);
-              console.log('File size:', uploadedFile.size);
-              console.log('Description:', fields.description ? fields.description[0] : 'No description');
-              res.end(JSON.stringify(uploadedFile));
+            //console.log('plugins result: --------------\n'),pRes,"\n-------------";
+            if( pRes != undefined ){
+              if( pRes.then && pRes.then == 'function ' ){
+                return pRes.then((r)=>{ return r; } );
+              }else{
+                return 1;
+              }
             }
+          
+            /*
+            if( req.method == 'POST' ){
+              console.log('in middle POST ....');
+              let form = formidable({
+                uploadDir: path.join(process.cwd(), 'uploads'),
+                keepExtensions: true,
+                maxFileSize: 5 * 1024 * 1024, // 5MB limit 
+              });
+              let [fields, files] = await form.parse(req);
+              //console.log(` field   `,fields,"\n\nfiles\n",files);
+              
+              let uploadedFile = files.myFile ? files.myFile[0] : null;
 
-          }
-          */
+              if (uploadedFile) {
+                console.log('File uploaded successfully:', uploadedFile.filepath);
+                console.log('Original filename:', uploadedFile.originalFilename);
+                console.log('File size:', uploadedFile.size);
+                console.log('Description:', fields.description ? fields.description[0] : 'No description');
+                res.end(JSON.stringify(uploadedFile));
+              }
+
+            }
+            */
 
           // ---- POST handlers end
 
