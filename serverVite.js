@@ -442,7 +442,9 @@ class serverVite {
   
 
   async mkInstance(){
-    this.cl('mkInstance: ['+this.config.name+'] http://'+this.config.HOST+":"+this.config.PORT);
+    this.cl('mkInstance: ['+this.config.name+'] '+
+      'http'+( this.config.https ? '(s)':'')+
+      '://'+this.config.HOST+":"+this.config.PORT);
     this.http = await createServer(this.myConf);
     
   }
