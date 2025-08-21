@@ -1,4 +1,4 @@
-# autopilot parts
+# autopilot box parts
 
 To build autopilot diy. This list of parts is a minimum to build `box` with parts to communicate with system processing compass reading and actuator / motor.
 
@@ -30,7 +30,12 @@ This setup allows you to:
 
 ##### addons
 
-buttons, screens, position rudder sensor, .....
+- buttons
+  it's possible to add buttons as switches or momentary buttons and bind them to some actions
+- screens
+  you can use any screen in system to show / give some additional actions. Look for **site / autopilot_v3_svg** as a example Graphical Interface
+- position rudder sensor
+  can be added by adding rotary resistor ~5KOhm or encoder, magnetic encoder, .....
 
 
 
