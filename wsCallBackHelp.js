@@ -39,6 +39,22 @@ class wsCallBackHelper {
         return 0;
     }
 
+    regWsGetClients =  ( ws,event,msg )=>{
+        //console.log(`yyyyy  regWsGetClients got ${msg}`);
+        let cs = this.ws.clients;
+        let tr = [];
+        for( let client of cs ){
+            tr.push( client );
+        }
+        ws.send(JSON.stringify( {
+            "code":200,
+            "wsClients":tr,
+            "status":"OK" 
+        }));
+
+        return 0;
+    }
+
     registerInternalPrefix=()=>{
         let wsCBH = this;
         this.prefixHandlers['wsClientIdent:'] = this.regWsClientIdent;
@@ -47,6 +63,8 @@ class wsCallBackHelper {
         this.prefixHandlers['wsSendToWSID:'] = this.regWsSendToWSID;
         this.prefixHandlersKeys.push('wsSendToWSID:');
 
+        this.prefixHandlers['wsGetClients:'] = this.regWsGetClients;
+        this.prefixHandlersKeys.push('wsGetClients:');
 
     }
 

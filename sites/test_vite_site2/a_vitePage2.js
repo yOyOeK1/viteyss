@@ -57,6 +57,13 @@ no comments
 <hr>
 <b>test echo at /apis/echo</b><br>
 <input type="button" value="send to echo" id="btSendToEcho" /><br>
+
+<hr>
+<b>test ws indentification client stack:</b><br>
+<input type="button" value="get clients" onclick="sOutSend('wsGetClients:');"/>
+<input type="button" value="register me" onclick="sOutSend('wsClientIdent:vite-test-page');"/>
+
+
 <br><br><br><br>
 
 
@@ -141,7 +148,20 @@ no comments
   svgDynoAfterLoad(){}
 
   onMessageCallBack = ( r ) => {
-    cl( `[cb] ${this.getName} - got msg `);
+    cl( `[cb] ${this.getName} - got msg \n`);//+JSON.stringify( r,null,2 ));
+
+    if( r.wsClients ){
+      console.log('nice');
+
+      for( let client of r.wsClients ){
+        if( client.wsCID )
+          console.log('wsClient ',client.wsCID);
+        else
+          console.log('wsClient ','unregistered');
+      }
+
+    }
+
   }
 
 }
