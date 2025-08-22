@@ -9,17 +9,13 @@ Universal box with ports / pins. It can be used in many use examples.
 ## for what it's
 
 In many projects you need to use a sensor / button / ..  or make something in real world, turn on light or make sound, open gate. Your project is in digital world. But to connect numbers or states in your project, you need a bridge to phis cal world. **io-box** have many pin's. **esp32** can make them do amazing things. But to simplify it we will go over 4 ways of using pins:
-In many projects you need to use a sensor / button / ..  or make something in real world, turn on light or make sound, open gate. Your project is in digital world. But to connect numbers or states in your project, you need a bridge to phis cal world. **io-box** have many pin's. **esp32** can make them do amazing things. But to simplify it we will go over 4 ways of using pins:
 
 #### inputs
 
 So events / change of state on pin in physical world will be read as
 
-So events / change of state on pin in physical world will be read as
-
 - **digital input**
     change of state from float reading to **GND** or **+VCC**.
-    Things on / off, button, switch, yes / no, true / false, connection / no connection
     Things on / off, button, switch, yes / no, true / false, connection / no connection
 
 - **analog input**
@@ -30,11 +26,7 @@ So events / change of state on pin in physical world will be read as
 
 So data incoming from logic defined in for example **node-red** can execute action / change of state on pin in real world as
 
-So data incoming from logic defined in for example **node-red** can execute action / change of state on pin in real world as
-
 - **digital outputs**
-    you will be in control if something is on or off / 0v or 3v 
-    if this will turning relay or light or charger .... It's up to project
     you will be in control if something is on or off / 0v or 3v 
     if this will turning relay or light or charger .... It's up to project
 
