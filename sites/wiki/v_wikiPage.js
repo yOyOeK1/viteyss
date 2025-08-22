@@ -71,6 +71,13 @@ class v_wikiPage extends hotHelperClient{
 
   }
 
+  loadNewByPath = ( path )=>{
+    this.loadNew({
+      'path': path,
+      "basename": '--'
+    });
+  }
+
   loadNew = ( item )=>{
     let fullFileName = item.path;
     console.log('full file name: '+fullFileName);
@@ -125,6 +132,8 @@ class v_wikiPage extends hotHelperClient{
       cl("Got result of mds list");cl(msg);
       //cl(msg.list.reverse());
       this.menu._instance.ctx.$data.mdList=msg.list;
+
+      setTimeout(()=>{ $('#wikiMenu').enhanceWithin(); }, 500);
      
     }).catch( (err)=>{
       console.error(' Not able to get task mdList done :(');

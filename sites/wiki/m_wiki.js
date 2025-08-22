@@ -103,8 +103,8 @@ class m_wiki extends hotHelperServer{
                     // insert all md key words **abc** if there is a file with this name
                     for( let k=0,ki=this.mdsList.length; k<ki; k++ ){
                         pCont = pCont.replaceAll(
-                           `**${this.mdsList[k]}**`,
-                            `<a href="javascript:siteByKey.v_wikiPage.o.loadNew('${this.mdsList[k]}');">**${this.mdsList[k]}**</a>`
+                           `**${this.mdsList[k].name}**`,
+                            `<a href="javascript:siteByKey.v_wikiPage.o.menu._instance.ctx.setCurrentByPath('${this.mdsList[k].path}','${this.mdsList[k].name}');">**${this.mdsList[k].name}**</a>`
                         );
                     }    
 
@@ -125,14 +125,18 @@ class m_wiki extends hotHelperServer{
             // in /wikiSites
             let d0res = fs.readdirSync( dirPat );
             d0res.forEach((val,i)=>{
-                d0res[i] = {
-                    'name': val.substring(0,val.length-3),
-                    'category':'wikiSites',
-                    'path': path.join( dirPat, val),
-                    'basename': '/wikiSites/'
-                };
+
+
+                if( fs.lstatSync( path.join( dirPat, val) ).isFile() ){
+                    mdList.push({
+                        'name': val.substring(0,val.length-3),
+                        'category':'wikiSites',
+                        'path': path.join( dirPat, val),
+                        'basename': '/wikiSites/'
+                    });
+                }
             });
-            mdList = mdList.concat( d0res );
+            //mdList = mdList.concat( toAdd );
 
                 
             // in /sites/*/README.md
