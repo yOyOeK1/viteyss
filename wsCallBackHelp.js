@@ -52,7 +52,7 @@ class wsCallBackHelper {
             "status":"OK" 
         }));
 
-        return 0;
+        return 1;
     }
 
     registerInternalPrefix=()=>{
