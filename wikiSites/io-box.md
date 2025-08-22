@@ -2,24 +2,62 @@
 
 Universal box with ports / pings. It can be use in many use examples.
 
-
 ## for what it's
 
-In many projects you need to sens or send something in real world. Your project is in diginal world. But to connect numbers or states you need a bridge to fizical world. io-box have many pin's. esp32 can maka them do amazing things. But to simplify it we will say about 4 ways of using pin in esp32
+In many projects you need to use a sensor / button / ..  or make something in real world, turn on light or make sound, open gate. Your project is in digital world. But to connect numbers or states in your project, you need a bridge to fiscal world. **io-box** have many pin's. **esp32** can make them do amazing things. But to simplify it we will go over 4 ways of using pins:
 
-- **digital inputs**
-    change of state from float reading to GND or +VCC.
+#### inputs
+
+- **digital input**
+    change of state from float reading to **GND** or **+VCC**.
     Things on / off, button, swith, yes / no, true / false, connection / no connection
 
-- **analog inputs**
-    reading in voltage but also reading of potentiometer position to value in rage of 0 ... 4095
-    electronic presure sensors, temperature resistors, ...
+- **analog input**
+    reading in voltage but also reading of potentiometer position to number value in rage of 0 ... 4095
+    electronic pressure sensors, temperature resistors, luminosity sensor, ...
+
+#### outputs
 
 - **digital outputs**
     you will be in control if something is on of off
     if this will turning relay or light or .... It's up to project
 
 - **analog outputs / pwm**
+    pulse with modulation. with some smoothing capacitors can be as a **DAC** 
+
+### esp32 - flavors
+
+There is many versions of this chip. We can focus on:
+
+|                                                                            | esp32-wroom32e on devkit board                                                                                                                                                      |
+| -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| <img title="" src="./assets/ESP32-DevKitC-32E_SPL.jpg" alt="" width="153"> | chip documentation [link...](./xdocs/esp32-wroom-32e_esp32-wroom-32ue_datasheet_en.pdf) , **many input/output pins**, popular board, many addition parts like shealds on the market |
+|                                                                            |                                                                                                                                                                                     |
+|                                                                            | **Wemos D1 mini**                                                                                                                                                                   |
+| ![](./assets/espWeMos_pinout.jpg)                                          | small size, medium amount of pins                                                                                                                                                   |
+|                                                                            |                                                                                                                                                                                     |
+|                                                                            |                                                                                                                                                                                     |
+|                                                                            | **esp8266 - 01**                                                                                                                                                                    |
+|                                                                            | minimum of pins, small, need 3.2v                                                                                                                                                   |
+|                                                                            |                                                                                                                                                                                     |
+
+
+
+
+
+There is many ways to build box and select components. In this project we are building it without soldering ( but it in superior method of connecting ) Instade we will focus on using **devkit boards** with pins allowing as to use **dupon wires**
+
+<img title="" src="./assets/dupon_wires.jpg" alt="" width="426">
+
+
+
+#### esp32 shields
+
+Shield as a addon. You can plug in your selected esp to compatible board allowing to connect wires or sensors easier way. It can give you multiple pins for power supply, or expand capabilities of a esp. Look for key word **[esp shield](https://www.google.com/search?q=eps32+sheald)**
+
+
+
+
 
 
 
@@ -34,24 +72,24 @@ It use generic code to use maximum input outputs and pwm pins on device.
 Register it self with predefined name.
 
 Over mqtt commands
+
 - [ ] setting pin to mode
-    - [ ] input digital
-    - [ ] adc
-    - [ ] output digital
-    - [ ] pwd
+  - [ ] input digital
+  - [ ] adc
+  - [ ] output digital
+  - [ ] pwd
 - [ ] setting pin status update mode
-    - [ ] input
-        - [ ] on change
-        - [ ] every
-    - [ ] adc
-        - [ ] on change
-        - [ ] every
+  - [ ] input
+    - [ ] on change
+    - [ ] every
+  - [ ] adc
+    - [ ] on change
+    - [ ] every
 - [ ] setting pin state by mqtt command
-END TODO
+  END TODO
 
 We can use **arduino-ide** to read / modify our code for our needs.
 Install and start your **arduino-ide** with esp32 extensions
-
 
 ### firmware
 
@@ -65,30 +103,22 @@ Node-Red flow to test your io-box
 
 END TODO
 
-
-
 ##### code modification
 
 We need to set up our:
+
 - wifi ESSD name
 - wifi password
 - ip adress of our mqtt server, port
 - `name` of device / identyficator / sender
 
-
 ##### flashing
 
 Putting build code to the device. Can be done in **android-ide** by pressing `upload` button 
 
-
-
 ##### Node-Red appearance
 
 TODO
-
-
-
-
 
 #### legend
 
@@ -101,3 +131,5 @@ TODO
 **relay** - electricly ingaged and disingage switch
 
 **pwm** - Puls With Modulation
+
+**DAC** - Digital to Analog Converter
