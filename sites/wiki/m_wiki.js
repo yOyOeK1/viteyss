@@ -79,7 +79,16 @@ class m_wiki extends hotHelperServer{
 
                     let pCont = ""+data.toString();           
                     
-
+                    // look for ### points
+                    let lines = pCont.split("\n");
+                    let bullets = [];
+                    for( let line of lines ){
+                        if( line.substring(0,1) == "#" ){
+                            let hLevel = line.indexOf(' ');
+                            let bulletStr = line.substring( hLevel+1, line.length );
+                            bullets.push( {"level": hLevel, "str":bulletStr } );
+                        }
+                    }
                     
                     
                     // add nice task buttons '- [] ' or '- [x] '
@@ -95,8 +104,12 @@ class m_wiki extends hotHelperServer{
                         ); 
                     
                     pCont = pCont.replaceAll(
-                        '![](',
-                        `![](${msg.basename}`
+                        '](./',
+                        `](${msg.basename}`
+                        );
+                    pCont = pCont.replaceAll(
+                        ' src="./',
+                        ` src="${msg.basename}`
                         );
 
 
@@ -109,6 +122,43 @@ class m_wiki extends hotHelperServer{
                     }    
 
                     msg['html'] = this.md.render( pCont );
+
+                    // mod bullets ####
+                    let legendHtml = '';
+                    for(let bul of bullets){
+                        if( bul.level > 1 ){
+                            let lookFor = `<h${bul.level}>${bul.str}</h${bul.level}>`;
+                            let strUrld = encodeURIComponent(bul.str)
+                                .replaceAll("'","upper")
+                                .replaceAll('<strong>','').replaceAll('</strong>','')
+                                .replaceAll('`','up')
+                                .replaceAll("\`",'upp').replaceAll("\\`",'upp').replaceAll("\\\`",'upp')
+                                .replaceAll('.','dot')
+                                .replaceAll('<code>','').replaceAll('</code>','');
+                                
+                            let newVal = `<section id="${strUrld}" />
+                                <h${bul.level}>
+                                    <a href="javascript:void(0);" onclick="window.location.hash='${strUrld}';">#</a>
+                                    ${bul.str}
+                                </h${bul.level}>`;
+                            msg['html'] = msg['html'].replaceAll( lookFor, newVal );
+                            
+                            legendHtml+= `<li><a href="javascript:void(0);" onclick="window.location.hash='${strUrld}';">${bul.str}</a></li>`;
+                        }
+                    }
+
+                     if( legendHtml != '' ){
+                        msg['html'] = `
+                        <wikiTableOfCont>
+                            <section id="tableOfCont" />
+                            <fieldset id="tableOfCont">
+                                <legend><b>Table of contents:</b></legend>
+                                <ul>${legendHtml}</ul>
+                            </fieldset>
+                        </wikiTableOfCont>`+
+                            msg['html'];
+                    }
+
                     this.sendIt(msg);
                 });
                 

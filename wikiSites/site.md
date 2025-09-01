@@ -10,19 +10,20 @@ In context of **yss** / site it's a "set" of files in directory. Base on them yo
 - set module on server site to work on a hardware site of scripts
 - communication over: http, websocket, Hot from **viteyss**
 
-### file structure yss / site
 
-Best is to see `example` **viteyss-site-wiki** 
-Or
-Look in root directory of project `sites/test_vite_blank` 
+### from ... viteyss
 
+Look in root directory of **viteyss** then directory `sites`. It's comming with some examples to copy: **viteyss-site-test_vite_blank**, **viteyss-site-wiki**
 
 
-### sites on yss
+### from ... node-yss
 
-##### Adding, removing, finding sites... when yss is served by `npm` package world.
+As dependency to have **yss** files it's coming with some sites in it's directory `sites/test_functions`
 
-**viteyss** or **mnodehttp** project. So `npm` package world.
+
+##### from ... npm
+
+When yss is served by `npm` package world you run **viteyss** ord **node-red-contrib-viteyss** then if you install in directory of project running it packages with prefix `viteyss-site-` Installed packages will be found in directory of `node_modules` and include it in start. Look in repository for hash [https://github.com/topics/viteyss-site-](#viteyss-site-)
 
 When you start your hosting project, adding **site**(s) to serve on **yss** is in order.
 
@@ -37,14 +38,29 @@ When you start your hosting project, adding **site**(s) to serve on **yss** is i
 - custome setting is posible by editing `pathsToSites` value in `startItAsDev.js` file of hosting project 
 
 
-##### Adding, removing, finding sites... when yss is served by *.deb
+##### from ... playground
+
+Playground will be repository of `oiyshTerminal/ySS_calibartion` can by found on repository [link...](https://github.com/yOyOeK1/oiyshTerminal/tree/main/ySS_calibration/sites) There is many experiments and good samples to start with your project. 
+
+
+##### from ... *.deb
+
+When yss is served by *.deb
 
 Yes it can come in *.deb flavor more [info link ...](https://github.com/yOyOeK1/oiyshTerminal/wiki/otdm-yss) install [wiki link ...](https://github.com/yOyOeK1/oiyshTerminal/wiki/otdm-yss)
 
 
 
 
-#### site.json 
+
+#### creating copy clone - new project / site
+
+Use **viteyss-siteCreateClone** [link ...](https://github.com/yOyOeK1/viteyss-siteCreateClone)
+
+
+
+
+#### site.json - description
 TODO 
 
 `apisrc` - TODO

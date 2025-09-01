@@ -71,6 +71,18 @@ class v_wikiPage extends hotHelperClient{
 
   }
 
+  loadByName = ( pName )=>{
+    let pToSet = -1;
+    for( let p of this.menu._instance.ctx.$data.mdList ){
+      if( pName == p.name ){
+        pToSet = p;
+        break;
+      }
+    }
+    if( pToSet != -1 )
+      this.loadNew( pToSet );
+  }
+
   loadNewByPath = ( path )=>{
     this.loadNew({
       'path': path,
@@ -84,9 +96,9 @@ class v_wikiPage extends hotHelperClient{
     
     this.hotTaskStart({topic:'get/getMd','basename':item.basename,'fullFileName':fullFileName}).then((msg)=>{
       this.app._instance.ctx.$data.md = msg.html;
-      $('.wikiContent').scrollTop();
+      //$('.wikiContent').scrollTop();
       //this.app._instance.ctx.$refs.myWikiContent.scrollIntoView({top:0,behavior: 'smooth'})
-      
+      setTimeout(()=>{window.location.hash='tableOfCont';},300);
       
     }).catch( (err)=>{
       let errMsg = ' Not able to get task getMD done :(';
