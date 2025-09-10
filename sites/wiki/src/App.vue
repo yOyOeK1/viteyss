@@ -42,7 +42,6 @@ export default {
 .wikiContent {
 	margin: 1em;
   overflow-y: auto;
-
 }
 .mdTasks{
   padding: 0px;
@@ -50,6 +49,21 @@ export default {
   left: -7px;
 }
 
+fieldset.tableOfCont a{
+	line-height:1.2;
+}
+.tableOfCont ul{
+	margin-top:8px;
+}
+.wikiContent{ 
+	& p{
+		margin-left:16px;
+	}
+	& pre code{
+		margin-left:16px;
+		padding-left:0px!important;
+	}
+}
 #appWikiPage {
 
   img{
@@ -65,10 +79,13 @@ export default {
   }
   h1, h2, h3, h4, h5, h6, fieldset {
     color: #333;
-    line-height: 0.8;
+    line-height: 0.99;
     padding: 10px;
     background-color: rgb(213, 255, 170);
     border-radius: 15px;    
+	}
+	h1{
+		padding:16px;
 	}
   
 	

@@ -136,7 +136,7 @@ class m_wiki extends hotHelperServer{
                                 .replaceAll('.','dot')
                                 .replaceAll('<code>','').replaceAll('</code>','');
                                 
-                            let newVal = `<section id="${strUrld}" />
+                            let newVal = `<section id="${strUrld}" ></section>
                                 <h${bul.level}>
                                     <a href="javascript:void(0);" onclick="window.location.hash='${strUrld}';">#</a>
                                     ${bul.str}
@@ -150,8 +150,8 @@ class m_wiki extends hotHelperServer{
                      if( legendHtml != '' ){
                         msg['html'] = `
                         <wikiTableOfCont>
-                            <section id="tableOfCont" />
-                            <fieldset id="tableOfCont">
+                            <section id="tableOfCont"></section>
+                            <fieldset class="tableOfCont">
                                 <legend><b>Table of contents:</b></legend>
                                 <ul>${legendHtml}</ul>
                             </fieldset>

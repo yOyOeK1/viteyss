@@ -36,16 +36,34 @@ So data incoming from logic defined in for example **node-red** can execute acti
 
 
 
-
 ### hardware
 
 You need **io-box-parts**
 
 
+### software / firmware
 
+Raports data over WiFi.
+Connect to predefined in code ESSD of network with password.
+Looks for mqtt server.
+
+It use generic code to use maximum input outputs pins on device. 
+Register it self with predefined name.
+TODO
+- [ ] pwm output
+
+Details on current state of functionality can by found in **firmware-esp32IOBox1/README.md** or [oiyshTerminal/esp32IOBox1](https://github.com/yOyOeK1/oiyshTerminal/tree/main/esp32IOBox1)
+
+We can use **arduino-ide** to read / modify our code for our needs.
+Install and start your **arduino-ide** with esp32 extensions
+
+
+Putting build code to the device. Can be done in **android-ide** by pressing `upload` button 
 
 
 #### legend
+
+**io-box-modules** - simple modules to build multimeater, temrmometr, ...
 
 **GND** - ground in the terms of electric polarity
 
@@ -111,61 +129,3 @@ There is many ways to build box and select components. In this project we are bu
 
 Shield as a addon. You can plug in your selected esp to compatible board allowing to connect wires or sensors easier way. It can give you multiple pins for power supply, or expand capabilities of a esp. Look for key word **[esp shield](https://www.google.com/search?q=eps32+sheald)**
 
-### software
-
-Raports data over WiFi.
-Connect to predefined in code ESSD of network with password.
-Looks for mqtt server.
-
-TODO
-It use generic code to use maximum input outputs and pwm pins on device. 
-Register it self with predefined name.
-
-Over mqtt commands
-
-- [ ] setting pin to mode
-  - [ ] input digital
-  - [ ] adc
-  - [ ] output digital
-  - [ ] pwd
-- [ ] setting pin status update mode
-  - [ ] input
-    - [ ] on change
-    - [ ] every
-  - [ ] adc
-    - [ ] on change
-    - [ ] every
-- [ ] setting pin state by mqtt command
-  END TODO
-
-We can use **arduino-ide** to read / modify our code for our needs.
-Install and start your **arduino-ide** with esp32 extensions
-
-### firmware
-
-TODO
-code loading
-where / what to edit
-building
-flashinf
-testing
-Node-Red flow to test your io-box
-
-END TODO
-
-##### code modification
-
-We need to set up our:
-
-- wifi ESSD name
-- wifi password
-- ip adress of our mqtt server, port
-- `name` of device / identyficator / sender
-
-##### flashing
-
-Putting build code to the device. Can be done in **android-ide** by pressing `upload` button 
-
-##### Node-Red appearance
-
-TODO
