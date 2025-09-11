@@ -1,5 +1,6 @@
 import { exec, execSync } from 'child_process'
 import path from 'path'
+import fs from 'fs'
 
 
 var vysPlugins = {};
@@ -23,10 +24,18 @@ function pcNpmls( prefixToLook = 'viteyss-site-' ){
 
     //let vysPlugins_ = {};
     function isItvySite( pathTo, packageName ){
+        let realp = fs.realpathSync( pathTo );
+        /*console.log(
+            'pathTo         ', pathTo,'\n',
+            'packageName    ', packageName,'\n',
+            'realPath       ', realp,'\n'
+        );
+        */
         if( packageName.startsWith( prefixToLook ) ){
             vysPlugins[ packageName ] = {
                 'o' : -1,
-                'pathTo': path.resolve( path.join( pathTo, packageName) ),
+                //'pathTo': path.resolve( path.join( pathTo, packageName) ),
+                'pathTo': fs.realpathSync( path.join( realp, packageName) ),
                 'entryDate': Date.now()
             };
           

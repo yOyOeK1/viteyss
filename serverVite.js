@@ -186,7 +186,10 @@ class serverVite {
     let fsAllow = [ __dirname, path.join(__dirname, 'wikiSites'), fs.realpathSync('./')];
     for( let p of this.config.pathsToSites ){
       try{
-        fsAllow.push(fs.realpathSync(p));
+        fsAllow.push( 
+          fs.realpathSync(p)
+          //p
+          );
       }catch(e){
         console.error(`serVit [e] looking for site directory [${p}] in allows error\n`,e,'\n---------- DONE');
       }
@@ -208,6 +211,15 @@ class serverVite {
       }) );
     pluginsList.push( Markdown() );
 
+    let ssl = this.config.https;
+    if( ssl == true ){
+      ssl = { //path.join(__dirname, 'wikiSites')
+          key: fs.readFileSync( path.join( __dirname, 'cert/server.key') ), // Path to your private key
+          cert: fs.readFileSync( path.join(__dirname, 'cert/server.crt') )  // Path to your certificate
+        };
+      this.cl('HTTP(S) enabled ... reading key crt ....');
+      this.cl(ssl);
+    }
 
 
     return defineConfig({
@@ -215,13 +227,11 @@ class serverVite {
       
       define:{
         'process.env.vy_config': this.config,
-
         'testDefineVal': '1',
         'process.env.testDefineVal2': '{abc:1,ddd:"str"}',
         'process.env.testDefineVal3': {abc:1,ddd:"str"},
         //'process.env.testFunc1': ()=>{ console.log('testFunc1')},
       },   
-
       /*
       build : {
         rollupOptions: {
@@ -235,7 +245,7 @@ class serverVite {
       */
 
       server: {    
-        https: this.config.https,
+        https: ssl,
         fs:{
           allow:fsAllow,
         },
