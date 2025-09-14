@@ -41,29 +41,21 @@ So data incoming from logic defined in for example **node-red** can execute acti
 You need **io-box-parts**
 
 
-### software / firmware
+### firmware
 
-Raports data over WiFi.
-Connect to predefined in code ESSD of network with password.
-Looks for mqtt server.
-
-It use generic code to use maximum input outputs pins on device. 
-Register it self with predefined name.
-TODO
-- [ ] pwm output
-
-Details on current state of functionality can by found in **firmware-esp32IOBox1/README.md** or [oiyshTerminal/esp32IOBox1](https://github.com/yOyOeK1/oiyshTerminal/tree/main/esp32IOBox1)
-
-We can use **arduino-ide** to read / modify our code for our needs.
-Install and start your **arduino-ide** with esp32 extensions
+Details on current state of functionality and firmware can by found in **firmware-esp32IOBox1** or [oiyshTerminal/esp32IOBox1](https://github.com/yOyOeK1/oiyshTerminal/tree/main/esp32IOBox1)
 
 
-Putting build code to the device. Can be done in **android-ide** by pressing `upload` button 
+
+#### futures
+
+**io-box-modules** - simple modules to build multimeater, temrmometr, ...
+
+**io-box-logic-analizer** - enable on one GPIO to read UART or ...
+
 
 
 #### legend
-
-**io-box-modules** - simple modules to build multimeater, temrmometr, ...
 
 **GND** - ground in the terms of electric polarity
 

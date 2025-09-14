@@ -1,0 +1,61 @@
+[
+    {
+        "id": "50a8b371647d6929",
+        "type": "file",
+        "z": "3827d352eb628c7c",
+        "name": "",
+        "filename": "/tmp/la.csv",
+        "appendNewline": false,
+        "createDir": false,
+        "overwriteFile": "false",
+        "encoding": "none",
+        "x": 970,
+        "y": 720,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e151a0d987be79ac",
+        "type": "switch",
+        "z": "3827d352eb628c7c",
+        "name": "../la",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "cont",
+                "v": "and/boxio/1/la",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 810,
+        "y": 680,
+        "wires": [
+            [
+                "50a8b371647d6929",
+                "437c67b902616af1"
+            ]
+        ]
+    },
+    {
+        "id": "437c67b902616af1",
+        "type": "debug",
+        "z": "3827d352eb628c7c",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 840,
+        "y": 760,
+        "wires": []
+    }
+]
