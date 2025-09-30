@@ -25,6 +25,7 @@ var pathsToSites = [
     // if you have `~/.viteyss/sites
     path.join( process.env.HOME, '.viteyss', 'sites' ),
 ];
+var pathToSitesPackages = [];
 
 // sites ass a plugins `viteyss-site-`
 if( 1 ){
@@ -35,6 +36,12 @@ if( 1 ){
   if( Object.keys( vysPlugins ).length > 0 ){
     Object.keys( vysPlugins ).forEach((pkey)=>{
       pathsToSites.push( vysPlugins[pkey].pathTo );
+      // add path to sites from packages 
+      let ptp = {
+        "package":vysPlugins[pkey].package,
+        "pathTo":vysPlugins[pkey].pathTo
+      };
+      pathToSitesPackages.push( ptp );
     });
   }
 }
@@ -50,12 +57,13 @@ var config0 = {
   'wsPORT': 2999,
   'pathToYss': '/home/yoyo/Apps/oiyshTerminal/ySS_calibration',
   'pathsToSites': pathsToSites,
+  "pathsToSitesPackages": pathToSitesPackages,
   //'wsInjection': false,
   'wsInjection': true,
   
   'sitesInjection': true,
   'ws': undefined,
-  'wsPinger': true
+  'wsPinger': false
 };
 
 if( config0.https == true ){

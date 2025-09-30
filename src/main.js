@@ -8,6 +8,31 @@ import { setupCounter } from './counter.js'
 import { createApp } from 'vue'
 import mApp from './mApp.vue'
 
+import { wsqqDriverEmint_yss } from '../libs/wsqqDriverEmit_yss.js'
+import { getSystemIdent } from '../libs/getBrowserName.js';
+import { installSitesToQQS } from '../libs/sitesToQQS.js';
+import { wsqqYssTookOwerWs_install } from '../libs/wsqqYssTookOverWs.js';
+
+window['thisClientIdent'] =  getSystemIdent();
+
+
+
+// install qqS
+// so puts it's self infront of 
+// `window.pager.callCurrentPage_onMessageCallBack`
+console.log('qqS installation ... wsqqYssTookOwerWs_install(); ... main.js call');
+wsqqYssTookOwerWs_install();
+
+
+// sites loaded and install no qqS
+// subscriptions for sites with defined trafic
+console.log('sites to qqS ..... installSitesToQQS(); ... main.js call');
+installSitesToQQS();
+// sites loaded DONE
+
+
+
+
 
 window.viteMksite = ()=>{
   $("#viteapp").html("hello");
@@ -20,8 +45,8 @@ window.viteMksite = ()=>{
 if (import.meta.hot) {
   window['Hoty'] = import.meta.hot;
   console.log("have HOT");
-  console.log( import.meta.env);
-  console.log( import.meta);
+  console.log("have HOT", import.meta.env);
+  console.log("have HOT", import.meta);
 
  
   window['Hot'] = import.meta.hot;
