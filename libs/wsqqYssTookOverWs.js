@@ -1,41 +1,13 @@
-import {wsqq} from '../libs/wsqq.js'
-import { wsqqDriverEmint_yss } from '../libs/wsqqDriverEmit_yss.js'
-
-
-
-// install qqC onmessage wsCallback  to viteyss
-class qqSFalbackToWS{
-  constructor(){
-    this.parent = -1;
-  }
-  setParentWsqq( parentwsqq ){
-    this.parent = parentwsqq;    
-    sOutSend(`qq:{"subscribeQ":"wsqq/+/topicsDump"}`);
-  }
-  getTopicsDump=()=>{
-    //sOutSend('qq:{"wsqqtopicstdump":1}');
-  }
-  subscribeClient=( topic )=>{
-    //qqC.subscribe( topic );
-    console.log(" wsqqYssTookOverWs ....subscribe client topic:"+topic);
-    sOutSend(`qq:{"subscribeQ":"${topic}"}`);
-  }
-  send=( topic_, payload_ )=>{
-    console.log(" wsqqYssTookOverWs ....");
-  }
-}
-window['qqC'] = wsqq.client;
-
 
 
 var wsqqYssTookOwerWs_install = function(){
     console.log('wsqqYssTookOwerWs_install(); .... start');
 
     function installQQS(){
-        let qqS = new wsqq.server(wsqqDriverEmint_yss, 'qq:', thisClientIdent);
-        qqS.setFallBackGate([ new qqSFalbackToWS() ]);
+        //let qqS = new wsqq.server(wsqqDriverEmint_yss, 'qq:', thisClientIdent);
+        //qqS.setFallBackGate([ new qqSFalbackToWS() ]);
         //let qqSAsHandler = new wsqq.server(wsqqDriverEmint_yss, 'qq:', 'handler');
-        window['qqS'] = qqS;
+        //window['qqS'] = qqS;
 
 
         console.log('wsqqC installation ...');
@@ -43,11 +15,24 @@ var wsqqYssTookOwerWs_install = function(){
 
         window.pager.wsCallback = function( r ){
 
-            console.log(`wsqqC took over wsCallback ! -- `+r);
+
+            //console.log(`wsqqC took over wsCallback ! -- `+r);
+            //try{
+            //  console.log('json ------------------\n',JSON.stringify(r,null,4));
+            //}catch(e){}
             
         
+            // bridge from web socket to qq2 
+            if( 'topic' in r && 'payload' in r && Object.keys(r).length == 2 ){
+              console.log('wsqqC => q2.emit ....');
+              //if( r['topic'] != '$SYS/client/subscribe' )
+                q2.emit( r['topic'], r['payload'] , { src: 'ws' } );
 
-            if( 'topic' in r ){
+            }
+            // bridge from web socket to qq2  END
+
+
+            if( 0 && 'topic' in r ){
 
               // rerouting msg to site   ->  handler
               if( 'payload' in r && 

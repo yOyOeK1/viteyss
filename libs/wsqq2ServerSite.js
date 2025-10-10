@@ -38,7 +38,9 @@ sOutSend('qq:{"wsqqclientdump":1}');
 
 */
 
+import { qqBridge_ws_to_qq } from "../src/qqBridge2.js";
 import { topicPatternChk } from "./topicPatternHelp.js";
+import { qq2 } from "./wsqq2.js";
 
 /*
 function topicMatchChk( topik, str ){
@@ -101,15 +103,21 @@ let wsqqSEmit = function( client, topic_, payload_ ){
 };
 
 
-class wsqqs{
-    constructor( wsqqDriver, prefixUse = 'wsqq:', ident = ''){
-        wsqqEmitDriverUse = wsqqDriver;    
+class qq2S{
+    constructor( prefixUse = 'wsqq2S:', ident = ''){
+
+        this.q2 = new qq2( '@viteyss' );
+
+        this.qqBridge_ws_to_qq_o = new qqBridge_ws_to_qq('ws_2_qqC_00', this);
+        this.q2.on( this.qqBridge_ws_to_qq_o.qqBName, '$SYS/#', this.qqBridge_ws_to_qq_o.parse );
+
         this.clients = [];
         this.fallBackGate = [];
         this.prefix = prefixUse;
         this.ident = ident;
         this.prefixLength = this.prefix.length;
-        this.cl(`init .... wsqq [${this.prefix} ${this.ident}] done`);
+        this.msgSrc = -1;
+        this.cl(`init .... wsqq2S [${this.prefix} ${this.ident}] done`);
     }
 
     cl(m){
@@ -146,7 +154,7 @@ class wsqqs{
                 "entryDate": Date.now()
             } );
             cId = this.clients.length-1;
-            this.sendToSubscribers('wsqq/client/new',cId);
+            this.sendToSubscribers('wsqq2/client/new',cId);
         }
         return cId;
     }
@@ -180,15 +188,12 @@ class wsqqs{
     }
 
     
-    subscribeClient=( client, topic, broadCast=true )=>{
+    subscribeClient=( client, topic  )=>{
         if( client['subscribe'].indexOf( topic ) == -1 ){
             client['subscribe'].push( topic );
         }
-        if( broadCast )
-            this.sendToSubscribers( `wsqq/${this.ident}/topicsDump`, this.getTopicsDump() );
-        for(let f of this.fallBackGate){
-            f.subscribeClient( topic );
-        }
+        
+       
     }
     unsubscribeClient=( client, topic, broadCast=true )=>{
         let tDel = client['subscribe'].indexOf( topic );
@@ -196,8 +201,7 @@ class wsqqs{
         if( tDel != -1 ){
             client['subscribe'].pop( tDel );
         }
-        if( broadCast )
-            this.sendToSubscribers( `wsqq/${this.ident}/topicsDump`, this.getTopicsDump() );
+        
     }
    
    
@@ -211,7 +215,7 @@ class wsqqs{
         if( cId != -1 )
             this.clients.pop( cId );
         this.cl(`close      Have clients int stack (${this.clients.length})`);
-        this.sendToSubscribers( 'wsqq/client/close', cId );
+        this.sendToSubscribers( 'wsqq2/client/close', cId );
     }
 
     getTopicsDump = () =>{
@@ -247,9 +251,72 @@ class wsqqs{
         return tr;
     }
 
+    
     onMsg = ( ws, event, msg, broadCast=true ) =>{
-        let deb = true;
+        this.msgSrc = ws;
+        let deb = false;
+        msg = String(msg).substring( this.prefixLength );
         wsqqStats.gotTotal++
+        let j = JSON.parse(msg);
+        if( deb ) {
+            this.cl(`onMsg ev:${event}`);
+            this.cl( "j raw msg:\n"+JSON.stringify(j,null,4) );
+            if( 'qq2Subs' in ws ){
+                this.cl(['ws subs',ws['qq2Subs']]);
+            }
+        }
+        
+        if( 'subscribe' in j && 'name' in j ){
+            let jname = j['name'];
+            let jsubscribe = j['subscribe'];
+            if( deb ) this.cl('subscribe ['+jname+'] ws client on topic: '+jsubscribe);
+
+            if( 'qq2Subs' in ws ){
+                if( ws['qq2Subs'].indexOf( jname ) == -1 )
+                    ws['qq2Subs'].push( jname  );
+            }else{
+                ws['qq2Subs'] = [ jname ];
+            }
+
+            this.q2.on( jname, jsubscribe, (topic_, payload_)=>{
+
+                if( deb ) this.cl('ws.send to ['+jname+'] ws client on topic: '+topic_);
+                ws.send( JSON.stringify( { topic:topic_, payload:payload_} ) );
+
+            } );
+
+        }
+
+        if( 'topic' in j && 'payload' in j ){
+            if( deb ) this.cl('got msg on topic: '+j['topic']+' ... emit ');
+            if( deb ) this.cl('ws have qq2Subs? '+( 'qqSSubs' in ws ));
+            if( 'qqSSubs' in ws ){
+                this.cl(['subs',ws['qq2Subs']]);
+            }
+
+            this.q2.emit( j['topic'], j['payload'], {skipClient: ws['qq2Subs'] } );
+        }
+
+        if( 'cmd' in j ){
+            this.cl('got cmd : '+j['cmd']);
+            if( j['cmd'] == 'dump'){
+                this.cl('cmd: dump-------------------\n');
+                this.q2.dump();
+            }else  if( j['cmd'] == 'getAllTopics'){
+                this.cl('cmd: getAllTopics-------------------\n'+
+                    JSON.stringify( this.q2.getAllTopics(), null, 4)
+                );
+            }else if( j['cmd'] == 'getByClient'){ //getByClient
+                this.cl('cmd: getByClient-------------------\n'+
+                    JSON.stringify( this.q2.getByClient(), null, 4)
+                );
+            }else if( j['cmd'] == 'dummSub'){
+                this.cl('cmd: dummSub :['+j['dummSub']+']-------------------\n');
+                this.q2.on('dummSub',j['dummSub'],(t,p)=>{console.log('Log dumSub :'+t+'\npayload: '+p);});
+            }
+        }
+
+        /*
         let cId = this.chkClient( ws );
         msg = String(msg).substring( this.prefixLength );
         
@@ -269,9 +336,9 @@ class wsqqs{
         
         
         if( 'subscribe' in j )
-            this.subscribeClient( this.clients[ cId ], j['subscribe'], broadCast );        
+            this.subscribeClient( this.clients[ cId ], j['subscribe'], j['name'] );        
         if( 'subscribeQ' in j )
-            this.subscribeClient( this.clients[ cId ], j['subscribeQ'], false );        
+            this.subscribeClient( this.clients[ cId ], j['subscribeQ'], j['name'] );        
         if( 'unsubscribe' in j )
             this.unsubscribeClient( this.clients[ cId ], j['unsubscribe'], broadCast );        
         if( 'subscribedTo' in j )
@@ -287,20 +354,21 @@ class wsqqs{
         }
 
 
-
+        */
+        this.msgSrc = -1;
         return 1;
     }
 
 }
 
 
-
+/*
 var wsqq = {
     server: wsqqs,
     client: wsqqC,
     topicPatternChk: topicPatternChk
 };
+*/
 
 
-
-export { wsqq }
+export { qq2S }

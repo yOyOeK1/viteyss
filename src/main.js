@@ -10,17 +10,43 @@ import mApp from './mApp.vue'
 
 import { wsqqDriverEmint_yss } from '../libs/wsqqDriverEmit_yss.js'
 import { getSystemIdent } from '../libs/getBrowserName.js';
+import { qq2 } from '../libs/wsqq2.js';
 import { installSitesToQQS } from '../libs/sitesToQQS.js';
 import { wsqqYssTookOwerWs_install } from '../libs/wsqqYssTookOverWs.js';
+import { qqBridge_qq2_to_ws } from './qqBridge2.js';
+
+
 
 window['thisClientIdent'] =  getSystemIdent();
+let q2 = new qq2( window['thisClientIdent']+`.${Date.now()%100000}` );
+window['q2'] = q2;
+
+window['qqBridge_qq_to_ws_o'] = new qqBridge_qq2_to_ws( 'q2BQ2ws'+`.${Date.now()%100000}` );
+
+setTimeout(()=>{
+  
+  q2.on( window['qqBridge_qq_to_ws_o'].qqBName,'$SYS/#', window['qqBridge_qq_to_ws_o'].parse );
+  
+
+  q2.on('main.js','test/toConsole',(t,p)=>{ 
+
+    console.log(`------------------------\nq2 on [test/toConsole] got ---------------\n`+JSON.stringify({
+      topic: t, payload: p 
+    },null,4)+"\n--------------------------------------------");
+
+  });
+
+
+},2000);
+
+
 
 
 
 // install qqS
 // so puts it's self infront of 
 // `window.pager.callCurrentPage_onMessageCallBack`
-console.log('qqS installation ... wsqqYssTookOwerWs_install(); ... main.js call');
+//console.log('qqS installation ... wsqqYssTookOwerWs_install(); ... main.js call');
 wsqqYssTookOwerWs_install();
 
 
@@ -29,8 +55,6 @@ wsqqYssTookOwerWs_install();
 console.log('sites to qqS ..... installSitesToQQS(); ... main.js call');
 installSitesToQQS();
 // sites loaded DONE
-
-
 
 
 

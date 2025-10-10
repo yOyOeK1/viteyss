@@ -22,11 +22,16 @@ var installSitesToQQS = function(){
       console.log("wsqq load sites ...");
       let wSitesBG = {};
       let wSites = {};
+     // let skC = 0;
       for(let p of process.env.vy_config.pathsToSitesPackages){
-        if( 'package' in p && 'wsqq' in p['package'] ){
+        if( 0 && 'package' in p && 'wsqq' in p['package'] ){
+          // to do only one site !!!
+          //if(skC++ == 1) break;
+          
           let pTo = p['pathTo'];
           console.log('  wsqq -> site with path '+pTo);
           for(let sK of Object.keys( siteByKey ) ){
+           
             if( siteByKey[ sK ].fDir == pTo ){
               wSites[ sK ] = [];
     
@@ -42,11 +47,14 @@ var installSitesToQQS = function(){
                   for( let topik of p['package']['wsqq']['subscribe'] ){
                   
                   // device look out and/ client / site / device / cmd
-                  let subS = `and/${thisClientIdent}/${sK}/${topik}/cmd`;
+                  let subS = `and/${q2.getName()}/${sK}/${topik}/cmd`;
                   if( sK in wSitesBG ) 
                     wSitesBG [ sK ].push( subS );
                   wSites[ sK ].push( subS );
-                  qqS.onMsg(sK,'',`qq:{"subscribe":"${subS}"}`);
+                  //qqS.onMsg(sK,'',`qq:{"subscribe":"${subS}"}`);
+                  q2.on( sK, subS, (t,p)=>{
+                    console.log('q2 site from and/ ... full ... /cmd auto got topic , payload ',t,p);
+                  });
                   console.log(subS);
     
                   // device look out and/ device / cmd
@@ -54,7 +62,10 @@ var installSitesToQQS = function(){
                   if( sK in wSitesBG ) 
                     wSitesBG [ sK ].push( subS );
                   wSites[ sK ].push( subS );
-                  qqS.onMsg(sK,'',`qq:{"subscribe":"${subS}"}`);
+                  //qqS.onMsg(sK,'',`qq:{"subscribe":"${subS}"}`);
+                  q2.on( sK, subS, (t,p)=>{
+                    console.log('q2 site from and/ /cmd auto got topic , payload ',t,p);
+                  });
                   console.log(subS);
     
                 }

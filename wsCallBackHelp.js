@@ -1,5 +1,4 @@
-import { wsqq } from './libs/wsqq.js'
-import { wsqqDriverEmint_WebSocket } from './libs/wsqqDriverEmit_WS.js';
+import { qq2S } from "./libs/wsqq2ServerSite.js";
 
 
 class wsCallBackHelper {
@@ -10,7 +9,7 @@ class wsCallBackHelper {
         this.ws = ws;
 
 
-        this.qqS = new wsqq.server( wsqqDriverEmint_WebSocket, 'qq:', 'viteyss' );
+        this.q2S = new qq2S( 'q2:', 'viteyss' );
         this.prefixHandlers = {};
         this.prefixHandlersKeys = [];
         this.registerInternalPrefix();
@@ -63,8 +62,8 @@ class wsCallBackHelper {
     registerInternalPrefix=()=>{
         let wsCBH = this;
 
-        this.prefixHandlers['qq:'] = this.qqS.onMsg;
-        this.prefixHandlersKeys.push('qq:');
+        this.prefixHandlers['q2:'] = this.q2S.onMsg;
+        this.prefixHandlersKeys.push('q2:');
 
         this.prefixHandlers['wsClientIdent:'] = this.regWsClientIdent;
         this.prefixHandlersKeys.push('wsClientIdent:');
@@ -150,11 +149,11 @@ class wsCallBackHelper {
                     cb.onWsConnect( ws, event, msg );
             });
 
-            this.qqS.on_connection( ws );
+            this.q2S.on_connection( ws );
         }else{
             this.cl(`3 got msg on ws in call back helper \n\tevent\n\n\t${event}\n\nmsg\n\n\t${msg} \n\nnot handled\n\n`);
                 
-            this.qqS.on_close(ws);
+            this.q2S.on_close(ws);
         }
         
     }
