@@ -128,7 +128,13 @@ console.log(`Testing with base string: "${baseString}"\n`);
 
 let posStrs = [
   'abc/123/xx/a',
+  '#/123/xx/a',
+  'abc/#/xx/a',
+  'abc/123/#/a',
+  'abc/123/xx/#',
   '#',
+  '#/xx/a',
+  '#/a',
   'abc/#',
   'abc/+/xx/#',
   '+/+/xx/#',
@@ -137,6 +143,10 @@ let posStrs = [
   'abc/+/xy/#', // on purpuse
   'abc/123/#',
   'abc/123/xx/#',
+  'abc/123/#/a',
+  'abc/#/#/a',
+  '#/123/#/a',
+  'abc/#/a',
   '+/123/xx/a',
   'abc/+/xx/a',
   'abc/123/+/a',
@@ -171,6 +181,9 @@ console.log('\n--- Negative Matches (Should be false) ---');
 negStrs.forEach(pattern => {
   console.log(`isTopicMatch('${baseString}', '${pattern}') -> ${isTopicMatch(baseString, pattern)}`);
 });
+
+
+console.log(`c1 -> ${isTopicMatch("and/showOnMap/res", "and/#/res")}`);
 
 
 }

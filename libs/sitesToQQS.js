@@ -24,7 +24,7 @@ var installSitesToQQS = function(){
       let wSites = {};
      // let skC = 0;
       for(let p of process.env.vy_config.pathsToSitesPackages){
-        if( 0 && 'package' in p && 'wsqq' in p['package'] ){
+        if( 'package' in p && 'wsqq' in p['package'] ){
           // to do only one site !!!
           //if(skC++ == 1) break;
           
@@ -44,28 +44,43 @@ var installSitesToQQS = function(){
     
     
               if( 'subscribe' in p['package']['wsqq'] ){
-                  for( let topik of p['package']['wsqq']['subscribe'] ){
+                  for( let topic of p['package']['wsqq']['subscribe'] ){
                   
                   // device look out and/ client / site / device / cmd
-                  let subS = `and/${q2.getName()}/${sK}/${topik}/cmd`;
+                  let subS = `and/${q2.getName()}/${sK}/${topic}/cmd`;
                   if( sK in wSitesBG ) 
                     wSitesBG [ sK ].push( subS );
                   wSites[ sK ].push( subS );
                   //qqS.onMsg(sK,'',`qq:{"subscribe":"${subS}"}`);
                   q2.on( sK, subS, (t,p)=>{
-                    console.log('q2 site from and/ ... full ... /cmd auto got topic , payload ',t,p);
+                    console.log('q2  I site from and/ /cmd auto got topic:',t,'\npayload: ',p,
+                      '\nsK:'+sK,
+                      '\ntopic:'+topic
+                    );
+                   if( `q2handlers` in siteByKey[ sK ].o && `${topic}` in siteByKey[ sK ].o.q2handlers  ){
+                      console.log('OK 2');
+                      siteByKey[ sK ].o.q2handlers[ `${topic}` ]( {topic:t,payload:p} );
+                    }
                   });
                   console.log(subS);
     
                   // device look out and/ device / cmd
-                  subS = `and/${topik}/cmd`;
+                  subS = `and/${topic}/cmd`;
                   if( sK in wSitesBG ) 
                     wSitesBG [ sK ].push( subS );
                   wSites[ sK ].push( subS );
                   //qqS.onMsg(sK,'',`qq:{"subscribe":"${subS}"}`);
                   q2.on( sK, subS, (t,p)=>{
-                    console.log('q2 site from and/ /cmd auto got topic , payload ',t,p);
+                    console.log('q2  II site from and/ /cmd auto got topic:',t,'\npayload: ',p,
+                      '\nsK:'+sK,
+                      '\ntopic:'+topic
+                    );
+                    if( `q2handlers` in siteByKey[ sK ].o && `${topic}` in siteByKey[ sK ].o.q2handlers  ){
+                      console.log('OK 2');
+                      siteByKey[ sK ].o.q2handlers[ `${topic}` ]( {topic:t,payload:p} );
+                    }
                   });
+
                   console.log(subS);
     
                 }

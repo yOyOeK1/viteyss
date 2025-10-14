@@ -52,17 +52,23 @@ class qq2{
         }
     }
 
-    getByClient=()=>{
+    getByClient=( onlyUser = undefined )=>{
         let tC = {};
-        for( let t of this.topics ){
-            for( let c of t.clients ){
-                if( `${c.name}` in tC ){
+        let t = -1;
+        let c = -1;
+        for( t of this.topics ){
+            for( c of t.clients ){
+                if( onlyUser == undefined || ( onlyUser != undefined && onlyUser == c.name ) ){
+                    if( !( `${c.name}` in tC ) ){
+                        tC[ `${c.name}` ] = [];
+                    }
                     tC[ `${c.name}` ].push( t.topic );
-                }else{
-                    tC[ `${c.name}` ] = [ t.topic ];
                 }
-
             }
+        }
+        if( onlyUser != undefined  ){
+            let k = Object.keys( tC );
+            return tC[ k[ 0 ] ];
         }
         return tC;
     }
@@ -86,6 +92,7 @@ class qq2{
 
         this.stats.got++;
         for( let t of this.topics ){
+            //console.log('emit ['+topic+'    '+t.topic+'] res:'+topicPatternChk( topic, t.topic ));
             if( topicPatternChk( topic, t.topic ) && t.clients.length>0 ){
                 for( let c of t.clients ){
                     if( 'skipClient' in opts && opts['skipClient'].indexOf( c.name ) != -1  ){
@@ -96,7 +103,7 @@ class qq2{
 
                     }else{
                         setTimeout(()=>{
-                            if( this.deb ) console.log('qq2 emit['+this.getName()+']  ... as emit : '+topic+' to '+c.name+' have opts:'+JSON.stringify(opts) );
+                            if( this.deb ) console.log('EMITqq2 emit['+this.getName()+']  ... as emit : '+topic+' to '+c.name+' have opts:'+JSON.stringify(opts) );
                             c.cb( topic, payload );
                             this.stats.send++;
                         },1);
