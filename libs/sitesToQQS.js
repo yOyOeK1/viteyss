@@ -24,7 +24,7 @@ var installSitesToQQS = function(){
       let wSites = {};
      // let skC = 0;
       for(let p of process.env.vy_config.pathsToSitesPackages){
-        if( 'package' in p && 'wsqq' in p['package'] ){
+        if( 0 && 'package' in p && 'wsqq' in p['package'] ){
           // to do only one site !!!
           //if(skC++ == 1) break;
           
