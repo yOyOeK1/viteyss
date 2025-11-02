@@ -1,5 +1,3 @@
-console.log('Hello main.js');
-
 import './style.css'
 import javascriptLogo from './javascript.svg'
 import viteLogo from '/vite.svg'
@@ -47,14 +45,15 @@ setTimeout(()=>{
 // so puts it's self infront of 
 // `window.pager.callCurrentPage_onMessageCallBack`
 //console.log('qqS installation ... wsqqYssTookOwerWs_install(); ... main.js call');
-wsqqYssTookOwerWs_install();
-
-
-// sites loaded and install no qqS
-// subscriptions for sites with defined trafic
-console.log('sites to qqS ..... installSitesToQQS(); ... main.js call');
-installSitesToQQS();
-// sites loaded DONE
+document.addEventListener("DOMContentLoaded", function() {
+  wsqqYssTookOwerWs_install();
+  
+  // sites loaded and install no qqS
+  // subscriptions for sites with defined trafic
+  console.log('sites to qqS ..... installSitesToQQS(); ... main.js call');
+  installSitesToQQS();
+  // sites loaded DONE
+});
 
 
 

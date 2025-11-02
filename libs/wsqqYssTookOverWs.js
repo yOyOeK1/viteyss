@@ -15,22 +15,33 @@ var wsqqYssTookOwerWs_install = function(){
 
         window.pager.wsCallback = function( r ){
 
-
-            //console.log(`wsqqC took over wsCallback ! -- `+r);
-            //try{
-            //  console.log('json ------------------\n',JSON.stringify(r,null,4));
-            //}catch(e){}
+            if( 0 ){
+              console.log(`wsqqC took over wsCallback ! -- `+r);
+              try{
+                console.log('json ------------------\n',JSON.stringify(r,null,4));
+              }catch(e){}
+            }
             
         
             // bridge from web socket to qq2 
             if( 'topic' in r && 'payload' in r && Object.keys(r).length == 2 ){
-              console.log('wsqqC => q2.emit ....');
+              console.log('wsqqC => q2.emit ....'+r['topic'] );
               //if( r['topic'] != '$SYS/client/subscribe' )
                 q2.emit( r['topic'], r['payload'] , { src: 'ws' } );
 
             }
             // bridge from web socket to qq2  END
 
+            // bridge subs list 
+            else if( 'subslist' in r && 'name' in r ){
+              console.log('wsqqC - subslist from '+r.name+'\n\t'+r.subslist.join(" , "));
+              for( let top of r.subslist ){
+                q2.emit('$SYS/client/subscribe',{
+                  name:'ws', topic: top
+                });
+              }
+            }
+            // bridge subs list END 
 
             if( 0 && 'topic' in r ){
 

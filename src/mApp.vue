@@ -12,7 +12,7 @@
 
 </template>
 <script>
-console.log('hello from mApp.vue \ntestDefineVal:'+testDefineVal);
+//console.log('hello from mApp.vue \ntestDefineVal:'+testDefineVal);
 import { ref } from 'vue'
 import xFood from '/OT/ySS_calibration/sites/test_module_vue/comps/FoodItem2.vue'
 

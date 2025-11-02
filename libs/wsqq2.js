@@ -3,7 +3,7 @@ import { topicPatternChk } from "./topicPatternHelp.js";
 
 class qq2{
 
-    constructor( onSite = 'client' ){
+    constructor( onSite = 'client'){
 
         this.topics = [
             {topic: '$SYS', clients:[] }
@@ -14,13 +14,15 @@ class qq2{
         };
 
         this.deb = false;
-    }
 
+    }
+    
     getName = () =>{
         return this.stats.onSite;
     }
-
-     lookForTopic=( topicStr )=>{
+    
+    
+    lookForTopic=( topicStr )=>{
         for( let t of this.topics ){
             if( t.topic == topicStr )
                 return t;
@@ -89,7 +91,7 @@ class qq2{
         if( this.sysParser( topic, payload, opts ) ){
             return true;
         }
-
+        
         this.stats.got++;
         for( let t of this.topics ){
             //console.log('emit ['+topic+'    '+t.topic+'] res:'+topicPatternChk( topic, t.topic ));
@@ -103,7 +105,7 @@ class qq2{
 
                     }else{
                         setTimeout(()=>{
-                            if( this.deb ) console.log('EMITqq2 emit['+this.getName()+']  ... as emit : '+topic+' to '+c.name+' have opts:'+JSON.stringify(opts) );
+                            if( this.deb ) console.log('EMITqq2 emit['+this.getName()+']  ... as emit : '+topic+' to '+c.name+' have opts:'+JSON.stringify(opts),'\n',payload );
                             c.cb( topic, payload );
                             this.stats.send++;
                         },1);
@@ -118,7 +120,21 @@ class qq2{
     on = ( clientName, topic, callBack )=>{
         //console.log('q2.on -> ','\n',clientName, '\n',topic, '\n',callBack,'\n-----------------' );
         let lRes = this.lookForTopic( topic );
-        lRes.clients.push( { name: clientName, cb: callBack } );
+        let nRec = { name: clientName, cb: callBack };
+        let clientIndex = -1;
+        for( let c=0,ci=lRes.clients.length; c<ci; c++){
+            let client =  lRes.clients[ c ];
+            if( client.name == clientName ){
+                clientIndex = c;
+                break;
+            }
+        }
+        if( clientIndex == -1 ){
+            lRes.clients.push( nRec );
+        }else{
+            console.log('q2 on swap client ....',nRec,'\n\tat topic: ',topic);
+            lRes.clients[ clientIndex ] = nRec;
+        }
         if( this.deb ) console.log(this.getName()+' on 1 clientName:'+clientName,callBack);
         this.emit('$SYS/client/subscribe',{name: clientName, topic:topic} );
         

@@ -110,6 +110,13 @@ class qq2S{
 
         this.qqBridge_ws_to_qq_o = new qqBridge_ws_to_qq('ws_2_qqC_00', this);
         this.q2.on( this.qqBridge_ws_to_qq_o.qqBName, '$SYS/#', this.qqBridge_ws_to_qq_o.parse );
+        this.q2.on( 'q2_SS_'+ident, 'test/toConsole', (t,p)=>{
+            this.cl(`\n ===================\n`+
+                '   test / toConsole \n\n'+
+                t+"\n\n"+JSON.stringify(p,null,4)+"\n"+
+                "--------------------------\n"
+            );
+        } );
 
         this.clients = [];
         this.fallBackGate = [];
@@ -251,10 +258,65 @@ class qq2S{
         return tr;
     }
 
+
+    subAsWs = ( ws, name, subscribe ) =>{
+        let deb  = false;
+        this.q2.on( name, subscribe, (topic_, payload_)=>{
+
+            if( deb ) this.cl('subAnWs.ws.send to ['+name+'] ws client on topic: '+topic_);
+            //console.log('subAnWs.qq2 ws cliet is new : ',ws['isNew']);
+            ws.send( JSON.stringify( { topic:topic_, payload:payload_} ) );
+            /*
+            let byC = this.q2.getByClient();
+            for( let c of Object.keys(byC) ){
+                let client = byC[ c ];
+                if( !c.startsWith('q2BQ2ws.') && !c.startsWith('ws_2_qqC') ){
+                    for( let t of client ){
+                        ws.send( JSON.stringify( { topic:topic_, payload:{
+                            name:'ws', topic: t
+                        }} ) );
+                        
+                    }
+                }
+            }
+
+
+            ws['isNew'] = false;
+            }else{
+                ws.send( JSON.stringify( { topic:topic_, payload:payload_} ) );
+            }
+                */
+
+        } );
+
+
+        if( ws['isNew'] ){
+            let byC = this.q2.getByClient();
+            let tL = [];
+            for( let c of Object.keys(byC) ){
+                let client = byC[ c ];
+                if( !c.startsWith('q2BQ2ws.') && !c.startsWith('ws_2_qqC') ){
+                    for( let t of client ){
+                        tL.push( t );
+                        
+                    }
+                }
+            }
+            if( tL.length >0 )
+                ws.send( JSON.stringify( { 
+                    subslist: tL,
+                    name: name
+                    } ) );
+
+
+            ws['isNew'] = false;
+        }
+
+    }
     
     onMsg = ( ws, event, msg, broadCast=true ) =>{
         this.msgSrc = ws;
-        let deb = false;
+        let deb = true;
         msg = String(msg).substring( this.prefixLength );
         wsqqStats.gotTotal++
         let j = JSON.parse(msg);
@@ -265,25 +327,60 @@ class qq2S{
                 this.cl(['ws subs',ws['qq2Subs']]);
             }
         }
-        
-        if( 'subscribe' in j && 'name' in j ){
+
+        if( 'subslist' in j ){
+            if( true ) this.cl('q2SS got subs list from: '+j.name+' of\n\t'+j.subslist.join(' , ') );
+            for(let t of j.subslist ){
+                this.subAsWs( ws , j.name, t );
+            }
+
+        }else if( 'subscribe' in j && 'name' in j ){
             let jname = j['name'];
             let jsubscribe = j['subscribe'];
+            if( !('isNew' in ws) ){
+                ws['isNew'] = true;
+            }
             if( deb ) this.cl('subscribe ['+jname+'] ws client on topic: '+jsubscribe);
 
             if( 'qq2Subs' in ws ){
-                if( ws['qq2Subs'].indexOf( jname ) == -1 )
+                if( ws['qq2Subs'].indexOf( jname ) == -1 ){
                     ws['qq2Subs'].push( jname  );
+                    
+                }
             }else{
                 ws['qq2Subs'] = [ jname ];
+               
             }
 
+            this.subAsWs( ws , jname, jsubscribe );
+            /*
             this.q2.on( jname, jsubscribe, (topic_, payload_)=>{
 
                 if( deb ) this.cl('ws.send to ['+jname+'] ws client on topic: '+topic_);
-                ws.send( JSON.stringify( { topic:topic_, payload:payload_} ) );
+                console.log('qq2 ws cliet is new : ',ws['isNew']);
+                if( ws['isNew'] ){
+                    ws.send( JSON.stringify( { topic:topic_, payload:payload_} ) );
+                    let byC = this.q2.getByClient();
+                    for( let c of Object.keys(byC) ){
+                        let client = byC[ c ];
+                        if( !c.startsWith('q2BQ2ws.') && !c.startsWith('ws_2_qqC') ){
+                            for( let t of client ){
+                                ws.send( JSON.stringify( { topic:topic_, payload:{
+                                    name:'ws', topic: t
+                                }} ) );
+                                
+                            }
+                        }
+                    }
+
+
+                    ws['isNew'] = false;
+                }else{
+                    ws.send( JSON.stringify( { topic:topic_, payload:payload_} ) );
+                }
 
             } );
+             */
 
         }
 
@@ -313,6 +410,14 @@ class qq2S{
             }else if( j['cmd'] == 'dummSub'){
                 this.cl('cmd: dummSub :['+j['dummSub']+']-------------------\n');
                 this.q2.on('dummSub',j['dummSub'],(t,p)=>{console.log('Log dumSub :'+t+'\npayload: '+p);});
+            
+            }else if( j['cmd'] == 'postByClients' && 'src' in j ){
+                this.cl('postByClients: '+j['src']);
+                this.q2.emit( j.src, {
+                    hostName: this.q2.getName(),
+                    res:this.q2.getByClient() ,
+                    entryDate: parseInt( Date.now() )
+                });
             }
         }
 
