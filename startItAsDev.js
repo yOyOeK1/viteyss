@@ -4,7 +4,20 @@ import { vysPlugins, pcNpmls } from './startItAsPluginColector.js'
 import nyss from "node-yss";
 import path from 'path';
 
-let pathNodeYss = path.join( nyss.telMeYourHome(`viteyss - startItAsDev.js`),"yss" );
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const __dirnameProcess = process.cwd();
+
+
+
+
+let instanceTitle = 'local:BigOne';
+
+process.title = instanceTitle;
+let pathNodeYss = path.join( nyss.telMeYourHome(`${instanceTitle} - startItAsDev.js`),instanceTitle );
 
 function cl(str){
     console.log('staI',str);
@@ -50,7 +63,7 @@ if( 1 ){
 var hostPublicIp = '192.168.43.220';
 var config0 = {
   'https': true,
-  'name': "bigOne",
+  'name': instanceTitle,
   'HOST': '0.0.0.0',
   'PORT': 8080,
   'wsHOST': '0.0.0.0',
@@ -78,8 +91,10 @@ if( config0.https == true ){
 }
 
 
-cl("Hello - As Dev");
-
+cl(["\n\n---------------------------\nHello - As Dev process name ["+instanceTitle+"]\n",
+  " - dirname: ",__dirname,
+  "\n -------------------------------------------\n\n"
+]);
 
 let sc0 = new serverContainerVite(0,config0 );
 sc0.initServers();

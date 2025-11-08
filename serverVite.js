@@ -30,6 +30,7 @@ import { sh_reqParse } from './serverHelp.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const __dirnameProcess = process.cwd();
 
 
 
@@ -81,6 +82,7 @@ class serverVite {
     this.buildYssPages()
     this.myConf = this.mkReadyForVite( nconfig );
 
+    
 
     this.cl('serverVite init ....'+this.config.name);
   }
@@ -183,7 +185,7 @@ class serverVite {
   
   
   mkReadyForVite( conf ){    
-    let fsAllow = [ __dirname, path.join(__dirname, 'wikiSites'), fs.realpathSync('./')];
+    let fsAllow = [ fs.realpathSync(__dirnameProcess),__dirname, path.join(__dirname, 'wikiSites'), fs.realpathSync('./')];
     for( let p of this.config.pathsToSites ){
       try{
         fsAllow.push( 
@@ -195,6 +197,7 @@ class serverVite {
       }
     }
     console.log(`[i] host file access to `,fsAllow);
+    //process.exit(11);
 
     let pluginsList = [];
     if( this.config.https == true ){
@@ -264,6 +267,12 @@ class serverVite {
       // ... other configurations
       publicDir: [ 'public','sites', 'wikiSites', 'icons','libs'], // Optional, but good practice to explicitly define it.  Defaults to 'public' if not specified
       plugins: pluginsList,
+
+      //resolve:{
+      //  alias: {
+      //    '@viteyss/lib': fileURLToPath(new URL('./lib', import.meta.url)),
+      //  }
+     // }
       
     
     });
@@ -292,9 +301,29 @@ class serverVite {
             m['imods'] = [];
             console.log("   - module name: "+m.oName);
             for( let fi=0,fic=m.modsrc.length; fi<fic; fi++ ){
-              let fileS = m.fDir+'/'+m.modsrc[fi]; 
               let classS = m.modsrc[fi].substring(0, m.modsrc[fi].length-3);
+              let fileS = m.fDir+'/'+m.modsrc[fi]; 
+              
+              fileS = tserver.pVector.pathSolver( fileS );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
               console.log("     - file: "+fileS);
+              
               m.omods[fi] = import(fileS).then((o)=>{
                 var ims = new o[classS]( server.ws );
                 let ke = ims.wskey;
