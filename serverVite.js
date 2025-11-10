@@ -82,6 +82,8 @@ class serverVite {
     this.buildYssPages()
     this.myConf = this.mkReadyForVite( nconfig );
 
+    this.yssBundleStr = ''; // buffor / cashe
+    this.yssBundleSet = {};
     
 
     this.cl('serverVite init ....'+this.config.name);
@@ -306,22 +308,6 @@ class serverVite {
               
               fileS = tserver.pVector.pathSolver( fileS );
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
               console.log("     - file: "+fileS);
               
               m.omods[fi] = import(fileS).then((o)=>{
@@ -459,13 +445,128 @@ class serverVite {
 
           // ---- POST handlers end
 
+          /// ------------ fake res for bundle start
+          let r = 0;
+          let fakeRes = {
+            setHeader: ( arga, argb ) => { //console.log('fake res got set header ',arga, argb );
+              res.setHeader( arga, argb );
+            },
+            writeHead: ( code, opts ) => { //console.log('fake res got write head ',code, opts);
+              res.writeHead(code, opts );
+            },
 
-          let r = requestYss( req, res, '', tconfig, server, tyssPages);
-          if( r != 0 ){
-            //console.log(`requestYss returnd ...[${r}] so next() ...${req.url}`);
-            next();
-            
+            end: ( tr ) => { //console.log('fake res got end ',tr);
+
+              console.log('VYBundlerS have yss/index.html make bundle ....');
+              let aband = false;
+
+              let trSplt  = tr.split('<!-- bundle area [1] START -->');
+              if( trSplt.length == 1 ){
+                console.error('EE VYBundlerS have yss/index.html make bundle ....ABORD no injection spot found');
+              
+                res.end( tr );
+                if( r != 0 ){
+                  next();
+                }
+              }else{
+                let trTop = trSplt[0];
+                trSplt = trSplt[1].split('<!-- bundle area [1] END -->');
+                let trBundle = trSplt[0];
+                let trBottom = trSplt[1]
+
+
+
+                let bRes = [];
+                let bConts = [];
+                let srcBund = 'NaN';
+                let fileInBundele = [];
+
+
+                if( 1|| tserver.yssBundleStr == '' ){
+
+
+                  trBundle.split('\n').forEach( entr => {
+                    let fName = entr.replaceAll('<script src="','').replaceAll('"></script>','');
+                    
+                    if( fName != "" && String(fName).length > 0 ){                    
+                      let fPath = path.join( tconfig.pathToYss, fName );
+                      let fCont = fs.readFileSync( fPath );
+                      bConts.push( 
+                        `\n//--start [${fName}]\n
+                        //console.log("   * bundle [${fName}]");\n`+
+                        fCont.toString()+
+                        `\n//--end [${fName}]\n`
+                      );
+                      tserver.yssBundleStr = bConts.join('\n\n');
+                      tserver.yssBundleSet[1] = fileInBundele;
+                      bRes.push( fName );
+                      fileInBundele.push( fName );
+                    }
+                  });
+
+                  srcBund = 'files';
+                }else{
+                  bRes = 'cashe';
+                  srcBund = 'cashe';
+
+                }
+
+                console.log('VYBundlerS bundle \n',trBundle,'\n------');
+                tr = trTop+
+                  `\n\n<!-- injection bundle start -->\n\n
+                  <script src="index_bundle.js"></script>
+                  <script>
+  console.log('VYBundlerC [i] - bundle from [${srcBund}]');
+
+  let yssBundleSet = ${JSON.stringify(tserver.yssBundleSet, null, 4)};
+
+
+  let bundleIn = ${JSON.stringify(bRes)};
+  `+/*${bConts.join('\n\n')}*/
+  `
+
+                  \n</script>\n\n<!-- injection bundle end -->\n\n`+
+                  trBottom;
+
+
+                res.end( tr );
+                
+                if( r != 0 ){
+                  next();
+                }
+                console.log('VYBundlerS have yss/index.html make bundle ....END');
+
+              }              
+            }
+          };
+          /// ------------ fake res for bundle end 
+
+
+          if( req.originalUrl == '/yss/index_bundle.js' ){          
+            console.log('VYBundlerS ok have q for index bundle js :) ');
+            res.end(
+              'console.group("VYBundlerC load logs");\n'+
+              tserver.yssBundleStr+
+              'console.groupEnd("VYBundlerC load logs");\n'
+            );
+
+          }else if( req.originalUrl == '/yss/index.html' ){
+
+            r = requestYss( req, fakeRes, '', tconfig, server, tyssPages);
+            if( r != 0 ){
+              //console.log(`requestYss returnd ...[${r}] so next() ...${req.url}`);
+              next();            
+            }
+
+          }else{
+
+            r = requestYss( req, res, '', tconfig, server, tyssPages);
+            if( r != 0 ){
+              //console.log(`requestYss returnd ...[${r}] so next() ...${req.url}`);
+              next();            
+            }
           }
+
 
 
             
