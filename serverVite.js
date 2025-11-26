@@ -227,6 +227,22 @@ class serverVite {
     }
 
 
+    let sAlias = {
+      '@': fileURLToPath(new URL('./src', import.meta.url))
+    };
+    for( let ypi of this.yssPages ){
+      let dName = ypi.fDir.substring( ypi.fDir.lastIndexOf('/')+1 );
+
+      if( ypi.fDir.startsWith('/') ){
+        sAlias[ '@'+dName ] = ypi.fDir;//this.pVector.pathSolver( ypi.fDir );
+      } else{
+        sAlias[ '@'+dName ] = fileURLToPath(new URL('./'+ypi.fDir, import.meta.url))
+      }
+    }
+    this.cl('build of sAliasis result .....');
+    this.cl(sAlias);
+
+
     return defineConfig({
       root:__dirname,
       
@@ -270,14 +286,15 @@ class serverVite {
       publicDir: [ 'public','sites', 'wikiSites', 'icons','libs'], // Optional, but good practice to explicitly define it.  Defaults to 'public' if not specified
       plugins: pluginsList,
 
-      //resolve:{
-      //  alias: {
-      //    '@viteyss/lib': fileURLToPath(new URL('./lib', import.meta.url)),
-      //  }
-     // }
+      resolve:{
+        alias: sAlias
+      }
       
     
     });
+
+    
+    
     
   }
   
