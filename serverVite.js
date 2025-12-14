@@ -104,6 +104,8 @@ class serverVite {
         // do wss 
         server.httpServer.on('upgrade', function upgrade(request, socket, head) {
 
+          
+
           if (request.url == '/fooWSS') {
           
             tswss.handleUpgrade(request, socket, head, function done(ws) {
@@ -135,6 +137,7 @@ class serverVite {
     // to test it curl -x POST http://localhost:8080/apis/echo -d 'a=1&b=2&a=3'  | jq .
     this.pVector.addO('echo',{
       handleRequest: ( args )=> {
+
         let {req, res } = args;
         if( req.method == 'POST' && req.url == '/apis/echo' ){
             console.log('echo /apis/echo in middle ....');
@@ -149,7 +152,7 @@ class serverVite {
               
             } );
             return 0;
-        }
+        }else{}
       }
 
     });
@@ -228,15 +231,18 @@ class serverVite {
 
 
     let sAlias = {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+      '@src/': '/home/yoyo/Apps/viteyss/src/'//fileURLToPath(new URL('./src', import.meta.url))
     };
     for( let ypi of this.yssPages ){
       let dName = ypi.fDir.substring( ypi.fDir.lastIndexOf('/')+1 );
 
       if( ypi.fDir.startsWith('/') ){
-        sAlias[ '@'+dName ] = ypi.fDir;//this.pVector.pathSolver( ypi.fDir );
+        //sAlias[ '@'+dName ] = ypi.fDir;//this.pVector.pathSolver( ypi.fDir );
+        sAlias[ '@'+dName ] = fileURLToPath( new URL(fs.realpathSync( ypi.fDir ), import.meta.url) );
       } else{
-        sAlias[ '@'+dName ] = fileURLToPath(new URL('./'+ypi.fDir, import.meta.url))
+        //fs.realpathSync(__dirnameProcess)
+        //sAlias[ '@'+dName ] = fileURLToPath(new URL('./'+ypi.fDir, import.meta.url))
+        sAlias[ '@'+dName ] = fileURLToPath( new URL(fs.realpathSync( './'+ypi.fDir ), import.meta.url) );
       }
     }
     this.cl('build of sAliasis result .....');
@@ -266,9 +272,11 @@ class serverVite {
       */
 
       server: {    
+        //open: true,
         https: ssl,
-        fs:{
+        'fs':{
           allow:fsAllow,
+          alias: sAlias,
         },
         
         host: this.config.HOST, 
@@ -279,16 +287,16 @@ class serverVite {
           'Access-Control-Allow-Methods':'GET, POST, PUT, DELETE, OPTIONS',
           'Access-Control-Allow-Headers':'Content-Type'
         },
-
+        
       },      
       
       // ... other configurations
       publicDir: [ 'public','sites', 'wikiSites', 'icons','libs'], // Optional, but good practice to explicitly define it.  Defaults to 'public' if not specified
       plugins: pluginsList,
-
       resolve:{
         alias: sAlias
-      }
+      },
+
       
     
     });
@@ -372,6 +380,9 @@ class serverVite {
           });
           //next();
           
+
+          
+
         }
           
       }
