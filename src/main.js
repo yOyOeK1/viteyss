@@ -1,10 +1,11 @@
 import './style.css'
-import javascriptLogo from './javascript.svg'
-import viteLogo from '/vite.svg'
-import { setupCounter } from './counter.js'
+//import javascriptLogo from './javascript.svg'
+//import viteLogo from '/vite.svg'
+//import { setupCounter } from './counter.js'
 
-import { createApp } from 'vue'
-import mApp from './mApp.vue'
+
+//import { createApp } from 'vue'
+//import mApp from './mApp.vue'
 
 import { wsqqDriverEmint_yss } from '../libs/wsqqDriverEmit_yss.js'
 import { getSystemIdent } from '../libs/getBrowserName.js';
@@ -56,14 +57,14 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 
-
+/*
 window.viteMksite = ()=>{
   $("#viteapp").html("hello");
 
   window.viteObjsite=createApp( mApp ).mount( '#viteapp' );
 
 }
-
+*/
 
 if (import.meta.hot) {
   window['Hoty'] = import.meta.hot;
@@ -74,9 +75,9 @@ if (import.meta.hot) {
  
   window['Hot'] = import.meta.hot;
 
-  if(0 ){
+  if( 0 ){
     setInterval(()=>{
-      //console.log('hot - send customm ping ...');
+      console.log('hot - send customm ping ...');
       window['Hot'].send('hot-custom-testC2S', {
         topic:'test/ping', payload:''
       });
@@ -93,7 +94,7 @@ if (import.meta.hot) {
 
   const count = 1;
   import.meta.hot.accept((newModule) => {
-    console.log('updated: count is now ', newModule);
+    console.log('hot - updated: count is now ', newModule);
     
   });
 
@@ -101,7 +102,7 @@ if (import.meta.hot) {
 
 
 }else{
-  console.log("no have HOT");
+  console.log("hot - no have HOT");
 }
 
 
