@@ -16,9 +16,11 @@ Installation example scenario:
 - nodejs >= v20.19.6
 - npm
 
+
 ### in terminal
 
 Installation will use repository to source viteyss. Then it will by used as project template for your installation.
+
 
 ##### installing
 
@@ -58,7 +60,7 @@ So real repository need to be `https://github.com/yOyOeK1/viteyss.git`
 
 * your local wiki :) http://localhost:8080/yss/index.html#pageByName=Wiki
 * https://github.com/topics/viteyss
-* plugins and site: https://github.com/topics/viteyss-site-
+* plugins, extensions, site(s): https://github.com/topics/viteyss-site-
 * starting project plugin for viteyss https://github.com/yOyOeK1/viteyss-siteCreateClone
 
 
