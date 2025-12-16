@@ -1,7 +1,7 @@
 
 import { serverContainerVite } from './serverContainerVite.js'
 import { vysPlugins, pcNpmls } from './startItAsPluginColector.js'
-import nyss from "node-yss";
+import nyss from "./sharelibs/node-yss/index.js";
 import path from 'path';
 
 import { fileURLToPath } from 'url';
@@ -24,7 +24,8 @@ let Viteyss = (
 
   
   process.title = instanceTitle;
-  let pathNodeYss = path.join( nyss.telMeYourHome(`${instanceTitle} - startItAs.js`),instanceTitle );
+  let nyssPath = nyss.telMeYourHome(`${instanceTitle} - startItAs.js`);
+  let pathNodeYss = path.join( nyssPath ,instanceTitle );
 
   function cl(str){
       console.log('staI',str);
@@ -38,12 +39,12 @@ let Viteyss = (
   }else  if( isAs == 'devOT' ){
   }
 
-  let pathToYss = pathNodeYss;
+  let pathToYss = path.join( nyssPath, 'yss');
 
   if( isAs == 'local' ){ 
       pathsToSites = [
         // node-yss / sites
-        path.join( pathNodeYss, 'sites' ),
+        path.join( pathToYss, 'sites' ),
 
         // viteyss / sites
         path.resolve('./sites'),
@@ -58,7 +59,7 @@ let Viteyss = (
         '/home/yoyo/Apps/oiyshTerminal/ySS_calibration/sites',
 
         // node-yss / sites
-        //path.join( pathNodeYss, 'sites' ),
+        //path.join( nyssPath, 'sites' ),
 
         // viteyss / sites
         path.resolve('./sites'),
@@ -141,8 +142,9 @@ let Viteyss = (
   }
 
 
-  cl(["\n\n---------------------------\nHello - As Dev process name ["+instanceTitle+"]\n",
-    " - dirname: ",__dirname,
+  cl(["\n\n-[info]------------------\nHello - isAs:["+isAs+"] process name ["+instanceTitle+"]\n",
+    "\n * dirname: ",__dirname,
+    "\n * config: ",config0,
     "\n -------------------------------------------\n\n"
   ]);
 

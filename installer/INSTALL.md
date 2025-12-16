@@ -17,11 +17,24 @@ repository prefix       [ /home/yoyo/Apps/ ]
  
 
 
-### bash commands 
 
+
+## making project directory
 cd /tmp
 mkdir myViteyss
 cd myViteyss
+
+
+## option - sharelibs
+
+git clone /home/yoyo/Apps/viteyss
+cd viteyss
+
+
+
+## bash commands 
+
+
 git clone /home/yoyo/Apps/mnodehttp
 git clone /home/yoyo/Apps/node-yss
 git clone /home/yoyo/Apps/viteyss
@@ -29,22 +42,14 @@ git clone /home/yoyo/Apps/viteyss
 
 cd ./viteyss 
 
-
-npm remove ws
-
-
-npm i /home/yoyo/Apps/node-yss/node-yss-latest.tgz
-
+npm i ../node-yss/node-yss-latest.tgz
 npm i ../mnodehttp
 cd ./node_modules/mnodehttp
-npm i ws
+npm i
 cd ../../
 
 
-
-npm i ws
 npm install
-
 
 
 

@@ -7,14 +7,14 @@ import Markdown from 'unplugin-vue-markdown/vite';
 import basicSsl from '@vitejs/plugin-basic-ssl';
 
 
-import * as sitesH from 'mnodehttp/sitesHelp.js';
+import * as sitesH from './sharelibs/mnodehttp/sitesHelp.js';
 
 import fs from 'fs';
 import path from 'path';
-import * as sws from 'mnodehttp/serverWs.js';
-import { requestYss, resSetHeaders, res404 } from 'mnodehttp/yssHelp.js';
-//import { resSetHeaders } from 'mnodehttp/yssHelp.js';
-//import { res404 } from 'mnodehttp/yssHelp.js';
+import * as sws from './sharelibs/mnodehttp/serverWs.js';
+import { requestYss, resSetHeaders, res404 } from './sharelibs/mnodehttp/yssHelp.js';
+//import { resSetHeaders } from './sharelibs/mnodehttp/yssHelp.js';
+//import { res404 } from './sharelibs/mnodehttp/yssHelp.js';
 
 //import { m_wiki } from './sites/wiki/m_wiki.js';
 //import * as otmp from './sites/wiki/m_wiki.js';
@@ -230,7 +230,8 @@ class serverVite {
 
 
     let sAlias = {
-      '@src/': '/home/yoyo/Apps/viteyss/src/'//fileURLToPath(new URL('./src', import.meta.url))
+      '@src/': path.join( __dirnameProcess, 'src' ),//'/home/yoyo/Apps/viteyss/src/', //fileURLToPath(new URL('./src', import.meta.url))
+      //relibs/': path.join(__dirnameProcess, 'sharelibs' ),
     };
 
     

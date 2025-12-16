@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "startItAsDev": "node ./startItAsDev.js",
+    "startItAsLocalhost": "node ./runItSelector.js",
     "plugColector": "node ./startItAsPluginColector.js",
-    "jsBundler": "node ./yssJssBundler.js"
+    "jsBundler": "node ./yssJssBundler.js",
+    "installSharelibs": ". ./installer/installSharelibs.sh"
   },
   "imports": {
     "#hotHelper": "./libs/hotHelper.js"

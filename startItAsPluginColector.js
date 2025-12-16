@@ -15,7 +15,7 @@ function cl(str){
 function pcNpmls( prefixToLook = 'viteyss-site-' ){
     vysPluginRuning = true;
     let pwdQ = execSync('pwd').toString();
-    cl(`pcNpmlist -- pwd: `+pwdQ);
+    //cl(`pcNpmlist -- pwd: `+pwdQ);
     let isOk = false;
     let npmQ = -1
     try{
@@ -24,7 +24,7 @@ function pcNpmls( prefixToLook = 'viteyss-site-' ){
     }catch(e){
         console.error('\n\nEE oiysh moment \n * npm ls crashed on us! \n * error is: \n\n',e,'\n\n\n-----------------------------------');
     }
-    cl(`pcNpmlist -- \n\nis OK ? (${isOk}) \n\nprefixTo: `+prefixToLook+'........ DONE');
+    //cl(`pcNpmlist -- \n\nis OK ? (${isOk}) \n\nprefixTo: `+prefixToLook+'........ DONE');
     
     if( npmQ == -1 ){
         console.error('EE - problem with npm list in process of looking for plugins viteyss-site-\n',
@@ -74,11 +74,11 @@ function pcNpmls( prefixToLook = 'viteyss-site-' ){
     
     
     Object.keys(j.dependencies).forEach(k0 => {
-        cl(`   - dirName: ${k0}`);
+    //    cl(`   - dirName: ${k0}`);
         isItvySite( 'node_modules', k0 );
         if( j.dependencies[k0].dependencies ){
             Object.keys(j.dependencies[k0].dependencies).forEach(k1 => {
-                cl(`        - ${k1}`);
+    //            cl(`        - ${k1}`);
                 isItvySite( 'node_modules', k1 );
             });
         }
