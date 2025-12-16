@@ -12,10 +12,9 @@ repository prefix       [ /home/yoyo/Apps/ ]
 
 
 ### dependency
- - linux
- - shell access
+ - linux, shell access
  - git
- - 
+ 
 
 
 ### bash commands 
@@ -27,14 +26,26 @@ git clone /home/yoyo/Apps/mnodehttp
 git clone /home/yoyo/Apps/node-yss
 git clone /home/yoyo/Apps/viteyss
 
-cd viteyss
-npm i ../mnodehttp
-cd node_modules/mnodehttp
 
-cd ../..
-npm i ../node-yss/node-yss-latest.tgz
-npm i ws 
+cd ./viteyss 
+
+
+npm remove ws
+
+
+npm i /home/yoyo/Apps/node-yss/node-yss-latest.tgz
+
+npm i ../mnodehttp
+cd ./node_modules/mnodehttp
+npm i ws
+cd ../../
+
+
+
+npm i ws
 npm install
+
+
 
 
 node ./runItSelector.js
