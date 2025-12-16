@@ -1,7 +1,7 @@
 
 import { serverContainerVite } from './serverContainerVite.js'
 import { vysPlugins, pcNpmls } from './startItAsPluginColector.js'
-import nyss from "node-yss";
+//import nyss from "node-yss/index.js";
 import path from 'path';
 
 import { fileURLToPath } from 'url';
