@@ -1,5 +1,5 @@
 
-import * as sws from 'mnodehttp/serverWs.js'
+import * as sws from './sharelibs/mnodehttp/serverWs.js'
 import { serverVite } from './serverVite.js'
 
 

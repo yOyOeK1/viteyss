@@ -8,7 +8,7 @@
     "startItAsLocalhost": "node ./runItSelector.js",
     "plugColector": "node ./startItAsPluginColector.js",
     "jsBundler": "node ./yssJssBundler.js",
-    "installSharelibs": ". ./installer/installSharelibs.sh"
+    "installSharelibs": "chmod +x ./installer/installSharelibs.sh;./installer/installSharelibs.sh"
   },
   "imports": {
     "#hotHelper": "./libs/hotHelper.js"

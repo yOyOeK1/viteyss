@@ -6,7 +6,7 @@ import { defineConfig } from 'vite'
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
-import { requestYss } from 'mnodehttp/yssHelp'
+import { requestYss } from './sharelibs/mnodehttp/yssHelp'
 
 import vue from '@vitejs/plugin-vue'
 
@@ -70,7 +70,7 @@ export default defineConfig({
 
 
   
-import { getWsInstance } from 'mnodehttp/serverWs'
+import { getWsInstance } from './sharelibs/mnodehttp/serverWs'
 
 console.log("yssPostProcess -- init ws");
 
