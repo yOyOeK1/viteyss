@@ -7,12 +7,12 @@ echo "pwd: [$(pwd)]"
 
 
 echo ".... waiting 5 sec.     All ok?"
-sleep 5
+sleep 1
 
 
 
 if test -e './sharelibs'; then
-    echo " * share libs exish"
+    echo " * sharelibs dir OK"
     cd './sharelibs'
 
 else
@@ -73,7 +73,6 @@ read -p "You want to update? [y/N]" aabb
 if test "$aabb" = "y"; then
     echo " uuuu Update it's ....."
     echo "TODO ......... :/ "
-    exit 0
 
 fi
 

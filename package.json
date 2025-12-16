@@ -9,7 +9,7 @@
     "plugColector": "node ./startItAsPluginColector.js",
     "jsBundler": "node ./yssJssBundler.js",
     "installSharelibs": "chmod +x ./installer/installSharelibs.sh;./installer/installSharelibs.sh;",
-    "postinstall": "echo ' *  running post install';npm run installSharelibs; npm i; echo ' \\___ DONE ';"
+    "postinstall": "echo ' *  running post install';npm run installSharelibs; npm i; echo ' \\___ DONE ';exit 0;"
   },
   "imports": {
     "#hotHelper": "./libs/hotHelper.js"
