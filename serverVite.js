@@ -157,8 +157,16 @@ class serverVite {
     });
 
     // for upload files
-    this.pVector.addFromFile('serUpl', './libs/apis/upload.js');
 
+    let lSufix = './apis/';
+    if( 'viteyss' in process.env ){
+      lSufix = './libs/apis/';
+    }
+
+
+    //console.log(']]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]\nenv test proc ',process);
+    //this.pVector.addFromFile('serUpl', './libs/apis/upload.js');
+    this.pVector.addFromFile('serUpl', lSufix+'upload.js');
 
   }
 

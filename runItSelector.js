@@ -23,17 +23,17 @@ if( nodeV.length != 3 ){
 
 if( args.length == 0 ){
     console.log(`  - select Default [ localhost - vanila - no ssl :8080 ]`);
-    process.env['viteyss'] = {
+    process.env['viteyss'] = JSON.stringify({
         runIt: true,
         name: 'local'
-    };
+    });
 
 }else if( args.length == 1 && args[0] == 'devLocal' ){
     console.log(`  - select [ devLocal ]`);
-    process.env['viteyss'] = {
+    process.env['viteyss'] = JSON.stringify({
         runIt: false,
         name:'devLocal'
-    };
+    });
 
 }else{
     console.info(`II Unknown arguments.. try:\n  * no arguments\n  * 'devLocal' `);
