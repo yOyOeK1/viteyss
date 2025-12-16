@@ -1,30 +1,26 @@
-# install - viteyss
+# Install - viteyss
 
 Installation example scenario:
 
 - project name    [ myViteyss ]
-- directory of choise    [ /tmp ]
+- directory of choice    [ /tmp ]
 - os    [ linux / ubuntu 20.04 ]
 - repository [ /home/yoyo/Apps/viteyss ]
 
-
-
 ### dependency
 
-- linux, shell access
+- Linux, shell access
 - git
-- nodejs >= v20.19.6
+- node >= v20.19.6
 - npm
-
 
 ### in terminal
 
-Installation will use repository to source viteyss. Then it will by used as project template for your installation.
-
+Installation will use the repository to source viteyss. Then it will be used as a project template for your installation.
 
 ##### installing
 
-In terminal enter commands to make project ...
+In terminal enter commands ...
 
 ```bash
 cd /tmp
@@ -38,32 +34,25 @@ npm install
 
 ##### starting my project
 
-To start it. You need to be in directory of your project then enter command
+To start it. You need to be in directory of your project then enter the command
 
 ```bash
 node ./runItSelector.js
 ```
 
-If all in good you can enter with your web browser url: http://localhost:8080
+If all in good, you can enter with your web browser URL: http://localhost:8080
 
+### !! Important !!
 
+Copy / paste command will not work, you need to replace the names of directories and repositories to suit your needs.
+So the real repository needs to be `https://github.com/yOyOeK1/viteyss.git`
 
-
-
-### !! important !!
-Copy / paste command will not work you need to replace names of directories and repositories to your needs.
-So real repository need to be `https://github.com/yOyOeK1/viteyss.git`
-
-
-
-## from this place where to go
+## where to go
 
 * your local wiki :) http://localhost:8080/yss/index.html#pageByName=Wiki
 * https://github.com/topics/viteyss
 * plugins, extensions, site(s): https://github.com/topics/viteyss-site-
 * starting project plugin for viteyss https://github.com/yOyOeK1/viteyss-siteCreateClone
-
-
 
 ---
 
