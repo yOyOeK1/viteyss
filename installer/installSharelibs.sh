@@ -73,7 +73,7 @@ read -p "You want to update? [y/N]" aabb
 if test "$aabb" = "y"; then
     echo " uuuu Update it's ....."
     echo "TODO ......... :/ "
-    exit 1
+    exit 0
 
 fi
 
