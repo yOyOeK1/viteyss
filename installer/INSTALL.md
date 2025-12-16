@@ -23,9 +23,20 @@ repository prefix       [ /home/yoyo/Apps/ ]
 cd /tmp
 mkdir myViteyss
 cd myViteyss
-git clone /home/yoyo/Apps/viteyss
+git clone /home/yoyo/Apps/mnodehttp
 git clone /home/yoyo/Apps/node-yss
+git clone /home/yoyo/Apps/viteyss
+
+cd viteyss
+npm i ../mnodehttp
+cd node_modules/mnodehttp
+
+cd ../..
+npm i ../node-yss/node-yss-latest.tgz
+npm i ws 
+npm install
 
 
+node ./runItSelector.js
 
 

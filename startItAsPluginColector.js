@@ -16,9 +16,23 @@ function pcNpmls( prefixToLook = 'viteyss-site-' ){
     vysPluginRuning = true;
     let pwdQ = execSync('pwd').toString();
     cl(`pcNpmlist -- pwd: `+pwdQ);
-    let npmQ = execSync('npm ls --depth=1 --json').toString();
-    cl(`pcNpmlist -- prefixTo: `+prefixToLook+'........ DONE');
+    let isOk = false;
+    let npmQ = -1
+    try{
+        npmQ = execSync('npm ls --depth=1 --json').toString();
+        isOk = true;
+    }catch(e){
+        console.error('\n\nEE oiysh moment \n * npm ls crashed on us! \n * error is: \n\n',e,'\n\n\n-----------------------------------');
+    }
+    cl(`pcNpmlist -- \n\nis OK ? (${isOk}) \n\nprefixTo: `+prefixToLook+'........ DONE');
     
+    if( npmQ == -1 ){
+        console.error('EE - problem with npm list in process of looking for plugins viteyss-site-\n',
+            `run # npm ls --depth=2 --json\nto see if it's not trowing any errors.`
+        );
+        process.exit(-2);
+    }
+
     let j = {};
     try{
         j = JSON.parse( npmQ );

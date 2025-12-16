@@ -63,7 +63,6 @@ class serverVite {
     if( this.config.https == true ){
       this.swssClients = {};
     }
-
     this.wss = nwss;
     this.ws = nws;
     this.http = undefined;
@@ -233,6 +232,8 @@ class serverVite {
     let sAlias = {
       '@src/': '/home/yoyo/Apps/viteyss/src/'//fileURLToPath(new URL('./src', import.meta.url))
     };
+
+    
     for( let ypi of this.yssPages ){
       let dName = ypi.fDir.substring( ypi.fDir.lastIndexOf('/')+1 );
 

@@ -19,7 +19,6 @@
     "@vitejs/plugin-vue": "^6.0.0",
     "formidable": "^3.5.4",
     "markdown-it": "^14.1.0",
-    "mnodehttp": "https://github.com/yOyOeK1/mnodehttp.git",
     "unplugin-vue-markdown": "^29.1.0"
   }
 }
