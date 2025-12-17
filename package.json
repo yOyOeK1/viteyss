@@ -9,7 +9,9 @@
     "plugColector": "node ./startItAsPluginColector.js",
     "jsBundler": "node ./yssJssBundler.js",
     "installSharelibs": "chmod +x ./installer/installSharelibs.sh;./installer/installSharelibs.sh;",
-    "postinstall": "echo ' *  running post install';npm run installSharelibs; echo '___ DONE ';exit 0;"
+    "postinstall": "echo ' *  running post install';npm run installSharelibs; echo '___ DONE ';exit 0;",
+
+    "mkBackup": "fn=$npm_package_name\"_v\"$npm_package_version\"_tt\"`date +%y%m%d%H%M%S`\".tar.bz2\"; echo \"name will be [$fn]\";  tar --exclude=\".git\" --exclude=\"node_modules\" -cvf \"../\"$fn ./; echo \"Backup done: [$fn]\"; ls -alh ../$fn"
   },
   "imports": {
     "#hotHelper": "./libs/hotHelper.js"
