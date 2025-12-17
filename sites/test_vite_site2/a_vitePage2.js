@@ -1,6 +1,6 @@
 
 import { mt1 } from "./moduleTest1.js"
-import mApp from '../../src/mApp.vue'
+import mApp from './assets/mApp.vue'
 import { createApp,defineComponent } from 'vue'
 
 //a xx 3
@@ -16,7 +16,7 @@ class s_vitePage2{
 
   get getName(){
     console.log('vite 2 get name !');
-    return `test vite 2 ?`;
+    return `test viteyss`;
   }
 
   get getDefaultBackgroundColor(){
