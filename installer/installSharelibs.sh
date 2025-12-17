@@ -7,7 +7,7 @@ echo "pwd: [$(pwd)]"
 
 
 echo ".... waiting 5 sec.     All ok?"
-sleep 1
+sleep 5
 
 
 
@@ -25,11 +25,18 @@ else
     ## downloading 
 
     # if tests
-    cp -rf '/home/yoyo/Apps/node-yss/node-yss-latest.tgz' './'
-    cp -rf '/home/yoyo/Apps/mnodehttp' './'
-    # else internet
-    #wget "https://github.com/yOyOeK1/node-yss/raw/refs/heads/main/node-yss-latest.tgz"
-    #git clone "https://github.com/yOyOeK1/mnodehttp.git"
+    if (( 0 )) ;then 
+        echo " [i]  using local repository]"; 
+        cp -rf '/home/yoyo/Apps/node-yss/node-yss-latest.tgz' './'
+        cp -rf '/home/yoyo/Apps/mnodehttp' './'
+
+    else 
+        echo " [i] downloading  [node-yss]"; 
+        # else internet
+        wget "https://github.com/yOyOeK1/node-yss/raw/refs/heads/main/node-yss-latest.tgz"
+        echo " [i] git clon     [mnodehttp]";
+        git clone "https://github.com/yOyOeK1/mnodehttp.git"
+    fi
         
 
     cd '../'

@@ -1,7 +1,7 @@
 
 import { serverContainerVite } from './serverContainerVite.js'
 import { vysPlugins, pcNpmls } from './startItAsPluginColector.js'
-import nyss from "node-yss";
+import nyss from "./sharelibs/node-yss/index.js";
 import path from 'path';
 
 import { fileURLToPath } from 'url';
@@ -92,7 +92,8 @@ if( config0.https == true ){
 
 
 cl(["\n\n---------------------------\nHello - As Dev process name ["+instanceTitle+"]\n",
-  " - dirname: ",__dirname,
+  "\n\n - dirname: ",__dirname,
+  "\n\n - config: ",config0,
   "\n -------------------------------------------\n\n"
 ]);
 
