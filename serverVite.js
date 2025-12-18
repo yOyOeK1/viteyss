@@ -207,6 +207,19 @@ class serverVite {
       }catch(e){
         console.error(`serVit [e] looking for site directory [${p}] in allows error\n`,e,'\n---------- DONE');
       }
+
+      // vyArgs start
+      if( 'vyArgs' in this.config ){
+        let vyArgs = JSON.parse( this.config.vyArgs );
+
+        //{ name: '2quest', 'payload': quest, fsAllow: quest.dirs }
+        if( 'fsAllow' in vyArgs ){
+          console.log(` [i] fsAllow by path args on start: `);
+          vyArgs.fsAllow.forEach( d=> fsAllow.push( d ) );
+        }
+      }
+      // vyArgs start END
+
     }
     console.log(`[i] host file access to `,fsAllow);
     //process.exit(11);

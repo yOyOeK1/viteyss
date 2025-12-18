@@ -141,6 +141,12 @@ let Viteyss = (
 
   }
 
+  // vyArgs start
+  if( 'vyArgs' in process.env )
+    config0['vyArgs'] = process.env['vyArgs'];
+  // vyArgs start END
+
+
 
   cl(["\n\n-[info]------------------\nHello - isAs:["+isAs+"] process name ["+instanceTitle+"]\n",
     "\n * dirname: ",__dirname,

@@ -1,4 +1,6 @@
+import path from 'node:path';
 import { Viteyss } from './startItAs.js';
+import fs from 'fs';
 
 
 const args = process.argv.slice(2); // Skip the first two elements
@@ -28,6 +30,49 @@ if( args.length == 0 ){
         name: 'local'
     });
 
+
+
+
+// 2quest start
+}else if( args.length == 2 && args[0] == '--site=2qest' ){
+    console.log(`  - select -site-2qest [ localhost - vanila - no ssl :8080 ]`);    
+    let flist = args[1].replaceAll('--files=','').split('\n');
+    if( flist.length == 0 ){
+        console.log('no --files= or files with space separation found');
+        process.exit(-2);
+    }
+    let quest = {files:[],dirs:[],fInfos:[]};
+    flist.forEach( f => {
+        if ( f.length > 5 ){
+            let src = f;
+            while( src.startsWith(' /') && src.length > 5 ){
+                src = src.substring(1);
+            }
+            quest.files.push( src );
+            quest.dirs.push( path.dirname( src ));
+            let fInfo = -1;
+
+            try{
+                fInfo = fs.statSync( src );                
+            }catch(e){
+                console.log('EE file info no',e);
+            }
+            quest.fInfos.push( fInfo );
+        }
+    });
+    console.log('have files',JSON.stringify(quest,null,4));
+    //process.exit(-1);
+    
+    process.env['vyArgs'] = JSON.stringify({ name: '2quest', 'payload': quest,
+        fsAllow: quest.dirs
+    });
+    process.env['viteyss'] = JSON.stringify({
+        runIt: true,
+        name: 'local',
+    });
+// 2quest END
+
+
 }else if( args.length == 1 && args[0] == 'devLocal' ){
     console.log(`  - select [ devLocal ]`);
     process.env['viteyss'] = JSON.stringify({
@@ -39,6 +84,12 @@ if( args.length == 0 ){
     console.info(`II Unknown arguments.. try:\n  * no arguments\n  * 'devLocal' `);
     process.exit(1);
 }
+
+
+
+
+
+
 
 
 if( 'viteyss' in process.env ){
