@@ -33,7 +33,7 @@ if( args.length == 0 ){
 
 
 
-// 2quest start
+// 2qest start
 }else if( args.length == 2 && args[0] == '--site=2qest' ){
     console.log(`  - select -site-2qest [ localhost - vanila - no ssl :8080 ]`);    
     let flist = args[1].replaceAll('--files=','').split('\n');
@@ -41,15 +41,15 @@ if( args.length == 0 ){
         console.log('no --files= or files with space separation found');
         process.exit(-2);
     }
-    let quest = {files:[],dirs:[],fInfos:[]};
+    let qest = {files:[],dirs:[],fInfos:[]};
     flist.forEach( f => {
         if ( f.length > 5 ){
             let src = f;
             while( src.startsWith(' /') && src.length > 5 ){
                 src = src.substring(1);
             }
-            quest.files.push( src );
-            quest.dirs.push( path.dirname( src ));
+            qest.files.push( src );
+            qest.dirs.push( path.dirname( src ));
             let fInfo = -1;
 
             try{
@@ -57,20 +57,20 @@ if( args.length == 0 ){
             }catch(e){
                 console.log('EE file info no',e);
             }
-            quest.fInfos.push( fInfo );
+            qest.fInfos.push( fInfo );
         }
     });
-    console.log('have files',JSON.stringify(quest,null,4));
+    console.log('have files',JSON.stringify(qest,null,4));
     //process.exit(-1);
     
-    process.env['vyArgs'] = JSON.stringify({ name: '2quest', 'payload': quest,
-        fsAllow: quest.dirs
+    process.env['vyArgs'] = JSON.stringify({ name: '2qest', 'payload': qest,
+        fsAllow: qest.dirs
     });
     process.env['viteyss'] = JSON.stringify({
         runIt: true,
         name: 'local',
     });
-// 2quest END
+// 2qest END
 
 
 }else if( args.length == 1 && args[0] == 'devLocal' ){

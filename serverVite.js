@@ -212,7 +212,7 @@ class serverVite {
       if( 'vyArgs' in this.config ){
         let vyArgs = JSON.parse( this.config.vyArgs );
 
-        //{ name: '2quest', 'payload': quest, fsAllow: quest.dirs }
+        //{ name: '2qest', 'payload': qest, fsAllow: qest.dirs }
         if( 'fsAllow' in vyArgs ){
           console.log(` [i] fsAllow by path args on start: `);
           vyArgs.fsAllow.forEach( d=> fsAllow.push( d ) );
