@@ -2,7 +2,7 @@
 
 import { defineConfig, createServer } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import Markdown from 'unplugin-vue-markdown/vite';
+//import Markdown from 'unplugin-vue-markdown/vite';
 
 import basicSsl from '@vitejs/plugin-basic-ssl';
 
@@ -237,7 +237,7 @@ class serverVite {
     pluginsList.push( vue({
         include: [/\.vue$/, /\.md$/],
       }) );
-    pluginsList.push( Markdown() );
+    //pluginsList.push( Markdown() );
 
     let ssl = this.config.https;
     if( ssl == true ){
