@@ -29,6 +29,7 @@ cd myViteyss
 
 git clone /home/yoyo/Apps/viteyss
 mv ./viteyss/* ./
+mv ./viteyss/.* ./
 npm install
 ```
 
@@ -37,7 +38,7 @@ npm install
 To start it. You need to be in directory of your project then enter the command
 
 ```bash
-node ./runItSelector.js
+npm run startItAsLocalhost
 ```
 
 If all in good, you can enter with your web browser URL: http://localhost:8080

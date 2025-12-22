@@ -61,10 +61,10 @@ fi
 if test -e './node-yss'; then
     echo " * node-yss is OK"
 else
-    echo " - node-yss is missing ..." 
+    echo " - node-yss is missing ... " 
     mkdir './node-yss'
+    mkdir './node-yss/tmp'
     cd './node-yss'
-    mkdir './tmp'
     tar -xf '../src/node-yss-latest.tgz' -C './tmp'
     mv ./tmp/package/* ./
     rm -rf ./tmp
