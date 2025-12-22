@@ -241,10 +241,24 @@ class serverVite {
 
     let ssl = this.config.https;
     if( ssl == true ){
-      ssl = { //path.join(__dirname, 'wikiSites')
-          key: fs.readFileSync( path.join( __dirname, 'cert/server.key') ), // Path to your private key
-          cert: fs.readFileSync( path.join(__dirname, 'cert/server.crt') )  // Path to your certificate
-        };
+      try{
+        ssl = { //path.join(__dirname, 'wikiSites')
+            
+            //key: fs.readFileSync( path.join( __dirname, 'cert/server.key') ), // Path to your private key
+            //cert: fs.readFileSync( path.join(__dirname, 'cert/server.crt') )  // Path to your certificate
+
+            key: fs.readFileSync( path.join( __dirname, 'cert/server-key.pem') ), 
+            cert: fs.readFileSync( path.join( __dirname, 'cert/server-crt.pem') ), 
+            ca: fs.readFileSync( path.join( __dirname, 'cert/ca-crt.pem') )
+
+          };
+      } catch( e ){
+        console.error(`EE in step of reading ssl certificats .... \nOrg error:\n`,e,
+          '\n\nYou need to check if you have keys for SSL. in ',path.join( __dirname, 'cert/'),
+          "\n If not run `create-certis.sh` in `cert` directory"
+        );
+        process.exit(-1);
+      }
       this.cl('HTTP(S) enabled ... reading key crt ....');
       this.cl(ssl);
     }
