@@ -36,7 +36,7 @@ if( args.length == 0 ){
 // 2qest start
 }else if( args.length == 2 && args[0] == '--site=2qest' ){
     console.log(`  - select -site-2qest [ localhost - vanila - no ssl :8080 ]`);    
-    let flist = args[1].replaceAll('--files=','').split('\n');
+    let flist = args[1].replaceAll('--files=','').replaceAll(' /', '\n/').split('\n');
     if( flist.length == 0 ){
         console.log('no --files= or files with space separation found');
         process.exit(-2);
@@ -64,7 +64,7 @@ if( args.length == 0 ){
     //process.exit(-1);
     
     process.env['vyArgs'] = JSON.stringify({ name: '2qest', 'payload': qest,
-        fsAllow: qest.dirs
+        fsAllow: [...new Set(qest.dirs)]
     });
     process.env['viteyss'] = JSON.stringify({
         runIt: true,
