@@ -28,9 +28,10 @@ mkdir myViteyss
 cd myViteyss
 
 git clone /home/yoyo/Apps/viteyss
-mv ./viteyss/* ./
-mv ./viteyss/.* ./
+cd ./viteyss
 npm install
+
+cd ..
 ```
 
 ##### starting my project
@@ -38,6 +39,9 @@ npm install
 To start it. You need to be in directory of your project then enter the command
 
 ```bash
+cd /tmp/myViteyss
+
+cd ./viteyss
 npm run startItAsLocalhost
 ```
 
