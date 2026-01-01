@@ -132,16 +132,18 @@ function readyLocalRepoList(){
 
     
     cl('In repositories', ['List of basic operations'],
-        ['exit', '------','load all', 'update one', 'update all', 'install new', 'remove one'],( r )=>{
+        ['exit', '------','load all','update repo', 'update one', 'update all', 'install new', 'remove one'],( r )=>{
             console.log('got ['+r+']');
 
-            if( r == 0 ) process.exit(0);
-            else if( r == 1) readyLocalRepoList();//todo;//startLocalHost();
+            
+            if( r == 0      ) process.exit(0);
+            else if( r == 1 ) readyLocalRepoList();//todo;//startLocalHost();
             else if( r == 2 ) repoLoadAll();
-            else if( r == 3 ) updateApp_dialog();
-            else if( r == 4 ) updateAppsAll();
-            else if( r == 5 ) installNew_dialog();
-            else if( r == 6 ) removeApp_dialog();
+            else if( r == 3 ) updateRepo_dialog();
+            else if( r == 4 ) updateApp_dialog();
+            else if( r == 5 ) updateAppsAll();
+            else if( r == 6 ) installNew_dialog();
+            else if( r == 7 ) removeApp_dialog();
 
         }
     );
@@ -291,6 +293,10 @@ function chkSiteStatus( siteName, repoType = 'site' ){
         console.log('chkSiteStatus siteName:',siteName);
         dirIs = fs.existsSync( `${uHome}/.viteyss/src/${siteName}` );
         insIs = fs.existsSync( `${uHome}/.viteyss/sites/${siteName}` );
+    }else if( repoType == 'dirFromGit'){
+        console.log('chkSiteStatus dir from git:',siteName);
+        dirIs = fs.existsSync( `${uHome}/.viteyss/src/${siteName}` );
+        insIs = fs.existsSync( `${uHome}/.viteyss/sites/${siteName}` );
     }else{
         console.log('EE repository type not suportet :( '+repoType );
         process.exit(-1);
@@ -303,6 +309,7 @@ function chkSiteStatus( siteName, repoType = 'site' ){
 
 let appsToUpdate = [];
 let appsCanInstall = [];
+let repoToUpdate = [];
 function repoLoadAll(){
     clMkRow('~');
     console.log('# In repositiories - list all \n#   pwd['+process.cwd()+']');
@@ -338,6 +345,7 @@ function repoLoadAll(){
                 let { dirIs, insIs } = chkSiteStatus( `${repo.sufix}${app.name}`, app.type );
                 let appT = 'x';
                 if( app.type ) appT = app.type.substring(0,1);
+                if( app.type && app.type == 'dirFromGit' ) appT = 'D'
 
                 console.log( ` ${appNo++} ]__ t:[${appT}] d:[${dirIs?'1':'0'}] i:[${insIs?'1':'0'}]  ${app.name}     ... ${repo.name}` );
 
@@ -365,6 +373,8 @@ function repoLoadAll(){
             console.log(`# dir of repo ${repDirIs}\n#  path [ ${repoPath} ]`);
 
             if( !repDirIs ){
+
+                repoToUpdate.push({ dirNameRepoPath, giturl: repo.giturl });
                 gitCloneRepoOneDir( dirNameRepoPath, repo.giturl, 
                     exitCode =>{
                     let res = readGitRepoInfo( repo );
@@ -388,6 +398,7 @@ function repoLoadAll(){
                 } );
                 */
             }else{
+                repoToUpdate.push({ dirNameRepoPath, repo });
                 let res = readGitRepoInfo( repo );
                 repo.apps = res;
                 //console.log('res2: ',res, ' repoCloning:',repoCloning);
@@ -512,6 +523,21 @@ function removeApp( appHandle ){
             
         }
         cmd+= `echo "# remove [ ${app} ] DONE"`;
+        
+        
+    } else if( appData.type == 'dirFromGit' ){
+         console.log('debg removal ',appData);
+        cmd+= `echo '# remove ... in ${defWaitTime}';
+            if test "1" = "${fakeGitPull?'0':'1'}";then
+                mv "$HOME/.viteyss/src/${sufix}${appData.name}" \`mktemp -d\`"_2remove";
+                rm "$HOME/.viteyss/sites/${sufix}${appData.name}";
+                
+            else
+                echo "# is fake all the way down ..."
+
+            fi
+
+        `;
         
         
     }else{
@@ -669,6 +695,51 @@ function installApp( appHandle ){
         //console.log('cmd',cmd);
     
 
+    }else if( appData.type == 'dirFromGit' ){
+    
+        cmd = `echo "# OK";
+            echo "# working installing... in [ pwd: \`pwd\` ] ... in ${defWaitTime} sec"; 
+            sleep ${defWaitTime/10};
+            `;
+        //if( fakeGitPull ){
+        cmd+= `echo '# fake  $[o.O]# TRUE install ... in ${defWaitTime}';
+            echo "pwd we need to copy stuff from repo to .viteyss/sites ...";
+            
+            if test "1" = "${fakeGitPull?'0':'1'}";then
+                repoFullPath="$HOME/.viteyss/src/${appHandle.repo.sufix}${appData.name}"
+                repoBaseName=\`basename "${appData.url}"\`;
+                repoDirName=\`dirname "$repoFullPath"\`;
+                
+                mkdir -p "$HOME/.viteyss/sites";
+                mkdir -p "$repoFullPath";
+                
+                echo "* will clone only part of repo ... ";
+                cd "$repoFullPath";
+                git clone --no-checkout --depth=1 --filter=tree:0 "${appData.url}"
+                cd "$repoBaseName"
+                git sparse-checkout set --no-cone "/${appData.subdir}"
+                git checkout
+                
+                pwd
+                cd "./${appData.subdir}";
+                pwd
+                fullPathToApp=\`pwd\`;
+                echo "* linking to home .viteyss/sites/... fullPathToApp:[ $fullPathToApp ]";
+                ln -s "$fullPathToApp" "$HOME""/.viteyss/sites/${appHandle.repo.sufix}${appData.name}";
+            
+            else
+                echo "# is fake all the way down ..."
+
+            fi
+
+        `;
+        
+
+        cmd+= `echo "# install type: [${appData.type}] [ ${app} ] DONE"`;
+
+        //console.log('cmd',cmd);
+    
+
     } else{
         console.log('EE unknown type of installation ',appData);
         process.exit(-1);
@@ -696,22 +767,66 @@ function installApp( appHandle ){
 
 
 
-function updateApp_dialog(){
+function updateRepo_dialog(){
 
     let opts = ['back'];
-    for( let app of appsToUpdate)
-        opts.push( app.name );
+    for( let repo of repoToUpdate){
 
-     cl('In repositories - update one', ['Update is posible on this apps'],
+        opts.push( '[r]:  '+repo.repo.name );
+    }
+    
+   
+     cl('In repositories - update one', ['Update is posible on this repositories','','- - -','r - repository','s - site for viteyss'],
         opts,( r )=>{
             console.log('got ['+r+']');
 
             if( r == 0 ) readyLocalRepoList();//process.exit(0);
-            else updateApp( opts[r] );
+            else  updateRepo( repoToUpdate[ r-1 ] );
 
         }
     );
+    
+    
+}
+function updateRepo( repo ){
+    console.log('repo: '+JSON.stringify(repo,null,4));
 
+
+    let cmd = `echo "# OK update repe [ ${repo.repo.name} ] . . . in ${defWaitTime} sec ";sleep ${defWaitTime};
+        cd "../sharelibs/src/${repo.repo.name}";
+        git pull;
+        `;
+
+    if( fakeGitPull ){
+        console.log('# fake bash ---------------\n',cmd);
+        updateRepo_dialog();
+    }else{
+        runcmd( cmd, cbOnExit=>{
+            console.log("# repo update DONE; exit code ",cbOnExit);
+            updateRepo_dialog();
+        } );
+    }
+   
+}
+
+
+function updateApp_dialog(){
+
+    let opts = ['back'];
+   
+    for( let app of appsToUpdate)
+        opts.push( '[s]:  '+app.name );
+
+
+     cl('In repositories - update one', ['Update is posible on this apps','','- - -','r - repository','s - site for viteyss'],
+        opts,( r )=>{
+            console.log('got ['+r+']');
+
+            if( r == 0 ) readyLocalRepoList();//process.exit(0);
+            else  updateApp( opts[r] );
+
+        }
+    );
 
 }
 

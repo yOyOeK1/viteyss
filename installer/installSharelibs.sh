@@ -33,7 +33,7 @@ else
     else 
         echo " [i] downloading  [node-yss]"; 
         # else internet
-        wget "https://github.com/yOyOeK1/node-yss/raw/refs/heads/main/node-yss-latest.tgz" > `mktemp`"_wget_node_yss.log"
+        wget -q "https://github.com/yOyOeK1/node-yss/raw/refs/heads/main/node-yss-latest.tgz" > `mktemp`"_wget_node_yss.log"
         echo " [i] git clon     [mnodehttp]";
         git clone "https://github.com/yOyOeK1/mnodehttp.git"
     fi
@@ -76,10 +76,12 @@ fi
 cd '..'
 
 
-read -p "You want to use vy Dialup [y/N]" aabb
+read -p "You want to use vy Dialup a.k.a. site manager [y/N]" aabb
 if test "$aabb" = "y"; then
-    echo " uuuu Update it's ....."
-    echo "TODO ......... :/ "
+    #echo " uuuu Update it's ....."
+    #echo "TODO ......... :/ "
+    cd ./installer
+    node ./vyDialup.js
 
 fi
 
