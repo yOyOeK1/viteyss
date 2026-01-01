@@ -325,6 +325,20 @@ function repoLoadAll(){
 
     function chkCloneStack(){
         if( repoCloning == 0 ){
+            clMkRow('_');
+            console.log(`# legend `);
+            console.log(`#
+# t:[ ] - type of package
+# d:[ ] - directory status
+# i:[ ] - installation status
+#
+# x - not implemented
+# d - directory on repository
+# D - directory on external repository
+# s - viteyss-site- package system ( npm's )
+# `);
+
+            clMkRow('.');
             console.log('# clone stack is 0 GOGO ....');
             readyLocalRepoList(); 
             repoCloning--;           
