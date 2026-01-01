@@ -33,7 +33,7 @@ else
     else 
         echo " [i] downloading  [node-yss]"; 
         # else internet
-        wget "https://github.com/yOyOeK1/node-yss/raw/refs/heads/main/node-yss-latest.tgz"
+        wget "https://github.com/yOyOeK1/node-yss/raw/refs/heads/main/node-yss-latest.tgz" > `mktemp`"_wget_node_yss.log"
         echo " [i] git clon     [mnodehttp]";
         git clone "https://github.com/yOyOeK1/mnodehttp.git"
     fi
@@ -53,7 +53,7 @@ else
     pwd
     cp -rf './src/mnodehttp' './mnodehttp'
     cd './mnodehttp'
-    npm install
+    npm install > `mktemp`"_npm_i_mnodehttp.log"
     cd '..'
 fi
 
@@ -68,7 +68,7 @@ else
     tar -xf '../src/node-yss-latest.tgz' -C './tmp'
     mv ./tmp/package/* ./
     rm -rf ./tmp
-    npm install
+    npm install > `mktemp`"_npm_i_node-yss-latest.log"
     cd '..'      
 fi
 
@@ -76,7 +76,7 @@ fi
 cd '..'
 
 
-read -p "You want to update? [y/N]" aabb
+read -p "You want to use vy Dialup [y/N]" aabb
 if test "$aabb" = "y"; then
     echo " uuuu Update it's ....."
     echo "TODO ......... :/ "
