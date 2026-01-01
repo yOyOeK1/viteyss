@@ -24,6 +24,11 @@
     "formidable": "^3.5.4",
     "markdown-it": "^14.1.0",
     "vite": "^7.3.0",
+    "viteyss-site-2qest": "file:../viteyss-site-2qest",
+    "viteyss-site-nodeStopT": "file:../viteyss-site-nodeStopT",
+    "viteyss-site-otdmtools": "file:../viteyss-site-otdmtools",
+    "viteyss-site-settings1": "file:../viteyss-site-settings1",
+    "viteyss-site-twoCount": "file:../viteyss-site-twoCount",
     "ws": "^8.18.3"
   }
 }

@@ -84,8 +84,11 @@ function cl( title, msg = [] , propmpt=[],defRes=undefined ){
     chkTerminalSize();
 
 
-    let topBar = `Fake:[${fakeGitPull}] | pwd:[ ${process.cwd()} ] | `;
+    let topBar = `Fake:[${fakeGitPull}] | `;
+    if( fakeGitPull ) topBar+= ' to run for real fur from npm run vyDialup | '
+    topBar+= `pwd:[ ${process.cwd()} ] | `;
     if( vyRunning ) topBar+= `vy:Running pid:${vySpaw.pid}/${vyPid} | `;
+
 
     console.log('\n\n');
     clMkRow('=');
@@ -290,11 +293,11 @@ function chkSiteStatus( siteName, repoType = 'site' ){
         dirIs = fs.existsSync( `${pwd}/../../${siteName}` );
         insIs = fs.existsSync( `${pwd}/../node_modules/${siteName}` );
     }else if( repoType == 'dir'){
-        console.log('chkSiteStatus siteName:',siteName);
+        //console.log('chkSiteStatus siteName:',siteName);
         dirIs = fs.existsSync( `${uHome}/.viteyss/src/${siteName}` );
         insIs = fs.existsSync( `${uHome}/.viteyss/sites/${siteName}` );
     }else if( repoType == 'dirFromGit'){
-        console.log('chkSiteStatus dir from git:',siteName);
+        //console.log('chkSiteStatus dir from git:',siteName);
         dirIs = fs.existsSync( `${uHome}/.viteyss/src/${siteName}` );
         insIs = fs.existsSync( `${uHome}/.viteyss/sites/${siteName}` );
     }else{
