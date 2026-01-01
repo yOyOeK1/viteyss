@@ -33,7 +33,7 @@ else
     else 
         echo " [i] downloading  [node-yss]"; 
         # else internet
-        wget -q "https://github.com/yOyOeK1/node-yss/raw/refs/heads/main/node-yss-latest.tgz" > `mktemp`"_wget_node_yss.log"
+        wget --progress=bar:force "https://github.com/yOyOeK1/node-yss/raw/refs/heads/main/node-yss-latest.tgz" > `mktemp`"_wget_node_yss.log"
         echo " [i] git clon     [mnodehttp]";
         git clone "https://github.com/yOyOeK1/mnodehttp.git"
     fi
