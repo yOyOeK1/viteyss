@@ -14,7 +14,8 @@ let vyrepos = [
 {
     "name":"viteyss_repo",
     "sufix":"viteyss-site-",
-    "giturl":"/home/yoyo/Apps/viteyss_repo",
+    "giturl":"https://github.com/yOyOeK1/viteyss_repo",
+    //"giturl":"/home/yoyo/Apps/viteyss_repo",
     "apps": undefined
 }
 ];

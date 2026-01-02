@@ -242,7 +242,7 @@ function gitCloneRepoOneDir( dirPath, gitUrl, cbOnExit,dirsToClone = [] ){
         git clone --no-checkout --depth=1 --filter=tree:0 "${urlRepo}";
         cd "${projectName}";
         git sparse-checkout set --no-cone "${dirsToClone.join('" "')}";
-        git chceckout
+        git checkout
         `;
     runcmd( cmd, cbOnExit );
     /*mkCmdPreview( cmd );
