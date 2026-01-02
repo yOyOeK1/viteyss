@@ -85,7 +85,7 @@ function cl( title, msg = [] , propmpt=[],defRes=undefined ){
 
 
     let topBar = `Fake:[${fakeGitPull}] | `;
-    if( fakeGitPull ) topBar+= ' to run for real fur from npm run vyDialup | '
+    if( fakeGitPull ) topBar+= ' to run for real fur from "npm run vyDialup" or with arg "--runReal" | '
     topBar+= `pwd:[ ${process.cwd()} ] | `;
     if( vyRunning ) topBar+= `vy:Running pid:${vySpaw.pid}/${vyPid} | `;
 
@@ -133,9 +133,10 @@ function readyLocalRepoList(){
     });
     console.log(`# have [${vyrepos.length}] repositories. [ ${rNames.join(' ] , [ ')} ]`);
 
+    let toggleRealFakeStr = fakeGitPull?'make it real!':'fake it';
     
     cl('In repositories', ['List of basic operations'],
-        ['exit', '------','load all','update repo', 'update one', 'update all', 'install new', 'remove one'],( r )=>{
+        ['exit', '------','load all','update repo', 'update one', /*'update all',*/ 'install new', 'remove one', '-----', toggleRealFakeStr],( r )=>{
             console.log('got ['+r+']');
 
             
@@ -144,9 +145,11 @@ function readyLocalRepoList(){
             else if( r == 2 ) repoLoadAll();
             else if( r == 3 ) updateRepo_dialog();
             else if( r == 4 ) updateApp_dialog();
-            else if( r == 5 ) updateAppsAll();
-            else if( r == 6 ) installNew_dialog();
-            else if( r == 7 ) removeApp_dialog();
+            //else if( r == 5 ) updateAppsAll();
+            else if( r == 5 ) installNew_dialog();
+            else if( r == 6 ) removeApp_dialog();
+            else if( r == 7 ) readyLocalRepoList();
+            else if( r == 8 ){ fakeGitPull=!fakeGitPull; readyLocalRepoList();}
 
         }
     );
@@ -308,11 +311,18 @@ function chkSiteStatus( siteName, repoType = 'site' ){
     return { dirIs, insIs };
 }
 
+function getAppT( app ){
+    let appT = 'x';
+    if( app.type ) appT = app.type.substring(0,1);
+    if( app.type && app.type == 'dirFromGit' ) appT = 'D'
+    return appT;
+}
 
 
 let appsToUpdate = [];
 let appsCanInstall = [];
 let repoToUpdate = [];
+let totalPacks = 0;
 function repoLoadAll(){
     clMkRow('~');
     console.log('# In repositiories - list all \n#   pwd['+process.cwd()+']');
@@ -320,11 +330,22 @@ function repoLoadAll(){
     let pwd = process.cwd();
     let appNo = 0;
     let repoCloning = 0;
+    //repoToUpdate = [];
+    appsToUpdate = [];
+    appsCanInstall = [];
+    
+    totalPacks = [];
+    
 
 
 
     function chkCloneStack(){
         if( repoCloning == 0 ){
+
+            clMkRow('=');
+            console.log(`# Total: [${totalPacks}] | Installed: [${appsToUpdate.length}] | repos: [${repoToUpdate.length}] `)
+            clMkRow('#');
+
             clMkRow('_');
             console.log(`# legend `);
             console.log(`#
@@ -346,9 +367,7 @@ function repoLoadAll(){
     }
 
 
-    appsToUpdate = [];
-    appsCanInstall = [];
-    
+
     for(let repo of vyrepos){
 
         if( repo.apps != undefined ){
@@ -360,15 +379,15 @@ function repoLoadAll(){
                 //let insIs = fs.existsSync( `${pwd}/../node_modules/${repo.sufix}${app.name}` );
                 //console.log('repo.app.type-> ',app.type);
                 let { dirIs, insIs } = chkSiteStatus( `${repo.sufix}${app.name}`, app.type );
-                let appT = 'x';
-                if( app.type ) appT = app.type.substring(0,1);
-                if( app.type && app.type == 'dirFromGit' ) appT = 'D'
+                
+                totalPacks++;
 
-                console.log( ` ${appNo++} ]__ t:[${appT}] d:[${dirIs?'1':'0'}] i:[${insIs?'1':'0'}]  ${app.name}     ... ${repo.name}` );
+                console.log( ` ${appNo++} ]__ t:[${getAppT(app)}] d:[${dirIs?'1':'0'}] i:[${insIs?'1':'0'}]  ${app.name}     ... ${repo.name}` );
 
                 if( dirIs && insIs ){
                     appsToUpdate.push( {
                         'name':repo.sufix+app.name,
+                        'appItem':app,
                         'type': app.type,
                         'repo': repo,
                         'fullPath':`${pwd}/../../${repo.sufix}${app.name}`} );
@@ -396,9 +415,9 @@ function repoLoadAll(){
                     exitCode =>{
                     let res = readGitRepoInfo( repo );
                     repo.apps = res;
-                    //console.log(`# nice exit: [${exitCode}] repoCloningStack:`,repoCloning,
-                    //    'res:',res
-                    //);
+                    console.log(`res22 # nice exit: [${exitCode}] repoCloningStack:`,repoCloning,
+                        'res:',res
+                    );
                     repoCloning--;
                     chkCloneStack();
                     },
@@ -418,7 +437,7 @@ function repoLoadAll(){
                 repoToUpdate.push({ dirNameRepoPath, repo });
                 let res = readGitRepoInfo( repo );
                 repo.apps = res;
-                //console.log('res2: ',res, ' repoCloning:',repoCloning);
+                console.log('res2: ',res, ' repoCloning:',repoCloning);
                 repoCloning--;
                 chkCloneStack();
             }
@@ -428,7 +447,9 @@ function repoLoadAll(){
 
     }
 
+
     chkCloneStack();
+   
 
 }
 
@@ -481,6 +502,7 @@ function removeApp( appHandle ){
     let cmd = '';
     let cmdReal = `
                 set +e;
+                cd ../../
                 #pwd;
                 echo " - remove from viteyss ...";
                 cd ./viteyss;
@@ -496,7 +518,6 @@ function removeApp( appHandle ){
                 mv "${app}" "${app}_2del_${Date.now()}";
                 `;
     cmd = `echo "# OK ";
-        cd ../../;
         echo "# working remove... type [${appData.type}] in [ pwd: \`pwd\` ]  ... in ${defWaitTime}'";
         sleep ${defWaitTime};
         `;
@@ -611,7 +632,7 @@ function installNew_dialog(){
         }
 
         for( let app of repo.apps ){
-            let {dirIs,insIs} = chkSiteStatus( repo.sufix+app.name );
+            let {dirIs,insIs} = chkSiteStatus( repo.sufix+app.name, app.type );
 
             if( !insIs ){
                 opts.push( `${app.name}     ... . .    ${repo.name}` );
@@ -789,7 +810,7 @@ function updateRepo_dialog(){
     let opts = ['back'];
     for( let repo of repoToUpdate){
 
-        opts.push( '[r]:  '+repo.repo.name );
+        opts.push( ' . . . o O O o __  '+repo.repo.name );
     }
     
    
@@ -806,12 +827,12 @@ function updateRepo_dialog(){
     
 }
 function updateRepo( repo ){
-    console.log('repo: '+JSON.stringify(repo,null,4));
-
-
-    let cmd = `echo "# OK update repe [ ${repo.repo.name} ] . . . in ${defWaitTime} sec ";sleep ${defWaitTime};
+    //console.log('repo: '+JSON.stringify(repo,null,4));
+    let cmd = `
+        echo "# OK update repe [ ${repo.repo.name} ] . . . in ${defWaitTime} sec ";
+        sleep ${defWaitTime};
         cd "../sharelibs/src/${repo.repo.name}";
-        git pull;
+        git pull 2>&1;
         `;
 
     if( fakeGitPull ){
@@ -830,17 +851,22 @@ function updateRepo( repo ){
 function updateApp_dialog(){
 
     let opts = ['back'];
+    let optsJ = [''];
    
-    for( let app of appsToUpdate)
-        opts.push( '[s]:  '+app.name );
+    let optNo = 0;
+    for( let app of appsToUpdate){
+        opts.push( `t:[${getAppT(app)}]  ${app.name}` );
+        optsJ.push(  {name: app.name, appInd: optNo++, appData: app} );
+        
+    }
 
 
-     cl('In repositories - update one', ['Update is posible on this apps','','- - -','r - repository','s - site for viteyss'],
+     cl('In repositories - update one', ['Update is posible on this apps','','- - -','r - repository','s - site for viteyss','d - directory on repository','D - directory on external repository','s - viteyss-site- package system ( npm\'s )'],
         opts,( r )=>{
             console.log('got ['+r+']');
 
             if( r == 0 ) readyLocalRepoList();//process.exit(0);
-            else  updateApp( opts[r] );
+            else  updateApp( optsJ[r] );
 
         }
     );
@@ -878,22 +904,56 @@ function updateAppAll_no( noUpdateApp ){
 
 
 function updateApp( app, cbOnExitCode = undefined ){
-    console.log(`# will update [ ${app} ] ....`);
-    let cmd = `
-        echo "# OK";
-        cd "../../${app}";
-        echo "# working ... git pull  in [ pwd: \`pwd\` ] ... in ${defWaitTime}";
-        sleep ${defWaitTime};
-        `;
-    if( fakeGitPull ){
-        cmd+= `echo -n '# fake $[o.O]# TRUE git pull\n# working ....\n# working ....\n# working ....\n# work DONE\n'\n`;
-    }else{
-        cmd+= `
-            git pull;
+
+    let appData = app.appData;
+    let appItem =  appsToUpdate[ parseInt( app.appInd ) ].appItem;
+    console.log(`# will update type: [${appData.type}] `,
+        `[ ${JSON.stringify(app,null,4)} ] ....\n\nappItem: [ ${JSON.stringify(appItem,null,4)} ] ....`
+        );
+    let cmd = '';
+    if( appData.type == 'site' ){
+        cmd = `
+            echo "# OK";
+            echo "# working ... git pull  in [ pwd: \`pwd\` ] ... in ${defWaitTime}";
+            sleep ${defWaitTime};
+            
+            cd "../../${app.name}";
+            git pull 2>&1;
+
+            echo "# update [ ${app.name} ] DONE"
             `;
+
+        if( fakeGitPull ){
+            console.log(`# fake cmd\n`,cmd);
+            cmd = 'echo "#fake cmd";';
+        }
+    } else if( appData.type == 'dirFromGit' ){
+        
+        
+        cmd = `
+            echo "# OK";
+            echo "# working ... git pull  in [ pwd: \`pwd\` ] ... in ${defWaitTime}";
+            sleep ${defWaitTime};
+
+            rUrl="${appItem.url}";
+            rBn=\`basename "$rUrl"\`;
+            sDir="${appItem.subdir}";
+            
+            cd "$HOME/.viteyss/src/${appData.name}/""$rBn";
+            git pull 2>&1;
+
+            echo "# update [ ${app.name} ] DONE";
+            `;
+
+        if( fakeGitPull ){
+            console.log(`# fake cmd\n`,cmd);
+            cmd = 'echo "#fake cmd";';
+        }
+    
+    } else {
+        console.log("# EE wrong appData type ",appData.type," un known update type ");
+        process.exit(-1);
     }
-    cmd+= `echo "# update [ ${app} ] DONE"
-        `;
 
     mkCmdPreview( cmd );
     let sp = spawn( cmd, { shell: true } );
@@ -918,6 +978,6 @@ function updateApp( app, cbOnExitCode = undefined ){
 
 
 
-mainMane();
+//mainMane();
 //readyLocalRepoList();
-//repoLoadAll();
+repoLoadAll();
