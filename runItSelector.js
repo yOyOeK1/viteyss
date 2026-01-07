@@ -37,11 +37,38 @@ if( args.length == 0 ){
 }else if( args.length == 2 && args[0] == '--site=2qest' ){
     console.log(`  - select -site-2qest [ localhost - vanila - no ssl :8080 ]`);    
     let flist = args[1].replaceAll('--files=','').replaceAll(' /', '\n/').split('\n');
+    let startType = 'from context menu';
+    let extraPayload = {};
     if( flist.length == 0 ){
         console.log('no --files= or files with space separation found');
         process.exit(-2);
     }
-    let qest = {files:[],dirs:[],fInfos:[]};
+
+    if( flist.length == 1 && flist[0].endsWith('.2qest') ){
+        console.log(' - start with .qest file ....');
+        let twoQf = fs.readFileSync( flist[0] ).toString();
+        let jqf = undefined;
+        try{
+            startType = 'from context menu with .2qest';
+            extraPayload['twoQestRaw'] = twoQf;
+            extraPayload['twoQestFilePath'] = flist[0];
+            jqf = JSON.parse( twoQf ); 
+            flist = jqf.qest.files;
+
+        }catch(e){ 
+            console.log('EE start with .2qest file but it\'s not going good ...',e);
+            process.exit(10);
+        }
+        
+        //
+
+    }
+
+    //console.log('Exit for now ...');
+    //process.exit(-11);
+
+
+    let qest = {startType, files:[],dirs:[],fInfos:[]};
     flist.forEach( f => {
         if ( f.length > 5 ){
             let src = f;
@@ -63,7 +90,11 @@ if( args.length == 0 ){
     console.log('have files',JSON.stringify(qest,null,4));
     //process.exit(-1);
     
-    process.env['vyArgs'] = JSON.stringify({ name: '2qest', 'payload': qest,
+   
+    process.env['vyArgs'] = JSON.stringify({ 
+        name: '2qest', 
+        startType, extraPayload,
+        'payload': qest,
         fsAllow: [...new Set(qest.dirs)]
     });
     process.env['viteyss'] = JSON.stringify({
