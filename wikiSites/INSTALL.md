@@ -23,9 +23,8 @@ Installation will use the repository to source viteyss. Then it will be used as 
 In terminal enter commands ...
 
 ```bash
-cd /tmp
-mkdir myViteyss
-cd myViteyss
+mkdir -p /tmp/myViteyss
+cd /tmp/myViteyss
 
 git clone /home/yoyo/Apps/viteyss
 cd ./viteyss
@@ -39,20 +38,20 @@ cd ..
 To start it. You need to be in directory of your project then enter the command
 
 ```bash
-cd /tmp/myViteyss
-
-cd ./viteyss
-npm run startItAsLocalhost
+cd /tmp/myViteyss/viteyss
+npm run localhost
 ```
 
-If all in good, you can enter with your web browser URL: http://localhost:8080
+If all in good, you can enter with your web browser URL: http://localhost:8080 **or** http://your.local.ip.adres:8080
 
-### !! Important !!
+
+## !! Important !!
 
 Copy / paste command will not work, you need to replace the names of directories and repositories to suit your needs.
 So the real repository needs to be `https://github.com/yOyOeK1/viteyss.git`
 
-## where to go
+
+### where to go
 
 * your local wiki :) http://localhost:8080/yss/index.html#pageByName=Wiki
 * https://github.com/topics/viteyss

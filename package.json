@@ -1,7 +1,7 @@
 {
   "name": "viteyss",
   "private": true,
-  "version": "0.19.990",
+  "version": "0.19.991",
   "type": "module",
   "scripts": {
     "localhost": "node ./runItSelector.js",
@@ -9,6 +9,8 @@
     "startItAsLocalhost": "node ./runItSelector.js",
     "startKiost": "./startKioskChrome2.sh 'http://localhost:8080/yss/index.html'",
     "plugColector": "node ./startItAsPluginColector.js",
+    "lookForViteyssCount":"vyInst=`ps aux | grep node | grep runIt | wc -l`;echo '[ '$vyInst' ] < -- to many? Need to be 0 differnt running somewhere';",
+    "killAllRunningNow":"kill `ps aux | grep node | grep runItSelector | awk '{print $2}'`;",
     "jsBundler": "node ./yssJssBundler.js",
     "installSharelibs": "chmod +x ./installer/installSharelibs.sh;./installer/installSharelibs.sh;",
     "postinstall": "echo ' *  running post install';npm run installSharelibs; echo '___ DONE ';exit 0;",
