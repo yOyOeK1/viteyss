@@ -2,7 +2,7 @@
 import * as sws from './sharelibs/mnodehttp/serverWs.js'
 import { serverVite } from './serverVite.js'
 
-
+let debug = 'viteyssDebug' in process.env ? process.env.viteyssDebug:false;
 
 class serverContainerVite{
     
@@ -31,7 +31,7 @@ class serverContainerVite{
     }
     
     cl(str){
-        console.log(`scov${this.sNo}`,str);
+        if( debug ) console.log(`scov${this.sNo}`,str);
     }
     
     onWsMessage=( ws, event, msg )=>{
