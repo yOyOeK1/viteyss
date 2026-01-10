@@ -17,9 +17,9 @@ echo "#argC:        ""$#
 
 
 
-WrapState="R" # root 
+WrapState="R" # rootMenu
 #
-#./root/
+#./rootMenu/
 #├── +e             file explore
 #│   ├── +fTODO             find file
 #│   ├── +nTODO             new file
@@ -44,6 +44,8 @@ function openLogFiles(){
 }
 
 useFilter="fzf"
+lowBatteryLevel="35" # if -1 not doing it
+
 
 tStart=$(tNow)
 exitCode="NaN"
@@ -52,7 +54,7 @@ tWords=0
 tDeltaTotal=0
 
 statsAllTime=0 # 0 - as yes 
-logRunToTemp=0 # 0 - as yes 
+logRunToTemp=1 # 0 - as yes 
 execBuff=""
 execBuffSimed=""
 
@@ -79,7 +81,7 @@ function cmdWrapper(){
         #echo -e "\t\t\e[43m]< - in wrapper]\e[0m"
         echo ""
         execBuff+=$line"\n"
-        execBuffSimed+="$tDelta $line\n"
+        execBuffSimed+="$tDelta\t$line\n"
         tLines=$[$tLines+1]    
         tWords=$[$tWords+`echo "$line" | wc -w`]
 
@@ -105,6 +107,23 @@ function doStatsEcho(){
 }
 
 
+NotesWTFtipsBATTERYINFO="upower --enumerate
+upower -i /org/freedesktop/UPower/devices/battery_BAT0
+upower -i /org/freedesktop/UPower/devices/line_power_AC
+upower -i /org/freedesktop/UPower/devices/DisplayDevice
+acpi -b
+inxi --battery
+inxi -B"
+
+
+tips=" 
+# history dump of current first?
+history --help
+history -a
+tail -n 15 ~/.bash_history
+"
+
+
 
 function doPromptPrefix(){
     stats=" "
@@ -114,12 +133,22 @@ function doPromptPrefix(){
     
     logToTemp=" "
      if test "$logRunToTemp" = "0"; then
-        logToTemp='L'
+        logToTemp='\e[36mL📜\e[0m'
     fi
     
+    if test "-1" = "$lowBatteryLevel";then
+        battPerc=""
+    else
+        battPerc=`acpi -b | awk '{print $4}' | replace "%," ""`
+        if test "$lowBatteryLevel" -le "$battPerc"; then
+            battPerc="🔋\e[0m"$battPerc'%'"\e[0m" # ok battery
+        else
+            battPerc="🔋\e[41m"$battPerc'%'"\e[0m" #lo battery
+        fi
+    fi
 
 
-    echo -en "$WrapState]"$stats".\e[1;40m ."$logToTemp"o O\e[0m $ "
+    echo -en "$WrapState]$battPerc""."$stats".\e[1;40m ."$logToTemp"o O\e[0m $ "
     #echo -e '\e[1A\e[Knew line'
 }
 
@@ -142,23 +171,23 @@ while IFS="" read -r line; do
     "help"|"h"|"?")
         echo "               ^ is help 
 
-        [x] help | h | ? - this help
-        [x] stats | s - show some numbers after run
-        [x] + - toggle stats afrer re-run
-        [x] +lr - toggle log re-run to temp file
-        [x] olr - open log re-run to temp file
-        [x] rrun | rr - re-run it one more time
-        [x] rrn N - re-run it N times
-        [x] +e - open pwd with openFolderApp 
-        [x] +h - filter history commands 
-            [x] - to clip board
-        [ ] +f - explor files in pwd?
-        [ ] +fl - enter filter sub menu   ##grep -m 2 -n a ./isStdi3
-        [ ] +t - enter trigger sub menu
-        [x] log | l - print out collected log from run
-        [x] timeticks | tt - print out collected log from run with time delta
+[x]     help | h | ?    - this help
+[x]     stats | s       - show some numbers after run
+[x]     +               - toggle stats afrer re-run
+[x]     +lr             - toggle log re-run to temp file
+[x]     olr             - open log re-run to temp file
+[x]     rrun | rr       - re-run it one more time
+[x]     rrn N           - re-run it N times
+[x]🗃    +e              - open pwd with openFolderApp 
+[x]     +h              - filter history commands 
+[x]                         - to clip board
+[ ]     +f              - explor files in pwd?
+[ ]     +fl             - enter filter sub menu   ##grep -m 2 -n a ./isStdi3
+[ ]     +t              - enter trigger sub menu
+[x]     log | l         - print out collected log from run
+[x]     timeticks | lt  - print out collected log from run with time delta
 
-        [x] q - quit
+[x]     q - quit
             "
 
         ;;
@@ -188,6 +217,8 @@ while IFS="" read -r line; do
     "+fl" ) WrapState='fl';;
     "+t" ) WrapState='t';;
     "+h" ) 
+
+
         lineSel=`cat ~/.bash_history | uniq | sort | fzf`
         actionSel=`echo -e "to clip board\nok" | fzf`
         echo "#selection: [ $lineSel ] actio [ $actionSel ]"
@@ -199,7 +230,7 @@ while IFS="" read -r line; do
     "log" | "l" )
         echo -e "$execBuff" 
         ;;
-    "timeticks" | "tt" )
+    "timeticks" | "lt" )
         echo -e "$execBuffSimed"
         ;;
     "q" )
