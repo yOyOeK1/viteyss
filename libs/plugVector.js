@@ -10,6 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const __dirnameProcess = process.cwd();
 
+let debug = 'viteyssDebug' in process.env ? process.env.viteyssDebug:false;
 
 class plugVector{
 
@@ -18,16 +19,26 @@ class plugVector{
         this.plugs = {};
         this.keys = [];
 
+        this.isImporting = false;
+        this.isImportingConut = 0;
+
+        this.cbOnReady = undefined;
+
+        this.tStartOfImprot = 0;
 
         this.cl('init ...')
 
     }
 
-    cl( str ){
-        console.log('pVec   ',str );
+    setCbOnReady=( callBack )=>{
+        this.cbOnReady = callBack;
     }
 
-    execReturn( funcName, args ){
+    cl=( str )=>{
+        if(debug)console.log('pVec   ',str );
+    }
+
+    execReturn=( funcName, args )=>{
 
         //let tS = performance.now();
         //this.cl('----------------exec Return: '+funcName+` (  ${JSON.stringify(args)}  ) `);
@@ -36,6 +47,7 @@ class plugVector{
         
         //for( let i=0,ic=keys.length; i<ic; i++ ){
             //    p = this.plugs[ keys[i] ];
+        
         for( let k of this.keys ){
             //p = this.plugs[ k ];
             //this.cl(`   plug name: ${keys[i]} `);
@@ -49,7 +61,7 @@ class plugVector{
         return res;
     }
 
-    pathSolver( pathIn ){
+    pathSolver=( pathIn )=>{
         let pathOuth = pathIn;
         let pathType = '';
         let fileLibOrg = pathIn;
@@ -67,7 +79,7 @@ class plugVector{
             pathType = 'NAN:'+process.title;
         }
 
-        console.log(`---will import from path:
+        if( debug )console.log(`---will import from path:
             now:            [${pathOuth}]
             org:            [${pathIn}]
             pathType:       [${pathType}]
@@ -80,7 +92,9 @@ class plugVector{
     }
 
 
-    addFromFile( asName, fileLib ){
+    addFromFile = ( asName, fileLib ) => {
+        this.isImportingConut++;
+        this.isImporting = true;
         fileLib = this.pathSolver( fileLib );
         /*if( 1 ){
             console.log('resolve path --------------\n',
@@ -118,29 +132,49 @@ class plugVector{
             proces title:   [${process.title}]`);
         */
         //process.exit(11);
-
-        let {a} = import( fileLib ).then((o)=>{
-            console.log('------------------\n',o,'\n----------------');
-            let po = new o[ Object.keys(o)[0] ]();
-            console.log('------------------\n',po,'\n----------------',`${(typeof po)}`);
-            this.addO( asName, po );
-        });
-
+        this.tStartOfImprot = Date.now();
+        let tadd = this.addO;
+        let trPromis = new Promise( (ok, noOk ) =>{        
+            let {a} = import( fileLib ).then((o)=>{
+                //console.log('------------------\n',o,'\n----------------');
+                let po = new o[ Object.keys(o)[0] ]();
+                if(debug)console.log('------------------\n',po,'\n----------------',`${(typeof po)}`);
+                tadd( asName, po );
+                this.onEmit_importDone();
+                ok('loaded');
+            }).catch(e=>{
+                console.log('EE - when importing file ',fileLib,' error\n',e);
+                noOk(e);
+            });
+            
+        } );
+        //console.log(' ->plug vector import ...');
+        return trPromis;
     }
 
-    addO( asName, struct ){
+    onEmit_importDone = ( data='' ) => {
+        this.isImportingConut--;
+        if( this.isImportingConut == 0 ){
+            this.isImporting = true;
+            let tDelta = Date.now()-this.tStartOfImprot;
+            console.log('[i] -> plug vector import DONE ALL ... '+tDelta+' ms.');
+            if( this.cbOnReady ) this.cbOnReady();
+        }
+    }
+
+    addO = ( asName, struct ) => {
         //this.cl(`addO `);this.cl( struct );
         this.plugs[ asName ] = {'o': struct};
         this.printPlugs(); 
     }
 
-    populateByStruct( struct ){
+    populateByStruct=( struct )=>{
         for( let k of Object.keys(struct) )
             this.plugs[k] = struct[k]; 
         this.printPlugs();
     }
 
-    populateByNpmPackage( prefixToLook ){
+    populateByNpmPackage=( prefixToLook )=>{
         let res = pcNpmls( prefixToLook );
         for( let k of Object.keys(res) )
             this.plugs[k] = res[k]; 
@@ -148,7 +182,7 @@ class plugVector{
     
     }
 
-    printPlugs(){
+    printPlugs=()=>{
         this.keys = Object.keys( this.plugs );
         
 

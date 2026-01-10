@@ -2,19 +2,20 @@ import { exec, execSync } from 'child_process'
 import path from 'path'
 import fs from 'fs'
 
-
+let debug = 'viteyssDebug' in process.env ? process.env.viteyssDebug:false;
+//debug = true;
 var vysPlugins = {};
 var vysPluginRuning = false;
 
 function cl(str){
-    console.log('plugCol: ',str);
+    console.log('plugCol: ',[str]);
 }
 
 
 
 function pcNpmls( prefixToLook = 'viteyss-site-' ){
     vysPluginRuning = true;
-    let pwdQ = execSync('pwd').toString();
+    //let pwdQ = execSync('pwd').toString();
     //cl(`pcNpmlist -- pwd: `+pwdQ);
     let isOk = false;
     let npmQ = -1
@@ -24,7 +25,7 @@ function pcNpmls( prefixToLook = 'viteyss-site-' ){
     }catch(e){
         console.error('\n\nEE oiysh moment \n * npm ls crashed on us! \n * error is: \n\n',e,'\n\n\n-----------------------------------');
     }
-    //cl(`pcNpmlist -- \n\nis OK ? (${isOk}) \n\nprefixTo: `+prefixToLook+'........ DONE');
+    //cl(`pcNpmlist -- \n\nis OK ? (${isOk}) \n\nprefixTo: `+prefixToLook+'........ DONE\nnpmQ:\n'+npmQ );
     
     if( npmQ == -1 ){
         console.error('EE - problem with npm list in process of looking for plugins viteyss-site-\n',
@@ -48,12 +49,15 @@ function pcNpmls( prefixToLook = 'viteyss-site-' ){
         if( packageName.startsWith( prefixToLook ) ){
             let pathTo = fs.realpathSync( path.join( realp, packageName) );
             try{
-                console.log(
-                    'pathTo         ', pathTo,'\t',
-                    'packageName    ', packageName,'\t',
-                    'realPath       ', realp,'\t'
-                );
-                console.log('add ----------------');
+                if( debug ){
+
+                    console.log(
+                        'pathTo         ', pathTo,'\t',
+                        'packageName    ', packageName,'\t',
+                        'realPath       ', realp,'\t'
+                    );
+                    console.log('add? ----------------');
+                }
                 vysPlugins[ packageName ] = {
                     'o' : -1,
                     //'pathTo': path.resolve( path.join( pathTo, packageName) ),

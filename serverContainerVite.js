@@ -21,6 +21,8 @@ class serverContainerVite{
        // }
         
         
+        console.log(`[i] Vite container .... \n`,{sNo, config, nwsCallBack,env:process.env});
+
         
         this.sws = sws;//require('./serverWs');
         

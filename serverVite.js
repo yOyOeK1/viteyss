@@ -34,7 +34,7 @@ const __dirnameProcess = process.cwd();
 
 
 
-var config = undefined;
+let debug = 'viteyssDebug' in process.env ? process.env.viteyssDebug:false;
 
 function cl(str){
   console.log('sVit', str);
@@ -89,7 +89,7 @@ class serverVite {
   }
 
   cl(str) {
-    console.log('sVit',str);    
+    if( debug )console.log('sVit',str);    
   }
 
   yssWSS(){
@@ -108,7 +108,7 @@ class serverVite {
           if (request.url == '/fooWSS') {
           
             tswss.handleUpgrade(request, socket, head, function done(ws) {
-              console.log("wss on foowss");
+              console.log("* wss on foowss (SSL) first hello");
               tswss.emit('connection', ws, request, "c"+Math.random()+"_"+Date.now() );
               //ws.send('hello from ws2');
               //setTimeout(()=>{
@@ -159,8 +159,12 @@ class serverVite {
     // for upload files
 
     let lSufix = './apis/';
-    if( 'viteyss' in process.env ){
+    //if( 'viteyss' in process.env ){
+    if( 'vyArgs' in this.config || 'viteyss' in process.env ){
       lSufix = './libs/apis/';
+      console.log(`* libs sufix al process.env.viteyss`);
+    }else{
+      console.log(`* libs sufix al process.env.vyArgs`);
     }
 
 
@@ -210,18 +214,16 @@ class serverVite {
 
       // vyArgs start
       if( 'vyArgs' in this.config ){
-        let vyArgs = JSON.parse( this.config.vyArgs );
-
         //{ name: '2qest', 'payload': qest, fsAllow: qest.dirs }
-        if( 'fsAllow' in vyArgs ){
-          console.log(` [i] fsAllow by path args on start: `);
-          vyArgs.fsAllow.forEach( d=> fsAllow.push( d ) );
+        if( 'fsAllow' in this.config.vyArgs ){
+          //console.log(` [i] fsAllow by path args on start: `);
+          this.config.vyArgs.fsAllow.forEach( d=> fsAllow.push( d ) );
         }
       }
       // vyArgs start END
 
     }
-    console.log(`[i] host file access to `,fsAllow);
+    console.log(`* file access to (${fsAllow.length} paths`);
     //process.exit(11);
 
     let pluginsList = [];
@@ -357,22 +359,23 @@ class serverVite {
 
         return ()=>{
 
-          console.log('addToHot ..');
-          
-          console.log("/--- init modules");
+          if( debug ){
+            console.log('addToHot ..');
+            console.log("/--- init modules");
+          }
           for( let mi=0,mic=tmodulesSrc.length; mi<mic; mi++ ){
             this.m = tmodulesSrc[mi]
             let m = this.m;
             m['omods'] = [];
             m['imods'] = [];
-            console.log("   - module name: "+m.oName);
+            console.log("   - module ... [ "+m.oName+" ]");
             for( let fi=0,fic=m.modsrc.length; fi<fic; fi++ ){
               let classS = m.modsrc[fi].substring(0, m.modsrc[fi].length-3);
               let fileS = m.fDir+'/'+m.modsrc[fi]; 
               
               fileS = tserver.pVector.pathSolver( fileS );
 
-              console.log("     - file: "+fileS);
+              if( debug )console.log("     - file: "+fileS);
               
               m.omods[fi] = import(fileS).then((o)=>{
                 var ims = new o[classS]( server.ws );
@@ -386,11 +389,11 @@ class serverVite {
                 
 
                 if( ims.onWsMessageCallBack ){
-                console.log(`   connect with ws ... recive onWsMessageCallBack`);
-                ims.wss = twsCBH.wss;
-                ims.ws = twsCBH.ws;
-                twsCBH.addCB( ims );
-              }
+                  console.log(`   connect with ws ... recive onWsMessageCallBack`);
+                  ims.wss = twsCBH.wss;
+                  ims.ws = twsCBH.ws;
+                  twsCBH.addCB( ims );
+                }
               
               server.ws.on( ke, function ( msg ){ 
                   //console.log('addToHot get :', msg);                
@@ -409,7 +412,7 @@ class serverVite {
             }
           }
 
-          console.log("\\___ init modules DONE");
+          if( debug ) console.log("\\___ init modules DONE");
           
           server.ws.on('hot-custom-testC2S', (newModule) => {
             
@@ -514,6 +517,7 @@ class serverVite {
 
           /// ------------ fake res for bundle start
           let r = 0;
+          let vyBundlerDebug = false;
           let fakeRes = {
             setHeader: ( arga, argb ) => { //console.log('fake res got set header ',arga, argb );
               res.setHeader( arga, argb );
@@ -524,7 +528,7 @@ class serverVite {
 
             end: ( tr ) => { //console.log('fake res got end ',tr);
 
-              console.log('VYBundlerS have yss/index.html make bundle ....');
+              if( vyBundlerDebug )console.log('VYBundlerS have yss/index.html make bundle ....');
               let aband = false;
 
               let trSplt  = tr.split('<!-- bundle area [1] START -->');
@@ -578,7 +582,7 @@ class serverVite {
 
                 }
 
-                console.log('VYBundlerS bundle \n',trBundle,'\n------');
+                if( vyBundlerDebug ) console.log('VYBundlerS bundle \n',trBundle,'\n------');
                 tr = trTop+
                   `\n\n<!-- injection bundle start -->\n\n
                   <script src="index_bundle.js"></script>
@@ -601,7 +605,7 @@ class serverVite {
                 if( r != 0 ){
                   next();
                 }
-                console.log('VYBundlerS have yss/index.html make bundle ....END');
+                if( vyBundlerDebug ) console.log('VYBundlerS have yss/index.html make bundle ....END');
 
               }              
             }
@@ -666,9 +670,28 @@ class serverVite {
 
     }else{
       this.cl("[i] StartServer of ["+this.config.name+"] ...");//this.cl(this.http);
-      await this.http.listen();
-      this.http.printUrls()
 
+      console.log('[@@] sync / async ....');
+      this.http.listen().then(o=>{
+        console.info('[@@] msg viteyss: OK');
+        this.http.printUrls();
+        this.hot = this.http.hot;
+        this.doHotPingTest( this.http.ws );
+
+        if( this.config.wsPinger ){
+          if( this.wsPingInter == undefined ){
+            this.wsPingInter = setInterval( ()=>{this.sendPingOnWs();}, 10000 );
+          }
+        }
+      }).catch(e=>{
+        console.info('[@@] EE viteyss:',e);
+      });
+
+
+      /*org
+      await this.http.listen();
+      console.info('[@@] msg viteyss: OK');
+      this.http.printUrls();
       this.hot = this.http.hot;
       this.doHotPingTest( this.http.ws );
 
@@ -680,7 +703,7 @@ class serverVite {
           this.wsPingInter = setInterval( ()=>{this.sendPingOnWs();}, 10000 );
         }
       }
-      
+      */
     }
   }
   

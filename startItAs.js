@@ -11,9 +11,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const __dirnameProcess = process.cwd();
 
+let debug = 'viteyssDebug' in process.env ? process.env.viteyssDebug:false;
 
-
-let Viteyss = (
+/** Viteyss Config Builder
+ * ##returns:
+ * congif0 
+ */
+let vyConfigBuilder = (
     isAs = 'local',
     instanceTitle = 'local:BigOne',
 
@@ -21,14 +25,14 @@ let Viteyss = (
     pathsToSites = -1,
     doSSL = false, // need to have keys in `viteyss/cert/...`
 ) => {
-
   
   process.title = instanceTitle;
   let nyssPath = nyss.telMeYourHome(`${instanceTitle} - startItAs.js`);
   let pathNodeYss = path.join( nyssPath ,instanceTitle );
+  let wsPORT = 2999;
 
   function cl(str){
-      console.log('staI',str);
+      console.log('* startItAs:',str);
   }
 
 
@@ -42,18 +46,21 @@ let Viteyss = (
   let pathToYss = path.join( nyssPath, 'yss');
 
   if( isAs == 'local' ){ 
-      pathsToSites = [
-        // node-yss / sites
-        path.join( pathToYss, 'sites' ),
+    pathToYss = '/home/yoyo/Apps/oiyshTerminal/ySS_calibration';
+    
+    pathsToSites = [
+      // node-yss / sites
+      path.join( pathToYss, 'sites' ),
 
-        // viteyss / sites
-        path.resolve('./sites'),
+      // viteyss / sites
+      path.resolve('./sites'),
 
-        // if you have `~/.viteyss/sites
-        path.join( process.env.HOME, '.viteyss', 'sites' ),
-      ];
+      // if you have `~/.viteyss/sites
+      path.join( process.env.HOME, '.viteyss', 'sites' ),
+    ];
 
   }else  if( isAs == 'devLocal' ){ 
+      wsPORT = 2998;
       pathsToSites = [
         // dev 
         '/home/yoyo/Apps/oiyshTerminal/ySS_calibration/sites',
@@ -88,29 +95,6 @@ let Viteyss = (
       ];
   }
 
-
-  var pathToSitesPackages = [];
-
-  // sites ass a plugins `viteyss-site-`
-  if( 1 ){
-    pcNpmls();
-    console.log("---------------------",
-      "vysPlugins",vysPlugins
-    );
-    if( Object.keys( vysPlugins ).length > 0 ){
-      Object.keys( vysPlugins ).forEach((pkey)=>{
-        pathsToSites.push( vysPlugins[pkey].pathTo );
-        // add path to sites from packages 
-        let ptp = {
-          "package":vysPlugins[pkey].package,
-          "pathTo":vysPlugins[pkey].pathTo
-        };
-        pathToSitesPackages.push( ptp );
-      });
-    }
-  }
-
-
   
   var config0 = {
     'https': doSSL,
@@ -118,10 +102,10 @@ let Viteyss = (
     'HOST': '0.0.0.0',
     'PORT': 8080,
     'wsHOST': '0.0.0.0',
-    'wsPORT': 2999,
+    'wsPORT': wsPORT,
     'pathToYss': pathToYss,//'/home/yoyo/Apps/oiyshTerminal/ySS_calibration',
     'pathsToSites': pathsToSites,
-    "pathsToSitesPackages": pathToSitesPackages,
+    "pathsToSitesPackages": [],//pathToSitesPackages,
     //'wsInjection': false,
     'wsInjection': true,
     
@@ -141,27 +125,67 @@ let Viteyss = (
 
   }
 
-  // vyArgs start
-  if( 'vyArgs' in process.env )
-    config0['vyArgs'] = process.env['vyArgs'];
-  // vyArgs start END
+  
+  
+
+  if( debug )
+    cl(["\n\n-[info]------------------\nHello - isAs:["+isAs+"] process name ["+instanceTitle+"]\n",
+      "\n * dirname: ",__dirname,
+      "\n * config: ",config0,
+      "\n -------------------------------------------\n\n"
+    ]);
+
+  
+  return config0;
+
+};
 
 
 
-  cl(["\n\n-[info]------------------\nHello - isAs:["+isAs+"] process name ["+instanceTitle+"]\n",
-    "\n * dirname: ",__dirname,
-    "\n * config: ",config0,
-    "\n -------------------------------------------\n\n"
-  ]);
+let vyAddPlugins = ( config0 ) => {
+  // sites ass a plugins `viteyss-site-`
+  if( 1 ){
+    pcNpmls();
+    if( debug) console.log("---------------------",
+      "vysPlugins",vysPlugins,
+      "---------------------"
+    );
+    if( Object.keys( vysPlugins ).length > 0 ){
+      Object.keys( vysPlugins ).forEach((pkey)=>{
+        config0.pathsToSites.push( vysPlugins[pkey].pathTo );
+        // add path to sites from packages 
+        let ptsp = {
+          "package":vysPlugins[pkey].package,
+          "pathTo":vysPlugins[pkey].pathTo,
+          'site':vysPlugins[pkey].site
+        };
+        config0['pathsToSitesPackages'].push( ptsp );
+      });
+    }
+  }
+  return config0;
+}; 
+
+
+
+
+
+/** Viteyss main init and start 
+ * pass config0
+*/
+let Viteyss = ( config0 ) =>{
+
+  if(debug)console.log('\n\n\n\n\n\n',
+    '##START process.env\n',process.env,'\n##END process.env',
+    '##START config\n',config0,'\n##END config\n',
+    '\n\n\n\n\n\n\n'
+  );
 
   let sc0 = new serverContainerVite(0,config0 );
   sc0.initServers();
   sc0.startServer();
+  return sc0;
+};
 
 
-  cl("Done --- end");
-
-
-}
-
-export { Viteyss }
+export { Viteyss, vyConfigBuilder, vyAddPlugins }

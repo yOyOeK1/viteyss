@@ -1,12 +1,21 @@
-import path from 'node:path';
-import { Viteyss } from './startItAs.js';
-import fs from 'fs';
+process.env.viteyssDebug = true;
+
+
+import { Viteyss, vyConfigBuilder, vyAddPlugins} from './startItAs.js';
+import { plugVector } from './libs/plugVector.js';
 
 
 const args = process.argv.slice(2); // Skip the first two elements
-console.log('Viteyss - run it selector\n  * all arguments:', args,'\n\n\n');
+console.log('Viteyss - run it selector\n* all arguments:', args);
 
+let argvPv = new plugVector();
 let nodeVerMin = 20;
+let envviteyss = {};
+let isAs = 'localNOTSETERR';
+let config0 = undefined;
+let debug = 'viteyssDebug' in process.env ? process.env.viteyssDebug:false;
+
+
 
 // node version test .....
 let nodeV = process.version.replaceAll('v','').split('.');
@@ -23,109 +32,184 @@ if( nodeV.length != 3 ){
 }
 
 
-if( args.length == 0 ){
-    console.log(`  - select Default [ localhost - vanila - no ssl :8080 ]`);
-    process.env['viteyss'] = JSON.stringify({
-        runIt: true,
-        name: 'local'
-    });
 
 
 
 
-// 2qest start
-}else if( args.length == 2 && args[0] == '--site=2qest' ){
-    console.log(`  - select -site-2qest [ localhost - vanila - no ssl :8080 ]`);    
-    let flist = args[1].replaceAll('--files=','').replaceAll(' /', '\n/').split('\n');
-    let startType = 'from context menu';
-    let extraPayload = {};
-    if( flist.length == 0 ){
-        console.log('no --files= or files with space separation found');
-        process.exit(-2);
-    }
-
-    if( flist.length == 1 && flist[0].endsWith('.2qest') ){
-        console.log(' - start with .qest file ....');
-        let twoQf = fs.readFileSync( flist[0] ).toString();
-        let jqf = undefined;
-        try{
-            startType = 'from context menu with .2qest';
-            extraPayload['twoQestRaw'] = twoQf;
-            extraPayload['twoQestFilePath'] = flist[0];
-            jqf = JSON.parse( twoQf ); 
-            flist = jqf.qest.files;
-
-        }catch(e){ 
-            console.log('EE start with .2qest file but it\'s not going good ...',e);
-            process.exit(10);
-        }
-        
-        //
-
-    }
-
-    //console.log('Exit for now ...');
-    //process.exit(-11);
 
 
-    let qest = {startType, files:[],dirs:[],fInfos:[]};
-    flist.forEach( f => {
-        if ( f.length > 5 ){
-            let src = f;
-            while( src.startsWith(' /') && src.length > 5 ){
-                src = src.substring(1);
-            }
-            qest.files.push( src );
-            qest.dirs.push( path.dirname( src ));
-            let fInfo = -1;
-
-            try{
-                fInfo = fs.statSync( src );                
-            }catch(e){
-                console.log('EE file info no',e);
-            }
-            qest.fInfos.push( fInfo );
-        }
-    });
-    console.log('have files',JSON.stringify(qest,null,4));
-    //process.exit(-1);
-    
+let loadPluginsArgs = ( cbonTestResultsReady ) => {
    
-    process.env['vyArgs'] = JSON.stringify({ 
-        name: '2qest', 
-        startType, extraPayload,
-        'payload': qest,
-        fsAllow: [...new Set(qest.dirs)]
-    });
-    process.env['viteyss'] = JSON.stringify({
-        runIt: true,
-        name: 'local',
-    });
-// 2qest END
+
+    let onPlugVecReady = () => {
+        console.group('[@] execReturn from plugins:');
+        let envvyRes = argvPv.execReturn('handleRequestArgv',args);
+        console.groupEnd();
+        if( envvyRes != undefined ){
+            if( envvyRes.then && envvyRes.then == 'function ' ){
+                envvyRes.then((r)=>{ console.log('#envvyRes2'/*,r*/); } );
+
+            }else{
+                if( debug ) console.log('#envvyRes1'/*, envvyRes*/);
+                cbonTestResultsReady( 'res1', envvyRes );
+
+            }
+        }
+
+        if( 0&&debug ){ console.log('#envvyRes3', envvyRes); console.groupEnd(); }
+    };
+
+   argvPv.setCbOnReady( onPlugVecReady );
 
 
-}else if( args.length == 1 && args[0] == 'devLocal' ){
-    console.log(`  - select [ devLocal ]`);
-    process.env['viteyss'] = JSON.stringify({
-        runIt: false,
-        name:'devLocal'
-    });
+    let apC = 0;
+    let pendings = [];
+    for(let sp of config0.pathsToSitesPackages){
+        if( 'argvParser' in sp.site ){
+            apC++;
+            pendings.push( argvPv.addFromFile( 
+                `${sp.site.dir}`, 
+                `${sp.pathTo}/${sp.site.argvParser}` 
+            ));
+            
+        }
+    }
+    
+
+    if( apC == 0 )
+        return [1,'no plugins for argv'];
+    else{
+        console.log(`       .... loading in total (${apC})`);
+        return [0,'loading', apC, pendings];
+    }
+
+};
+
+
+
+
+
+
+let viteyssRunIt = ( config0, envviteyss ) =>{
+    //if( 'viteyss' in process.env ){
+    if( envviteyss != {} ){
+        if( envviteyss != {} ) config0['vyArgs'] = envviteyss;
+
+
+        console.log('EXEC VITEYSS ....');
+        //process.exit(55);
+        let viteyss = Viteyss( config0 );
+        console.log('Viteyss instance ... ',
+            //viteyss
+            );
+
+    }else{
+        console.log('exit: runItSelector don\'t know what to do');
+    }
+};
+
+
+
+
+
+
+
+
+
+
+//debugger
+
+//console.log('---------------------- argvPv test end');
+//process.exit( 99);
+
+
+let startedAllready = false;
+
+if ( args.length >=2 ){
+    isAs = 'local'
+    config0 = vyConfigBuilder( isAs );
+    config0 = vyAddPlugins( config0 );
+    console.log('* plugins looking for ..... found '+config0['pathsToSitesPackages'].length);
+    
+    
+    console.log(`[i] do day do argvParsers:`);
+    startedAllready = true;
+    let plugsLoadResult = 'working ...';
+    let plugsLoadStart = Date.now();
+
+    let watDogPlu = setInterval(()=>{
+        let tDelta = Date.now()-plugsLoadStart;
+        console.log(`[watchdog] pluging loading ....[ ${plugsLoadResult} ]? `+tDelta+'ms.');
+
+        if( plugsLoadResult == 'done' )
+            clearInterval( watDogPlu );
+
+        if( tDelta > 5000 ){
+            console.log('[watchdog] @ its too loong ....');
+        }
+    },500);
+
+
+    let onLoadPluginsArgsDone = ( resNo, envvyResTest) =>{
+        if( resNo == 'res1' ){
+            console.log(`   NICE ! argv done by plugin ....`);
+            plugsLoadResult = 'done';
+            
+            // starting vityess 
+            viteyssRunIt( config0, envvyResTest );
+            return 1;
+            
+        }else{
+            console.log(`   NICE ! NO argument done by plugins`);
+        }
+
+    };
+    let lpARes = loadPluginsArgs( onLoadPluginsArgsDone );
+    console.log(`   - loadPluginsArgs ends with result: `,lpARes);
+    
+
+
+}else if( args.length == 0 ){
+    console.log(`* select Default [ localhost - vanila - no ssl :8080 ]`);
+    //process.env['viteyss'] 
+    envviteyss = { runIt: true, name: 'local' };
+    isAs = 'local';
+
+} else if( args.length == 1 && args[0] == 'devLocal' ){
+    console.log(`* select config [ devLocal ]`);
+    //process.env['viteyss']
+    isAs = 'devLocal';
+    envviteyss = { runIt: false, name:'devLocal' };
+
+}
+
+
+
+
+if( !startedAllready ){    
+    console.log('[i] default init ...');
+    config0 = vyConfigBuilder( isAs );
+    config0 = vyAddPlugins( config0 );    
+    console.log('* plugins ..... found '+config0['pathsToSitesPackages'].length);
+    // starting vityess
+    viteyssRunIt( config0, envviteyss );
 
 }else{
-    console.info(`II Unknown arguments.. try:\n  * no arguments\n  * 'devLocal' `);
-    process.exit(1);
+    console.log('[i] default init interrupted ... plugins to the things ....');
 }
 
 
 
 
+//}else{
+//    console.info(`II Unknown arguments.. try:\n  * no arguments\n  * 'devLocal' `);
+    //process.exit(1);
+//}
 
 
 
 
-if( 'viteyss' in process.env ){
 
-    let viteyss = Viteyss();
 
-}
+
 
