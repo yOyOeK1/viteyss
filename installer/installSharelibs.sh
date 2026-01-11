@@ -18,30 +18,36 @@ echo -e "#\n# .... waiting 5 sec.     All ok?"
 sleep 5
 
 
-wrapPath="$HOME""/.local/share/applications/vyWrapper_""$npm_package_version"".desktop"
-echo "* checking wrapper .desktop ... [ $wrapPath ]"
-if test -e "$wrapPath"; then
-    echo "  OK"
+## if its posible to install .desktop ?
+if test -d "$HOME""/.local/share/applications";then
+
+    wrapPath="$HOME""/.local/share/applications/vyWrapper_""$npm_package_version"".desktop"
+    echo "* checking wrapper .desktop ... [ $wrapPath ]"
+    if test -e "$wrapPath"; then
+        echo "  OK"
+
+    else
+
+        echo "  making it ... from [ $npm_config_local_prefix ]"
+        chmod +x "$npm_config_local_prefix""/installer/wrapper.sh"
+        echo '[Desktop Entry]
+    Name='vyWrapper - $npm_package_version'
+    Exec='"$npm_config_local_prefix""/installer/wrapper.sh"' "%F"
+    Comment=Profile / wrap any thing
+    Terminal=true
+    Icon='"$npm_config_local_prefix"'/icons/ico_wrapper_256_256.png
+    Type=Application
+    MimeType=application/x-shellscript;application/javascript;text/plain;
+    Categories=Programming;
+    ' > "$wrapPath"
+        echo "* vyWrapper - $npm_package_version  ... added to desktop apps"
+        
+    fi
 
 else
+    echo "* no ~/.local/share/applications directory so no gui / grome ? ... skipping "
 
-    echo "  making it ... from [ $npm_config_local_prefix ]"
-    chmod +x "$npm_config_local_prefix""/installer/wrapper.sh"
-    echo '[Desktop Entry]
-Name='vyWrapper - $npm_package_version'
-Exec='"$npm_config_local_prefix""/installer/wrapper.sh"' "%F"
-Comment=Profile / wrap any thing
-Terminal=true
-Icon='"$npm_config_local_prefix"'/icons/ico_wrapper_256_256.png
-Type=Application
-MimeType=application/x-shellscript;application/javascript;text/plain;
-Categories=Programming;
-' > "$wrapPath"
-    echo "* vyWrapper - $npm_package_version  ... added to desktop apps"
-   
-    
 fi
-
 
 
 if test -e './sharelibs'; then
