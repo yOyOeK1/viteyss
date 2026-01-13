@@ -7,25 +7,17 @@
     "localhost": "node ./runItSelector.js",
     "Wlocalhost": "./installer/wrapper.sh 'node ./runItSelector.js;'",
     "test2Qest": "cd /home/yoyo/Apps/viteyss; node ./runItSelector.js --site=2qest --files=/home/yoyo/Downloads/260107tt120956.2qest",
-    
     "vyDialup": "cd installer; node ./vyDialup.js --runReal",
-    
-    
     "startItAsLocalhost": "node ./runItSelector.js",
     "startKiost": "./startKioskChrome2.sh 'http://localhost:8080/yss/index.html'",
     "plugColector": "node ./startItAsPluginColector.js",
-    "lookForViteyssCount":"vyInst=`ps aux | grep node | grep runIt | wc -l`;echo '[ '$vyInst' ] < -- to many? Need to be 0 differnt running somewhere';",
-    "killAllRunningNow":"kill `ps aux | grep node | grep runItSelector | awk '{print $2}'`;",
+    "lookForViteyssCount": "vyInst=`ps aux | grep node | grep runIt | wc -l`;echo '[ '$vyInst' ] < -- to many? Need to be 0 differnt running somewhere';",
+    "killAllRunningNow": "kill `ps aux | grep node | grep runItSelector | awk '{print $2}'`;",
     "jsBundler": "node ./yssJssBundler.js",
     "installSharelibs": "chmod +x ./installer/installSharelibs.sh;./installer/installSharelibs.sh;",
-    
     "bakeIcons": "icons='wrapper';iSize='256'; cd /home/yoyo/Apps/icons; for i in $icons;do echo 'make icon: '$i; ./make_icon_resize.sh 'ico_'$i'_256_256.png'; cp 'ico_'$i'_'$iSize'_'$iSize'.png' '/home/yoyo/Apps/viteyss/icons/'; done;echo 'ok size: '$iSize; echo 'DONE';",
-    
     "postinstall": "echo ' *  running post install';npm run installSharelibs; echo '___ DONE ';exit 0;",
-    
-    
     "mkBackup": "fn=$npm_package_name\"_v\"$npm_package_version\"_tt\"`date +%y%m%d%H%M%S`\".tar.bz2\"; echo \"name will be [$fn]\";  tar --exclude=\".git\" --exclude=\"node_modules\" -cvf \"../\"$fn ./; echo \"Backup done: [$fn]\"; ls -alh ../$fn",
-    
     "depricated_startItAsDev": "node ./startItAsDev.js"
   },
   "imports": {

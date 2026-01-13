@@ -46,7 +46,7 @@ let vyConfigBuilder = (
   let pathToYss = path.join( nyssPath, 'yss');
 
   if( isAs == 'local' ){ 
-    pathToYss = '/home/yoyo/Apps/oiyshTerminal/ySS_calibration';
+    //pathToYss = '/home/yoyo/Apps/oiyshTerminal/ySS_calibration';
     
     pathsToSites = [
       // node-yss / sites
