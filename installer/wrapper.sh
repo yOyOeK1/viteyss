@@ -201,11 +201,15 @@ function doThisHelp(){
 [x]🗃    +e              - open pwd with openFolderApp 
 [x]     +h              - filter history commands 
 [x]                         - to clip board
+                            - to prompt
 [x]     +hc             - filter history commands put directly to clip board
-
+                            
 [x]     ps              - filter ps Process list on local shell
+[x]                         - to clip board
+                            - to prompt
 [x]     psa             - filter ps -ax Process list global
-
+[x]                         - to clip board
+                            - to prompt
 
 [ ]     +f              - explor files in pwd?
 [ ]     +fl             - enter filter sub menu   ##grep -m 2 -n a ./isStdi3
@@ -279,9 +283,23 @@ function doMenuLine(){
         else 
             useCmd="ps -ax"
         fi
-        lineSel=`$useCmd | grep -v "    PID TTY" | fzf --header="Select to kill" | awk '{print "kill "$1}'`
-        echo "#to clip board kill by PID [ $lineSel ]"
-        echo -n "$lineSel" | xclip -selection clipboard
+        lineSel=`$useCmd | grep -v "    PID TTY" | fzf --header="Select to kill"`
+        lineKill=`echo "$lineSel" | awk '{print "kill "$1}'`
+        lineName=`echo "$lineSel" | awk '{print $5 " " $6 " . . . "}'`
+        
+        actionSel=`echo -e "to prompt\nto clip board\nok" | fzf`
+        echo "#selection: [ $lineSel ] action [ $actionSel ]"
+        if test "$actionSel" = "to clip board";then
+            echo "#to clip board kill by PID [ $lineSel ] [ $lineName ]"
+            echo -n "$lineKill" | xclip -selection clipboard
+        elif test "$actionSel" = "to prompt";then   
+            echo "# [ $lineName ]"
+            read -e -i "$lineKill" -p "Press Enter to run: " cmd && eval $cmd 
+        fi
+        
+        
+        
+       
         ;;
     
     "+hc" )
@@ -292,11 +310,13 @@ function doMenuLine(){
     "+h" ) 
 
         lineSel=`cat ~/.bash_history | uniq | fzf --header="Select history row ..."`
-        actionSel=`echo -e "to clip board\nok" | fzf`
+        actionSel=`echo -e "to prompt\nto clip board\nok" | fzf`
         echo "#selection: [ $lineSel ] actio [ $actionSel ]"
         if test "$actionSel" = "to clip board";then
             echo "#to clip board"
             echo -n "$lineSel" | xclip -selection clipboard
+        elif test "$actionSel" = "to prompt";then   
+            read -e -i "$lineSel" -p "Press Enter to run: " cmd && eval $cmd 
         fi
         ;;
     "log" | "l" )
