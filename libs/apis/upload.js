@@ -85,7 +85,56 @@ class serverUpload{
             return this.doIt( req,res );
 
         }
+        /*
+        else if( req.method == 'GET' && req.url == this.url ){
+            this.cl('GET in middle ....');
 
+            let chunks = [];
+            req.on('data', (chunk) => {
+                chunks.push(chunk);
+                console.log('data .....',chunks.length);
+            });
+            req.on('end', () => {
+                console.log('data end .....');
+                let body = Buffer.concat(chunks).toString();
+                console.log('Received GET body (size):', body.length,"ECHO:",body);
+            });
+            let a=`
+
+GET /apis/upload HTTP/1.1
+Host: localhost:8080
+User-Agent: curl/7.68.0
+Accept: *\/*
+
+`;
+            res.writeHead(200,{
+          'Content-Type': 'text/plain; charset=utf-8',
+          'Transfer-Encoding': 'chunked',
+          'Cache-Control': 'no-cache',
+          'Content-Length':'1042141',
+          'Connection': 'keep-alive',
+        });
+            res.write('<html><body>Hello');
+            
+            let delay = 10;
+            
+            let iter = setInterval(()=>{
+                delay--;
+                res.write( 'ok:'+delay+'\n' );
+
+
+                if( delay == 0 ){
+                    res.end("--- \e[37m#___[ $tDeltaInt ] ms.____\e[0m END"+' <meta http-equiv="refresh" content="0; url=/apis/upload" /></body></html>');
+                    clearInterval( iter );
+                }
+
+            },500);
+
+            return 0
+
+        }
+
+        */
 
 
     }
