@@ -58,6 +58,10 @@ logRunToTemp=1 # 0 - as yes
 execBuff=""
 execBuffSimed=""
 
+trigLine=""
+trigTotal=0
+trigsStack=""
+
 function cmdWrapper(){
     cmdExe="$1"
     tStart=$(tNow)
@@ -66,6 +70,8 @@ function cmdWrapper(){
     tWords=0
     execBuff=""
     execBuffSimed=""
+    trigTotal=0
+    trigsStack=""
 
     #|| 
     #exitCode=$? && echo '# -------- Inner ExitCode:'$exitCode' << is it [ 0 ]?' 
@@ -86,6 +92,15 @@ function cmdWrapper(){
         tWords=$[$tWords+`echo "$line" | wc -w`]
 
 
+        if test "$trigLine" != "" && \
+            test "$trigLine" = "$line"; then
+            
+            echo -ne "\e[44m#[TRIG ] ""$tDelta"" ms.\e[0m\n"
+            trigsStack="$tDelta $trigsStack"
+            trigTotal=$[ $trisTotal + $tDelta ]
+
+        fi
+
 
     done < <(
         sh -c "$cmdExe"
@@ -104,6 +119,19 @@ function doStatsEcho(){
 # words             [ $tWords ]
 # lines:            [ $tLines ]
 # time total:       [ $tDeltaTotal ] ms. "
+
+
+if test "$trigLine" != ""; then
+    trigsCount=`echo "$trigsStack" | wc -w`
+    echo -e "# trigger total\t\t[ $trigTotal ] ms.
+#   avg\t\t\t[ $[$trigTotal/$trigsCount] ] ms.
+#   in stack\t[ $trigsCount ] count.
+#   \e[2m[ $trigsStack]\e[0m"
+
+fi
+
+
+
 }
 
 
@@ -147,31 +175,23 @@ function doPromptPrefix(){
         fi
     fi
 
+    if test "$trigLine" != ""; then
+        doTrigger="T"
+    else
+        doTrigger=" "
+    fi
 
-    echo -en "$WrapState]$battPerc""."$stats".\e[1;40m ."$logToTemp"o O\e[0m $ "
+
+
+    echo -en "$WrapState]$battPerc""."$stats".\e[1;40m ."$logToTemp"o"$doTrigger"O\e[0m $ "
     #echo -e '\e[1A\e[Knew line'
 }
 
-
-
-
-
-#cmdWrapper "$cmdE"
-tmpP=""
-doPromptPrefix
-while IFS="" read -r line; do
-    tStartInt=$(tNow)
-
-    
-    case "$line" in
-    '[A') echo UP ;;
-    '[B') echo DN ;;
-    '[D') echo LEFT ;;
-    '[C') echo RIGHT ;;
-    "help"|"h"|"?")
-        echo "               ^ is help 
+function doThisHelp(){
+    echo "               ^ is help 
 
 [x]     help | h | ?    - this help
+[x]     hf              - filter this help
 [x]     stats | s       - show some numbers after run
 [x]     +               - toggle stats afrer re-run
 [x]     +lr             - toggle log re-run to temp file
@@ -189,14 +209,35 @@ while IFS="" read -r line; do
 
 [ ]     +f              - explor files in pwd?
 [ ]     +fl             - enter filter sub menu   ##grep -m 2 -n a ./isStdi3
-[ ]     +t              - enter trigger sub menu
+[x]     +t              - enter trigger sub menu
 [x]     log | l         - print out collected log from run
 [x]     timeticks | lt  - print out collected log from run with time delta
 
 [x]     q - quit
-            "
+    "
+}
 
+
+
+
+
+function doMenuLine(){
+    line="$1"
+    
+    case "$line" in
+    '[A') echo UP ;;
+    '[B') echo DN ;;
+    '[D') echo LEFT ;;
+    '[C') echo RIGHT ;;
+    "help"|"h"|"?")
+        doThisHelp
         ;;
+     "hf" )
+        menuCmd=`doThisHelp | fzf | awk '{print $2}'`
+        echo "#selected [ $menuCmd ]"
+        doMenuLine "$menuCmd"
+        ;;
+
     "stats" | "s" )
         echo -e"               ^ stats ... O O ... O O o oo . .OO ... O\n"
         doStatsEcho
@@ -221,7 +262,16 @@ while IFS="" read -r line; do
         ;; 
     "+f" ) openFolderApp `pwd` ;;
     "+fl" ) WrapState='fl';;
-    "+t" ) WrapState='t';;
+    "+t" )
+        lineTrigger=`echo -e "$execBuffSimed" | grep -n "" | fzf --reverse`
+        ## split by line
+        lineAt=`echo "$lineTrigger" | replace ":" " " | awk '{print $1}'`
+        trigLine=`echo -e "$execBuff" | head -n "$lineAt" | tail -n 1`
+
+        echo -e "# Selected trigger at line $lineAt \n
+        [_\e[44m#""$trigLine""\e[0m_]"
+
+        ;;
     
     "psa" | "ps" )
         if test "$line" = "ps"; then
@@ -241,7 +291,7 @@ while IFS="" read -r line; do
         ;;
     "+h" ) 
 
-        lineSel=`cat ~/.bash_history | uniq | fzf --header="Select history row ...`
+        lineSel=`cat ~/.bash_history | uniq | fzf --header="Select history row ..."`
         actionSel=`echo -e "to clip board\nok" | fzf`
         echo "#selection: [ $lineSel ] actio [ $actionSel ]"
         if test "$actionSel" = "to clip board";then
@@ -315,7 +365,17 @@ while IFS="" read -r line; do
     #echo -n "$line"
     #echo -en "\t\t]< - in wrapper\n"
     doPromptPrefix
+}
 
+
+
+
+#cmdWrapper "$cmdE"
+tmpP=""
+doPromptPrefix
+while IFS="" read -r line; do
+    tStartInt=$(tNow)
+    doMenuLine "$line"
 done
 
 echo "# EXIT 0"
