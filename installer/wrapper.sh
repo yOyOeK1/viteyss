@@ -181,6 +181,12 @@ while IFS="" read -r line; do
 [x]🗃    +e              - open pwd with openFolderApp 
 [x]     +h              - filter history commands 
 [x]                         - to clip board
+[x]     +hc             - filter history commands put directly to clip board
+
+[x]     ps              - filter ps Process list on local shell
+[x]     psa             - filter ps -ax Process list global
+
+
 [ ]     +f              - explor files in pwd?
 [ ]     +fl             - enter filter sub menu   ##grep -m 2 -n a ./isStdi3
 [ ]     +t              - enter trigger sub menu
@@ -216,10 +222,26 @@ while IFS="" read -r line; do
     "+f" ) openFolderApp `pwd` ;;
     "+fl" ) WrapState='fl';;
     "+t" ) WrapState='t';;
+    
+    "psa" | "ps" )
+        if test "$line" = "ps"; then
+            useCmd="ps"
+        else 
+            useCmd="ps -ax"
+        fi
+        lineSel=`$useCmd | grep -v "    PID TTY" | fzf --header="Select to kill" | awk '{print "kill "$1}'`
+        echo "#to clip board kill by PID [ $lineSel ]"
+        echo -n "$lineSel" | xclip -selection clipboard
+        ;;
+    
+    "+hc" )
+        lineSel=`cat ~/.bash_history | uniq | fzf --header="Select history row to clip board"`
+        echo "#to clip board [ $lineSel ]"
+        echo -n "$lineSel" | xclip -selection clipboard
+        ;;
     "+h" ) 
 
-
-        lineSel=`cat ~/.bash_history | uniq | sort | fzf`
+        lineSel=`cat ~/.bash_history | uniq | fzf --header="Select history row ...`
         actionSel=`echo -e "to clip board\nok" | fzf`
         echo "#selection: [ $lineSel ] actio [ $actionSel ]"
         if test "$actionSel" = "to clip board";then

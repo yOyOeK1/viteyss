@@ -1,38 +1,29 @@
-# Wrapper for bash
+# Wrapper for ...
 
-As a frut of one apter noon chat. How it's to debug / profile any app propt reach and runnable in console. So this is it.
+<img title="Wrapper.sh logo" src="../icons/ico_wrapper_256_256.png" alt="" style="display:inline"> As a fruit of one apter noon chat. How it's to debug / profile any app prompt reach and run-enable in console. So this is it.
 
-Wrapping bash runnable stuff. Base on prints to console puts delta time markers to profile sections. Do helping stuff from shell no bloatwear.
+Base on stdio / stderr to console puts delta time markers to profile sections. 
 
 - [x] start with `stdin` commands as console
 
-- [x] time delta for every line from wrapt exec
+- [x] time delta for every line from wrapped exec
 
 - [x] re run it `rr` or `rrn 10` it `10 times
+
+- [x] build in battery monitor
 
 - [ ] build in options  
   
   - [x] help | h | ? - this help
-  - [x] stats | s - show some numbers after run
-  - [x] rrun | rr - re-run it one more time
-  - [x] rrn N - re-run it N times
-  - [ ] +f - enter filter sub menu
-  - [ ] +t - enter trigger sub menu
-
-
-
-......
-
-best way is to run it with command to get all commands / actions 
 
 ```bash
-echo "h" | wrapper.sh
-#Wrapper cmd [  ]
-#argC:        0
-#pwd:         /home/yoyo/Apps/viteyss
-#tNow:        1768058543982
-#wrapper ver: 260109.1734
-R]s. .Lo O $                ^ is help 
+    echo "h" | wrapper.sh
+    #Wrapper cmd [  ]
+    #argC:        0
+    #pwd:         /home/yoyo/Apps/viteyss
+    #tNow:        1768058543982
+    #wrapper ver: 260109.1734
+    R]s. .Lo O $                ^ is help 
 
         [x] help | h | ? - this help
         [x] stats | s - show some numbers after run
@@ -51,15 +42,11 @@ R]s. .Lo O $                ^ is help
         [x] timeticks | tt - print out collected log from run with time delta
 
         [x] q - quit
-            
+
 
 #___[ 5 ] ms.____
 R]🔋39%.s. .Lo O $
 ```
-
-
-
-
 
 ## dependencies
 
@@ -81,8 +68,8 @@ To start one liner as **run it** one time **basic stdio**
 echo "rr" | ~/Apps/viteyss/installer/wrapper.sh 'uname -r;date;echo "start .1 steps";sleep .1;echo ".";sleep .1;echo ".";sleep .1;echo ".";sleep .1;echo ".";sleep .1;echo ".";sleep .1;echo ".";uptime;free -hm | grep -n Mem;';echo "$?"
 ```
 
-
 ###### Profiling script by run-it to temp log file with timeticks in column, echo it on screen.
+
 ```bash
 app="../tmp.GQo7rjonMJ/sh2.sh";cat `echo -e 'rr' | wrapper.sh "$app" | grep "Log run" | awk '{print $5}'`
 ``
@@ -112,15 +99,10 @@ echo -ne "rrn 10\ns" | ~/Apps/viteyss/installer/wrapper.sh 'sleep .1';echo "$?"
 ## . . o O $ # EXIT 0
 ```
 
-
-
 ### nice links to know
 
 bash console colors
 https://jakob-bagterp.github.io/colorist-for-python/ansi-escape-codes/standard-16-colors/#foreground-text-and-background-colors
-
-
-
 
 ---
 
