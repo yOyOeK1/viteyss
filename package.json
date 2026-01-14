@@ -1,11 +1,11 @@
 {
   "name": "viteyss",
   "private": true,
-  "version": "0.19.993",
+  "version": "0.19.995",
   "type": "module",
   "scripts": {
     "localhost": "node ./runItSelector.js",
-    "Wlocalhost": "./installer/wrapper.sh 'node ./runItSelector.js;'",
+    "Wlocalhost": "echo 'rr' | ./installer/wrapper.sh 'node ./runItSelector.js;'",
     "test2Qest": "cd /home/yoyo/Apps/viteyss; node ./runItSelector.js --site=2qest --files=/home/yoyo/Downloads/260107tt120956.2qest",
     "vyDialup": "cd installer; node ./vyDialup.js --runReal",
     "startItAsLocalhost": "node ./runItSelector.js",

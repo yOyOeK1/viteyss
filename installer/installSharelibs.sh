@@ -18,6 +18,26 @@ echo -e "#\n# .... waiting 5 sec.     All ok?"
 sleep 5
 
 
+
+
+
+
+function downloadNodeYss(){
+    echo " [i] downloading  [node-yss]"; 
+    # else internet
+    wget --progress=bar:force "https://github.com/yOyOeK1/node-yss/raw/refs/heads/main/node-yss-latest.tgz" > `mktemp`"_wget_node_yss.log"
+}
+
+
+
+
+
+
+
+
+
+
+
 ## if its posible to install .desktop ?
 if test -d "$HOME""/.local/share/applications";then
 
@@ -70,9 +90,7 @@ else
         cp -rf '/home/yoyo/Apps/mnodehttp' './'
 
     else 
-        echo " [i] downloading  [node-yss]"; 
-        # else internet
-        wget --progress=bar:force "https://github.com/yOyOeK1/node-yss/raw/refs/heads/main/node-yss-latest.tgz" > `mktemp`"_wget_node_yss.log"
+        downloadNodeYss
         echo " [i] git clon     [mnodehttp]";
         git clone "https://github.com/yOyOeK1/mnodehttp.git"
     fi
@@ -104,11 +122,23 @@ else
     mkdir './node-yss'
     mkdir './node-yss/tmp'
     cd './node-yss'
+
+    if test -e '../src/node-yss-latest.tgz';then
+        echo "  - .tgz in place"
+    else
+        echo "  - downloading -latest ...."
+        pushd "../src"
+        downloadNodeYss
+        popd
+    fi
+
     tar -xf '../src/node-yss-latest.tgz' -C './tmp'
     mv ./tmp/package/* ./
     rm -rf ./tmp
     npm install > `mktemp`"_npm_i_node-yss-latest.log"
-    cd '..'      
+    cd '..'     
+
+    echo " ... DONE" 
 fi
 
 

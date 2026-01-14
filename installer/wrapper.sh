@@ -80,10 +80,10 @@ function cmdWrapper(){
         
         tDelta=$[ $(tNow) - $tStart  ]
         #echo -n "start[ $tStart ] "
-        echo -n "#[ $tDelta ] "
+        echo -en "\e[7m#[ $tDelta ] "
         #echo -n " code: [$?] "
-        echo -n "## "
-        echo -ne "\e[7m $line \e[0m"
+        echo -en "## \e[0m"
+        echo -ne " $line "
         #echo -e "\t\t\e[43m]< - in wrapper]\e[0m"
         echo ""
         execBuff+=$line"\n"

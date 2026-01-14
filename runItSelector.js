@@ -1,4 +1,4 @@
-process.env.viteyssDebug = false;
+process.env['viteyssDebug'] = false;
 
 
 
@@ -37,10 +37,34 @@ let argsOptsParse = ( argv ) =>{
 
 let argsOpts = argsOptsParse( args );
 if( argsOpts != {} ) args = [];
+if( 'debug' in argsOpts ){
+    console.log('[i] running as --debug=1')
+    debug = true;
+    process.env.viteyssDebug = true;
+}
 config0 = {argsOpts};
 //console.log('argsOpts set config0 to ',config0);
 
 // args parser END 
+
+
+
+let argsOptsHelpList= [
+    '--help=1', 'this argsOpts help list of possible actions ... ',
+    '','',
+    '--stop=1', 'to stop befor executing main viteyss',
+    '--runUpToStartServer=1', 'to stop before starting http server listen',
+    '--npmPlugDoVer=2', 'method how it looks for plugins: \n\t\t1 - use npm list --depth ; \n\t\t2 - use bash find (faster) !1.2sec',
+    '','',
+    '--debug=1', 'to enable debuging, make all console'
+];
+if( 'help' in argsOpts ){
+    console.log(`[i] running as --help=1\n`);
+    for( let h=0,hc=argsOptsHelpList.length; h<hc; h+=2 )
+        console.log(`  ${argsOptsHelpList[ h ]} - ${argsOptsHelpList[ h+1 ]}`);
+    process.exit(0);
+}
+
 
 
 
@@ -69,30 +93,35 @@ if( nodeV.length != 3 ){
 
 let loadPluginsArgs = ( cbonTestResultsReady ) => {
    
+    let apC = 0;
+    let pendings = [];
+    let pRes = 0;
 
     let onPlugVecReady = () => {
         console.group('[@] execReturn from plugins:');
-        let envvyRes = argvPv.execReturn('handleRequestArgv',args);
+        let envvyRes = argvPv.execReturn('handleRequestArgv',argsOpts);
         console.groupEnd();
         if( envvyRes != undefined ){
             if( envvyRes.then && envvyRes.then == 'function ' ){
                 envvyRes.then((r)=>{ console.log('#envvyRes2'/*,r*/); } );
 
             }else{
-                if( debug ) console.log('#envvyRes1'/*, envvyRes*/);
+                if( debug ) console.log('#envvyRes1', envvyRes);
                 cbonTestResultsReady( 'res1', envvyRes );
+                apC = -1;
 
             }
         }
 
-        if( 0&&debug ){ console.log('#envvyRes3', envvyRes); console.groupEnd(); }
+        if( debug ){ console.log('#envvyRes3', envvyRes); console.groupEnd(); }
+        //cbonTestResultsReady('res3',envvyRes);
+        pRes++;
+        if( pRes == apC )
+            cbonTestResultsReady( 'allDoneNoResult', envvyRes );
     };
 
    argvPv.setCbOnReady( onPlugVecReady );
 
-
-    let apC = 0;
-    let pendings = [];
     for(let sp of config0.pathsToSitesPackages){
         if( 'argvParser' in sp.site ){
             apC++;
@@ -104,7 +133,6 @@ let loadPluginsArgs = ( cbonTestResultsReady ) => {
         }
     }
     
-
     if( apC == 0 )
         return [1,'no plugins for argv'];
     else{
@@ -115,19 +143,6 @@ let loadPluginsArgs = ( cbonTestResultsReady ) => {
 };
 
 
-
-let argsOptsHelpList= [
-    '--help=1', 'this argsOpts help list of possible actions ... ',
-    '--stop=1', 'to stop befor executing main viteyss',
-    '--runUpToStartServer=1', 'to stop before starting http server listen',
-    '--npmPlugDoVer=2', 'method how it looks for plugins: 1 - use npm list --depth ; 2 - use bash find (faster) !1.2sec'
-];
-if( 'help' in argsOpts ){
-    console.log(`[i] running as --help=1\n`);
-    for( let h=0,hc=argsOptsHelpList.length; h<hc; h+=2 )
-        console.log(`  ${argsOptsHelpList[ h ]} - ${argsOptsHelpList[ h+1 ]}`);
-    process.exit(0);
-}
 
 
 
@@ -170,27 +185,27 @@ let viteyssRunIt = ( config0, envviteyss ) =>{
 
 let startedAllready = false;
 
-if ( args.length >=2 ){
+if ( argsOpts != {} ){
     isAs = 'local'
     config0 = vyConfigBuilder( config0, isAs );
     config0 = vyAddPlugins( config0 );
-    console.log('* plugins looking for ..... found '+config0['pathsToSitesPackages'].length);
+    console.log('* args plugins ..... found '+config0['pathsToSitesPackages'].length);
     
     
-    console.log(`[i] do day do argvParsers:`);
+    //console.log(`[i] do day do argvParsers:`);
     startedAllready = true;
     let plugsLoadResult = 'working ...';
     let plugsLoadStart = Date.now();
 
     let watDogPlu = setInterval(()=>{
         let tDelta = Date.now()-plugsLoadStart;
-        console.log(`[watchdog] pluging loading ....[ ${plugsLoadResult} ]? `+tDelta+'ms.');
+        console.log(`[watchdog] args plugins loading ....[ ${plugsLoadResult} ]? `+tDelta+'ms.');
 
         if( plugsLoadResult == 'done' )
             clearInterval( watDogPlu );
 
         if( tDelta > 5000 ){
-            console.log('[watchdog] @ its too loong ....');
+            console.log('[watchdog] args plugins @ its too loong ....');
         }
     },500);
 
@@ -203,9 +218,15 @@ if ( args.length >=2 ){
             // starting vityess 
             viteyssRunIt( config0, envvyResTest );
             return 1;
-            
+        }else if( resNo == 'allDoneNoResult' ){
+            plugsLoadResult = 'done';
+            viteyssRunIt( config0, { runIt: true, name: 'local' } );
+            return 0;
         }else{
             console.log(`   NICE ! NO argument done by plugins`);
+            plugsLoadResult = 'done';
+            //viteyssRunIt( config0,  { runIt: true, name: 'local' } );
+            //return 0;
         }
 
     };
@@ -214,7 +235,8 @@ if ( args.length >=2 ){
     
 
 
-}else if( args.length == 0 ){
+}
+/*else if( args.length == 0 ){
     console.log(`* select Default [ localhost - vanila - no ssl :8080 ]`);
     //process.env['viteyss'] 
     envviteyss = { runIt: true, name: 'local' };
@@ -227,7 +249,7 @@ if ( args.length >=2 ){
     envviteyss = { runIt: false, name:'devLocal' };
 
 }
-
+*/
 
 
 
