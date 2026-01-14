@@ -1,19 +1,48 @@
-process.env.viteyssDebug = true;
+process.env.viteyssDebug = false;
+
+
 
 
 import { Viteyss, vyConfigBuilder, vyAddPlugins} from './startItAs.js';
 import { plugVector } from './libs/plugVector.js';
 
 
-const args = process.argv.slice(2); // Skip the first two elements
-console.log('Viteyss - run it selector\n* all arguments:', args);
+let args = process.argv.slice(2); // Skip the first two elements
+console.log('[@@] Viteyss - run it selector\n* all arguments:', args);
 
 let argvPv = new plugVector();
 let nodeVerMin = 20;
 let envviteyss = {};
 let isAs = 'localNOTSETERR';
 let config0 = undefined;
-let debug = 'viteyssDebug' in process.env ? process.env.viteyssDebug:false;
+let debug = 'viteyssDebug' in process.env ? (process.env.viteyssDebug=='true'?true:false) : false;
+
+
+// args parser START
+let argsOptsParse = ( argv ) =>{
+    let tr = {};
+    for(let arg of argv ){
+        if( arg.startsWith('--') && arg.indexOf('=')>0 ){
+            let aTmp = arg.substring(2).split('=');
+            if( aTmp.length !=2 ){
+                console.log(`EE argv [ ${arg} ] is wrong exiting`);
+                process.exit(10);
+            }
+            tr[ aTmp[0] ] = aTmp[1];
+        }
+    }
+
+    return tr;
+};
+
+let argsOpts = argsOptsParse( args );
+if( argsOpts != {} ) args = [];
+config0 = {argsOpts};
+//console.log('argsOpts set config0 to ',config0);
+
+// args parser END 
+
+
 
 
 
@@ -87,6 +116,18 @@ let loadPluginsArgs = ( cbonTestResultsReady ) => {
 
 
 
+let argsOptsHelpList= [
+    '--help=1', 'this argsOpts help list of possible actions ... ',
+    '--stop=1', 'to stop befor executing main viteyss',
+    '--runUpToStartServer=1', 'to stop before starting http server listen',
+    '--npmPlugDoVer=2', 'method how it looks for plugins: 1 - use npm list --depth ; 2 - use bash find (faster) !1.2sec'
+];
+if( 'help' in argsOpts ){
+    console.log(`[i] running as --help=1\n`);
+    for( let h=0,hc=argsOptsHelpList.length; h<hc; h+=2 )
+        console.log(`  ${argsOptsHelpList[ h ]} - ${argsOptsHelpList[ h+1 ]}`);
+    process.exit(0);
+}
 
 
 
@@ -94,12 +135,16 @@ let viteyssRunIt = ( config0, envviteyss ) =>{
     //if( 'viteyss' in process.env ){
     if( envviteyss != {} ){
         if( envviteyss != {} ) config0['vyArgs'] = envviteyss;
+        //config0['argsOpts'] = argsOpts;
 
 
         console.log('EXEC VITEYSS ....');
         //process.exit(55);
+
+        if( 'stop' in argsOpts ){ console.log('[i] arg --stop was used; So Stop...'); process.exit(0);}
+
         let viteyss = Viteyss( config0 );
-        console.log('Viteyss instance ... ',
+        console.log('[@@] Viteyss instance ... started',
             //viteyss
             );
 
@@ -127,7 +172,7 @@ let startedAllready = false;
 
 if ( args.length >=2 ){
     isAs = 'local'
-    config0 = vyConfigBuilder( isAs );
+    config0 = vyConfigBuilder( config0, isAs );
     config0 = vyAddPlugins( config0 );
     console.log('* plugins looking for ..... found '+config0['pathsToSitesPackages'].length);
     
@@ -187,8 +232,10 @@ if ( args.length >=2 ){
 
 
 if( !startedAllready ){    
-    console.log('[i] default init ...');
-    config0 = vyConfigBuilder( isAs );
+    console.log('[i] default init ... no args took over init sequenc debug: ['+debug+']',(typeof debug));
+    config0 = vyConfigBuilder( config0, isAs );
+    if( debug ) console.log( 'vyConfig build isAs',isAs, debug );
+
     config0 = vyAddPlugins( config0 );    
     console.log('* plugins ..... found '+config0['pathsToSitesPackages'].length);
     // starting vityess

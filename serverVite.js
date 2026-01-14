@@ -34,7 +34,8 @@ const __dirnameProcess = process.cwd();
 
 
 
-let debug = 'viteyssDebug' in process.env ? process.env.viteyssDebug:false;
+//let debug = 'viteyssDebug' in process.env ? process.env.viteyssDebug:false;
+let debug = 'viteyssDebug' in process.env ? (process.env.viteyssDebug=='true'?true:false) : false;
 
 function cl(str){
   console.log('sVit', str);
@@ -202,6 +203,7 @@ class serverVite {
   
   mkReadyForVite( conf ){    
     let fsAllow = [ fs.realpathSync(__dirnameProcess),__dirname, path.join(__dirname, 'wikiSites'), fs.realpathSync('./')];
+    
     for( let p of this.config.pathsToSites ){
       try{
         fsAllow.push( 
@@ -672,6 +674,12 @@ class serverVite {
       this.cl("[i] StartServer of ["+this.config.name+"] ...");//this.cl(this.http);
 
       console.log('[@@] sync / async ....');
+
+      if( 'runUpToStartServer' in this.config.argsOpts ){
+         console.log('[i] arg --runUpToStartServer was used; So Stop ...');
+         process.exit(0);
+      }
+
       this.http.listen().then(o=>{
         console.info('[@@] msg viteyss: OK');
         this.http.printUrls();

@@ -2,7 +2,8 @@
 import * as sws from './sharelibs/mnodehttp/serverWs.js'
 import { serverVite } from './serverVite.js'
 
-let debug = 'viteyssDebug' in process.env ? process.env.viteyssDebug:false;
+//let debug = 'viteyssDebug' in process.env ? process.env.viteyssDebug:false;
+let debug = 'viteyssDebug' in process.env ? (process.env.viteyssDebug=='true'?true:false) : false;
 
 class serverContainerVite{
     
@@ -20,8 +21,8 @@ class serverContainerVite{
         //    this.wsCallBack = nwsCallBack;
        // }
         
-        
-        console.log(`[i] Vite container .... \n`,{sNo, config, nwsCallBack,env:process.env});
+        if( debug )
+            console.log(`[i] Vite container .... \n`,{sNo, config, nwsCallBack,env:process.env});
 
         
         this.sws = sws;//require('./serverWs');

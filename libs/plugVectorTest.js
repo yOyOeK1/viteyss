@@ -1,6 +1,7 @@
 import { plugVector } from './plugVector.js';
 
-let debug = true;//'viteyssDebug' in process.env ? process.env.viteyssDebug:false;
+//let debug = true;//'viteyssDebug' in process.env ? process.env.viteyssDebug:false;
+let debug = 'viteyssDebug' in process.env ? (process.env.viteyssDebug=='true'?true:false) : false;
 
 if( debug )console.log('----- by prefix --');
 let pv0 = new plugVector();

@@ -11,13 +11,17 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const __dirnameProcess = process.cwd();
 
-let debug = 'viteyssDebug' in process.env ? process.env.viteyssDebug:false;
+//let debug = 'viteyssDebug' in process.env ? process.env.viteyssDebug:false;
+let debug = 'viteyssDebug' in process.env ? (process.env.viteyssDebug=='true'?true:false) : false;
+let defNpmPlugDoVer = 2;
+
 
 /** Viteyss Config Builder
  * ##returns:
  * congif0 
  */
 let vyConfigBuilder = (
+    config0 = undefined,
     isAs = 'local',
     instanceTitle = 'local:BigOne',
 
@@ -25,12 +29,16 @@ let vyConfigBuilder = (
     pathsToSites = -1,
     doSSL = false, // need to have keys in `viteyss/cert/...`
 ) => {
+  if( config0 == undefined || typeof config0 == 'string' ){
+    console.error( 'EE vyConfigBuild start without config0 arg!! type [',(typeof config0),']' );
+    process.exit(1);
+  }
   
   process.title = instanceTitle;
   let nyssPath = nyss.telMeYourHome(`${instanceTitle} - startItAs.js`);
   let pathNodeYss = path.join( nyssPath ,instanceTitle );
   let wsPORT = 2999;
-
+  
   function cl(str){
       console.log('* startItAs:',str);
   }
@@ -96,23 +104,22 @@ let vyConfigBuilder = (
   }
 
   
-  var config0 = {
-    'https': doSSL,
-    'name': instanceTitle,
-    'HOST': '0.0.0.0',
-    'PORT': 8080,
-    'wsHOST': '0.0.0.0',
-    'wsPORT': wsPORT,
-    'pathToYss': pathToYss,//'/home/yoyo/Apps/oiyshTerminal/ySS_calibration',
-    'pathsToSites': pathsToSites,
-    "pathsToSitesPackages": [],//pathToSitesPackages,
-    //'wsInjection': false,
-    'wsInjection': true,
+  config0['https'] = doSSL;
+  config0['name'] = instanceTitle;
+  config0['HOST'] = '0.0.0.0';
+  config0['PORT'] = 8080;
+  config0['wsHOST'] = '0.0.0.0';
+  config0['wsPORT'] = wsPORT;
+  config0['pathToYss'] = pathToYss;//'/home/yoyo/Apps/oiyshTerminal/ySS_calibration',
+  config0['pathsToSites'] = pathsToSites;
+  config0["pathsToSitesPackages"] = [];//pathToSitesPackages,
+  config0['wsInjection'] = false;
+  config0['wsInjection'] = true;
     
-    'sitesInjection': true,
-    'ws': undefined,
-    'wsPinger': false
-  };
+  config0['sitesInjection'] = true;
+  config0['ws'] = undefined;
+  config0['wsPinger'] = false;
+  
 
   if( config0.https == true ){
     config0['yssWSUrl'] = `wss://${hostPublicIp}:${config0.PORT}/fooWSS`;
@@ -144,12 +151,12 @@ let vyConfigBuilder = (
 
 let vyAddPlugins = ( config0 ) => {
   // sites ass a plugins `viteyss-site-`
+  //console.log(`####`,config0);
   if( 1 ){
-    pcNpmls();
-    if( debug) console.log("---------------------",
-      "vysPlugins",vysPlugins,
-      "---------------------"
-    );
+    pcNpmls( 'viteyss-site-', 
+      ('npmPlugDoVer' in config0.argsOpts ? config0.argsOpts.npmPlugDoVer : defNpmPlugDoVer )
+      );
+    if( debug ) console.log("---------------------","vysPlugins",vysPlugins,"---------------------" );
     if( Object.keys( vysPlugins ).length > 0 ){
       Object.keys( vysPlugins ).forEach((pkey)=>{
         config0.pathsToSites.push( vysPlugins[pkey].pathTo );
@@ -175,7 +182,7 @@ let vyAddPlugins = ( config0 ) => {
 */
 let Viteyss = ( config0 ) =>{
 
-  if(debug)console.log('\n\n\n\n\n\n',
+  if( debug )console.log('\n\n\n\n\n\n',
     '##START process.env\n',process.env,'\n##END process.env',
     '##START config\n',config0,'\n##END config\n',
     '\n\n\n\n\n\n\n'

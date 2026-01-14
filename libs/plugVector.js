@@ -10,7 +10,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const __dirnameProcess = process.cwd();
 
-let debug = 'viteyssDebug' in process.env ? process.env.viteyssDebug:false;
+//let debug = 'viteyssDebug' in process.env ? process.env.viteyssDebug:false;
+let debug = 'viteyssDebug' in process.env ? (process.env.viteyssDebug=='true'?true:false) : false;
 
 class plugVector{
 

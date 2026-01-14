@@ -83,7 +83,7 @@ function cmdWrapper(){
         echo -n "#[ $tDelta ] "
         #echo -n " code: [$?] "
         echo -n "## "
-        echo -ne "\e[35m $line \e[0m"
+        echo -ne "\e[7m $line \e[0m"
         #echo -e "\t\t\e[43m]< - in wrapper]\e[0m"
         echo ""
         execBuff+=$line"\n"
@@ -103,7 +103,7 @@ function cmdWrapper(){
 
 
     done < <(
-        sh -c "$cmdExe"
+        sh -c "$cmdExe" 2>&1
         exitCode=$? 
         echo "--------------- Exit code:  $exitCode"
         exit $exitCode

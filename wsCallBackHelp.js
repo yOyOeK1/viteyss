@@ -1,6 +1,7 @@
 import { qq2S } from "./libs/wsqq2ServerSite.js";
 
-let debug = 'viteyssDebug' in process.env ? process.env.viteyssDebug:false;
+//let debug = 'viteyssDebug' in process.env ? process.env.viteyssDebug:false;
+let debug = 'viteyssDebug' in process.env ? (process.env.viteyssDebug=='true'?true:false) : false;
 
 class wsCallBackHelper {
     constructor( wss, ws ){

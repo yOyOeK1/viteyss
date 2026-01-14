@@ -1,6 +1,4 @@
 
-console.log("m_wiki.js included ....");
-
 import { hotHelperServer } from "../../libs/hotHelper.js";
 import markdownit from 'markdown-it'
 import fs from 'fs';
@@ -15,7 +13,7 @@ const __dirname = dirname(__filename);
 class m_wiki extends hotHelperServer{
     constructor( ws ){
         super(ws);
-        this.cl("m_wiki init ...");
+        //this.cl("m_wiki init ...");
         this.server = -1;
         
         this.md = markdownit({ html:true });

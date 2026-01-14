@@ -1,4 +1,32 @@
 
+
+
+
+
+
+
+
+// DEPRICATED 4 DELTE IN FUTURE 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import { serverContainerVite } from './serverContainerVite.js'
 import { vysPlugins, pcNpmls } from './startItAsPluginColector.js'
 import nyss from "./sharelibs/node-yss/index.js";
