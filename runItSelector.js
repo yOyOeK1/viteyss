@@ -54,15 +54,16 @@ let argsOptsHelpList= [
     '','',
     '--stop=1', 'to stop befor executing main viteyss',
     '--runUpToStartServer=1', 'to stop before starting http server listen',
-    '--npmPlugDoVer=2', 'method how it looks for plugins: \n\t\t1 - use npm list --depth ; \n\t\t2 - use bash find (faster) !1.2sec',
+    '--npmPlugDoVer=2', 'method how it looks for plugins: \n #\t\t1 - use npm list --depth ; \n #\t\t2 - use bash find (faster) !1.2sec',
     '','',
     '--debug=1', 'to enable debuging, make all console'
 ];
+
 if( 'help' in argsOpts ){
-    console.log(`[i] running as --help=1\n`);
+    console.log(`[h] help from - viteyss running as --help=1\n # `);
     for( let h=0,hc=argsOptsHelpList.length; h<hc; h+=2 )
-        console.log(`  ${argsOptsHelpList[ h ]} - ${argsOptsHelpList[ h+1 ]}`);
-    process.exit(0);
+        console.log(` #  ${argsOptsHelpList[ h ]} - ${argsOptsHelpList[ h+1 ]}`);
+    //process.exit(0);
 }
 
 
@@ -153,10 +154,14 @@ let viteyssRunIt = ( config0, envviteyss ) =>{
         //config0['argsOpts'] = argsOpts;
 
 
+        
+
         console.log('EXEC VITEYSS ....');
         //process.exit(55);
 
-        if( 'stop' in argsOpts ){ console.log('[i] arg --stop was used; So Stop...'); process.exit(0);}
+        if( 'stop' in argsOpts || 
+            'help' in argsOpts
+        ){ console.log('[i] arg --stop or --help was used; So Stop...'); process.exit(0);}
 
         let viteyss = Viteyss( config0 );
         console.log('[@@] Viteyss instance ... started',
@@ -231,7 +236,7 @@ if ( argsOpts != {} ){
 
     };
     let lpARes = loadPluginsArgs( onLoadPluginsArgsDone );
-    console.log(`   - loadPluginsArgs ends with result: `,lpARes);
+    console.log(`       .... loadPluginsArgs ends with result:\n\t`,lpARes);
     
 
 
