@@ -56,6 +56,10 @@ let argsOptsHelpList= [
     '--runUpToStartServer=1', 'to stop before starting http server listen',
     '--npmPlugDoVer=2', 'method how it looks for plugins: \n #\t\t1 - use npm list --depth ; \n #\t\t2 - use bash find (faster) !1.2sec',
     '','',
+    '--yssSites=0', 'to disable node-yss / sites look up to speed up reboot',
+    '--viteyssSites=0', 'to disable viteyss / sites look up to speed up reboot',
+    '--homeSites=0', 'to disable ~/.viteyss / sites look up to speed up reboot',
+    '','',
     '--debug=1', 'to enable debuging, make all console'
 ];
 
@@ -162,6 +166,7 @@ let viteyssRunIt = ( config0, envviteyss ) =>{
         if( 'stop' in argsOpts || 
             'help' in argsOpts
         ){ console.log('[i] arg --stop or --help was used; So Stop...'); process.exit(0);}
+       
 
         let viteyss = Viteyss( config0 );
         console.log('[@@] Viteyss instance ... started',
@@ -192,7 +197,7 @@ let startedAllready = false;
 
 if ( argsOpts != {} ){
     isAs = 'local'
-    config0 = vyConfigBuilder( config0, isAs );
+    config0 = vyConfigBuilder( argsOpts, config0, isAs );
     config0 = vyAddPlugins( config0 );
     console.log('* args plugins ..... found '+config0['pathsToSitesPackages'].length);
     
@@ -260,7 +265,7 @@ if ( argsOpts != {} ){
 
 if( !startedAllready ){    
     console.log('[i] default init ... no args took over init sequenc debug: ['+debug+']',(typeof debug));
-    config0 = vyConfigBuilder( config0, isAs );
+    config0 = vyConfigBuilder( argsOpts, config0, isAs );
     if( debug ) console.log( 'vyConfig build isAs',isAs, debug );
 
     config0 = vyAddPlugins( config0 );    

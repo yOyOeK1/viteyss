@@ -21,6 +21,7 @@ let defNpmPlugDoVer = 2;
  * congif0 
  */
 let vyConfigBuilder = (
+    argsOpts = {},
     config0 = undefined,
     isAs = 'local',
     instanceTitle = 'local:BigOne',
@@ -56,16 +57,27 @@ let vyConfigBuilder = (
   if( isAs == 'local' ){ 
     //pathToYss = '/home/yoyo/Apps/oiyshTerminal/ySS_calibration';
     
-    pathsToSites = [
+    pathsToSites = [];
+    
+    if( 'yssSites' in argsOpts && argsOpts.yssSites == '0' ){
+    }else{
       // node-yss / sites
-      path.join( pathToYss, 'sites' ),
-
+      pathsToSites.push( path.join( pathToYss, 'sites' ) );
+    }
+    
+    if( 'viteyssSites' in argsOpts && argsOpts.viteyssSites == '0' ){
+    }else{
       // viteyss / sites
-      path.resolve('./sites'),
+      pathsToSites.push( path.resolve('./sites') );
+    }
 
+    if( 'homeSites' in argsOpts && argsOpts.homeSites == '0' ){
+    }else{
       // if you have `~/.viteyss/sites
-      path.join( process.env.HOME, '.viteyss', 'sites' ),
-    ];
+      pathsToSites.push( path.join( process.env.HOME, '.viteyss', 'sites' ) );
+    }
+    
+    
 
   }else  if( isAs == 'devLocal' ){ 
       wsPORT = 2998;
