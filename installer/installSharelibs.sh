@@ -41,7 +41,7 @@ function downloadNodeYss(){
 ## if its posible to install .desktop ?
 if test -d "$HOME""/.local/share/applications";then
 
-    wrapPath="$HOME""/.local/share/applications/vyWrapper_""$npm_package_version"".desktop"
+    wrapPath="$HOME""/.local/share/applications/vyWrapper.desktop"
     echo "* checking wrapper .desktop ... [ $wrapPath ]"
     if test -e "$wrapPath"; then
         echo "  OK"
