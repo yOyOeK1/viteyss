@@ -1,8 +1,16 @@
 #!/bin/bash
 
 
+
+
 cmdE="$*"
-ver="260109.1734"
+ver="260122.2109"
+
+
+## change default terminal in X
+# sudo update-alternatives --config x-terminal-emulator
+# or 
+# ln -s /usr/bin/lilyterm /usr/bin/xdg-terminal-exec
 
 
 function tNow(){
@@ -82,7 +90,7 @@ function cmdWrapper(){
         #echo -n "start[ $tStart ] "
         echo -en "\e[7m#[ $tDelta ] "
         #echo -n " code: [$?] "
-        echo -en "## \e[0m"
+        echo -en "##\e[0m\t"
         echo -ne " $line "
         #echo -e "\t\t\e[43m]< - in wrapper]\e[0m"
         echo ""
@@ -108,7 +116,7 @@ function cmdWrapper(){
         echo "--------------- Exit code:  $exitCode"
         exit $exitCode
         
-    ) && echo "#Main Exit code:$?"
+    ) && echo "# Main Exit code:$?" && doPromptPrefix
 
     tDeltaTotal=$[ $(tNow) - $tStart  ]
 }
@@ -198,18 +206,26 @@ function doThisHelp(){
 [x]     olr             - open log re-run to temp file
 [x]     rrun | rr       - re-run it one more time
 [x]     rrn N           - re-run it N times
+[x]     rrs N           - re-run it every N sec
+[x]     rrs 0           - clear intervals re-run
 [x]🗃    +e              - open pwd with openFolderApp 
 [x]     +h              - filter history commands 
 [x]                         - to clip board
                             - to prompt
 [x]     +hc             - filter history commands put directly to clip board
-                            
+
+[x]     nrun            - filter runs from package.json if exists  
+
+[x]     fifcmd | fifc   - run command comming from fifo 
+[x]     fifq            - quit command over fifo                          
+
 [x]     ps              - filter ps Process list on local shell
 [x]                         - to clip board
                             - to prompt
 [x]     psa             - filter ps -ax Process list global
 [x]                         - to clip board
                             - to prompt
+                            - kill
 
 [ ]     +f              - explor files in pwd?
 [ ]     +fl             - enter filter sub menu   ##grep -m 2 -n a ./isStdi3
@@ -223,7 +239,12 @@ function doThisHelp(){
 
 
 
-
+whilePid=0
+fifReadPid=0
+whilePidFilePath='/tmp/abccceceec'
+rrsIterval=0
+# for file to lock intervals rrs N
+tLockFile="/tmp/wrapLockIntervals"
 
 function doMenuLine(){
     line="$1"
@@ -253,6 +274,113 @@ function doMenuLine(){
             statsAllTime=0
         fi
         ;;
+    "fifq" )
+        echo "# fifo command - kill / quit "
+        if test "0" != "$whilePid";then
+            
+            echo "# fifo whilePid [ $whilePid ] ... kill"
+            kill "$whilePid" || echo "# no fifo main pid"
+            
+            
+            test -e "$whilePidFilePath" && rm "$whilePidFilePath"
+            
+            #kill "$fifReadPid" || echo "# no fifo main pid"
+            
+        fi
+        
+        ;;
+    "fifcmd" | "fifc" )
+        echo "# fifo command - start ..."
+        #fifPoint=`mktemp -u`
+        fifPoint="/tmp/wrapFif"
+        mkfifo "$fifPoint"
+        echo "# fifo point [ $fifPoint ]"
+        
+        isRunn=1
+        isRunnIter=0
+        lineC=0
+        fifReadPid=0
+        fifCmd=0
+        whilePidFilePath="$fifPoint""_wppid"
+        while [ $isRunn ];do
+        
+            ## indicator
+            echo "#f"$(( $isRunnIter % 2 ))" - $fifCmd of pid [ $$ ]"
+        
+        
+            if test "$fifReadPid" = "0";then
+                while test "$fifCmd" = "0";do
+                    parentPid=$$
+                    echo "# fifo init cat of fifo ... pid [ $parentPid ]"
+                    lineF=`cat "$fifPoint"`
+                    pTest=`ps "$parentPid" >> /dev/null; echo $?`
+                    
+                    pidIOk=0
+                    echo -e "# testing if pid while file is in place ...\n#  [ $whilePidFilePath ]"
+                    for pidI in {0..5};do
+                        if test -e "$whilePidFilePath";then
+                            echo "# fifo while pid ... OK"
+                            pidIOk=1
+                            break
+                        else
+                            echo "# fifo while pid not in place ...( $pidI )"
+                            sleep .1                            
+                        fi
+                        
+                        sleep .1
+                    done
+                    test "$pidIOk" = "0" && echo "# to many iters exit .." && exit 0
+                    
+                    wTest=`ps $(cat "$whilePidFilePath") >> /dev/null; echo $?`
+                    if test "$wTest" != "0" ;then
+                        echo -e "\n\n# fifo cat ... [Oiysh1]\n# cat finished but parent is not there [ $parentPid ]"
+                        exit 0
+                    fi
+                    if test "$pTest" != "0" ;then
+                        echo -e "\n\n# fifo cat ... [Oiysh2]\n# cat finished but parent is not there [ $parentPid ]"
+                        exit 0
+                    fi
+                    
+                    
+                    
+                    echo "# fifo cmd [ $lineC ] ---- START"
+                    echo "# * fcmd ..."
+                    echo "# * [ $lineF" ] 
+                    
+                    if test "$lineF" = "";then
+                        echo "#[ee] cmd line is empty  pid [ $$ ]"
+                    elif test "$lineF" = ":q";then
+                        echo "#[fif:q] - quit with exitCode 0  pid [ $$ ]"
+                        exit 0                    
+                            
+                    else
+                    
+                        echo "# Cmd is at fifo ... exec START"
+                        cmdWrapper "$lineF" && echo "# fifo cmdWrapper ---- END $?"
+                        echo "# Cmd is at fifo ... exec END pid [ $$ ]"
+                        echo "# fifo cmd [ $lineC ] ---- END"
+                    fi
+                    
+                    sleep 1
+                    lineC=$(( $lineC + 1 ))
+                done &
+                fifReadPid=$!
+                echo "# start to read fifo ... pid [ $fifReadPid ]"
+                
+            fi
+        
+        
+            sleep 1
+            isRunnIter=$(( $isRunnIter + 1 ))
+            
+        done && isRunn=0 &
+        whilePid=$!
+        echo "$whilePid" > "$whilePidFilePath"
+        
+        echo "# main while pid [ $whilePid ]"
+        
+        
+        ;;
     "+lr" )
         if test "0" = "$logRunToTemp"; then
             logRunToTemp=1
@@ -266,6 +394,30 @@ function doMenuLine(){
         ;; 
     "+f" ) openFolderApp `pwd` ;;
     "+fl" ) WrapState='fl';;
+    "nrun" ) 
+        if test -e "./package.json";then
+            lineSel=`cat ./package.json | jq .scripts | grep -v '{' | grep -v '}' | fzf | awk '{print $1}' | replace '"' '' | replace ':' ''`
+                
+            actionSel=`echo -e "to main cmd\nto prompt\nto clip board\nok" | fzf`
+            echo "#selection: [ $lineSel ] action [ $actionSel ]"
+            if test "$actionSel" = "to main cmd";then
+                echo "# to main cmd: [ npm run $lineSel ] "
+                cmdE="npm run $lineSel"
+            
+            elif test "$actionSel" = "to clip board";then
+                echo "# to clip board: [ npm run $lineSel ] "
+                echo -n "npm run $lineSel" | xclip -selection clipboard
+            elif test "$actionSel" = "to prompt";then   
+                echo "# [ $lineName ]"
+                read -e -i "npm run $lineSel" -p "Press Enter to run: " cmd && eval $cmd 
+            fi
+            
+            
+            
+        else
+            echo "# no ./package.json in spot :("
+        fi
+    ;;
     "+t" )
         lineTrigger=`echo -e "$execBuffSimed" | grep -n "" | fzf --reverse`
         ## split by line
@@ -287,14 +439,18 @@ function doMenuLine(){
         lineKill=`echo "$lineSel" | awk '{print "kill "$1}'`
         lineName=`echo "$lineSel" | awk '{print $5 " " $6 " . . . "}'`
         
-        actionSel=`echo -e "to prompt\nto clip board\nok" | fzf`
-        echo "#selection: [ $lineSel ] action [ $actionSel ]"
+        actionSel=`echo -e "kill\nto prompt\nto clip board\nok" | fzf`
+        echo -e"# selection: \n#  line selected: [ $lineSel ]\n#  action: [ $actionSel ]"
         if test "$actionSel" = "to clip board";then
-            echo "#to clip board kill by PID [ $lineSel ] [ $lineName ]"
+            echo "# to clip board kill by PID [ $lineSel ] [ $lineName ]"
             echo -n "$lineKill" | xclip -selection clipboard
         elif test "$actionSel" = "to prompt";then   
-            echo "# [ $lineName ]"
-            read -e -i "$lineKill" -p "Press Enter to run: " cmd && eval $cmd 
+            echo "# cmd to exec [ $lineKill ]"
+            echo "# sh level [ $SHLVL ]"
+            read -e -i "$lineKill" -p "#[Q] Press Enter to run: " cmd && eval $cmd 
+        elif test "$actionSel" = "kill";then   
+            echo "# exec [ $lineKill ]"
+            $lineKill
         fi
         
         
@@ -326,6 +482,7 @@ function doMenuLine(){
         echo -e "$execBuffSimed"
         ;;
     "q" )
+        rm "$tLockFile" && echo "# * clean [ $tLockFile ]" || echo "# OK897"
         echo "# papa :)"
         exit 0
         ;;
@@ -348,6 +505,49 @@ function doMenuLine(){
         if test "0" = "$statsAllTime"; then
             doStatsEcho
         fi
+    
+    elif [[ "$line" == rrs* ]]; then
+        nTime=0
+        wi=0
+        for w in `echo "$line"`;do
+            #echo "w: [ $w ]"
+            if test "$wi" = "1";then nTime=$w; fi
+            wi=$[$wi+1]
+        done
+        echo "               ^ re - run it every [ $nTime ] .....  [$#] cmd [ $cmdE ]"
+        rrsIterval=1
+        
+        
+        
+        if test "$nTime" = "0";then
+        
+            echo "# interval set to 0 ... clear all"
+            rrsIterval=0
+            test -e "$tLockFile" && rm "$tLockFile" && echo "# fifo interval ... rm lock file"
+            
+            
+        else
+            
+            > "$tLockFile"
+            while test "$rrsIterval" = "1";do
+                
+                if test -e "$tLockFile"; then
+                    echo "# interval3 file lock in place ... lock ..."
+                else
+                    echo -e "# interval4 interval exit no lock file\n# EXIT 2"
+                    exit 2
+                fi
+                
+                echo "# * interval ... [ $nTime ]"
+                cmdWrapper "$cmdE"
+                
+                sleep $nTime
+                
+            done &
+             
+        fi
+        
+        
     
     elif [[ "$line" == rrn* ]]; then
         nTimes=0
