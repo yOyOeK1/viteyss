@@ -97,7 +97,7 @@ let vyConfigBuilder = (
 
   }else  if( isAs == 'devOT' ){ 
       hostPublicIp = '192.168.43.220';
-      doSSL = true; 
+      //doSSL = true; 
       pathToYss = '/home/yoyo/Apps/oiyshTerminal/ySS_calibration';
 
       pathsToSites = [

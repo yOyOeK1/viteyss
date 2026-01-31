@@ -1,4 +1,5 @@
 process.env['viteyssDebug'] = false;
+//process.env['viteyssDebug'] = true;
 
 
 
@@ -197,6 +198,12 @@ let startedAllready = false;
 
 if ( argsOpts != {} ){
     isAs = 'local'
+    
+    if( 'isAs' in argsOpts ) { 
+        isAs = argsOpts.isAs;
+        console.log('* --isAs ... '+isAs);
+    }
+    
     config0 = vyConfigBuilder( argsOpts, config0, isAs );
     config0 = vyAddPlugins( config0 );
     console.log('* args plugins ..... found '+config0['pathsToSitesPackages'].length);

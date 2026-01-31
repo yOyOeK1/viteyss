@@ -80,7 +80,7 @@ class plugVector{
             pathType = 'NAN:'+process.title;
         }
 
-        if( debug )console.log(`---will import from path:
+        if( 1 || debug )console.log(`---will import from path:
             now:            [${pathOuth}]
             org:            [${pathIn}]
             pathType:       [${pathType}]

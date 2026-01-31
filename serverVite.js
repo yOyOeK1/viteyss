@@ -36,6 +36,7 @@ const __dirnameProcess = process.cwd();
 
 //let debug = 'viteyssDebug' in process.env ? process.env.viteyssDebug:false;
 let debug = 'viteyssDebug' in process.env ? (process.env.viteyssDebug=='true'?true:false) : false;
+//debug = true;
 
 function cl(str){
   console.log('sVit', str);
@@ -269,9 +270,10 @@ class serverVite {
 
 
     let sAlias = {
-      '@src/': path.join( __dirnameProcess, 'src' ),//'/home/yoyo/Apps/viteyss/src/', //fileURLToPath(new URL('./src', import.meta.url))
-      '@libs/': path.join( __dirnameProcess, 'libs' ),
-      '@sharedlibs/': path.join( __dirnameProcess, 'sharedlibs' ),//'/home/yoyo/Apps/viteyss/src/', //fileURLToPath(new URL('./src', import.meta.url))
+      '@src': path.join( __dirnameProcess, 'src' ),//'/home/yoyo/Apps/viteyss/src/', //fileURLToPath(new URL('./src', import.meta.url))
+      '@libs': path.join( __dirnameProcess, 'libs' ),
+      '@sharedlibs': path.join( __dirnameProcess, 'sharedlibs' ),//'/home/yoyo/Apps/viteyss/src/', //fileURLToPath(new URL('./src', import.meta.url))
+      '@UiAssets': path.join( __dirnameProcess, 'UiAssets' ),
       //relibs/': path.join(__dirnameProcess, 'sharelibs' ),
     };
 
